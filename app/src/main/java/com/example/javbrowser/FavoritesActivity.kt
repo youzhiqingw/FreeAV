@@ -6,19 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 
 class FavoritesActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var tvEmpty: TextView
-    private lateinit var etSearch: android.widget.EditText
-    private lateinit var btnHome: android.widget.Button
-    private lateinit var btnImport: android.widget.Button
-    private lateinit var btnExport: android.widget.Button
+    private lateinit var emptyState: LinearLayout
+    private lateinit var etSearch: TextInputEditText
+    private lateinit var btnHome: MaterialButton
+    private lateinit var btnImport: MaterialButton
+    private lateinit var btnExport: MaterialButton
     private lateinit var adapter: FavoritesAdapter
     private lateinit var favoritesManager: FavoritesManager
     private var allFavorites: List<FavoriteItem> = emptyList()
@@ -36,7 +39,7 @@ class FavoritesActivity : AppCompatActivity() {
 
         favoritesManager = FavoritesManager(this)
         recyclerView = findViewById(R.id.rv_favorites)
-        tvEmpty = findViewById(R.id.tv_empty)
+        emptyState = findViewById(R.id.empty_state)
         etSearch = findViewById(R.id.et_search)
         btnHome = findViewById(R.id.btn_home)
         btnImport = findViewById(R.id.btn_import)
@@ -123,13 +126,12 @@ class FavoritesActivity : AppCompatActivity() {
             }
         }
         adapter.updateList(filtered)
-        
+
         if (filtered.isEmpty()) {
-            tvEmpty.text = if (query.isEmpty()) "No favorites yet" else "找不到符合的收藏"
-            tvEmpty.visibility = View.VISIBLE
+            emptyState.visibility = View.VISIBLE
             recyclerView.visibility = View.GONE
         } else {
-            tvEmpty.visibility = View.GONE
+            emptyState.visibility = View.GONE
             recyclerView.visibility = View.VISIBLE
         }
     }
@@ -191,9 +193,9 @@ class FavoritesActivity : AppCompatActivity() {
                 items.removeAt(position)
                 notifyItemRemoved(position)
                 notifyItemRangeChanged(position, items.size)
-                
+
                 if (items.isEmpty()) {
-                    tvEmpty.visibility = View.VISIBLE
+                    emptyState.visibility = View.VISIBLE
                     recyclerView.visibility = View.GONE
                 }
             }

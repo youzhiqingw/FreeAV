@@ -9,9 +9,10 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.io.ByteArrayInputStream
 
 class MainActivity : AppCompatActivity() {
@@ -19,12 +20,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var adFilterRules: AdFilterRules
     private lateinit var domainConfig: DomainConfig
-    private lateinit var btnPlay: Button
-    private lateinit var btnHome: Button
-    private lateinit var btnAddFavorite: Button
-    private lateinit var btnViewFavorites: Button
-    private lateinit var btnSettings: Button
-    private lateinit var progressBar: android.widget.ProgressBar
+    private lateinit var btnPlay: MaterialButton
+    private lateinit var btnHome: MaterialButton
+    private lateinit var btnAddFavorite: MaterialButton
+    private lateinit var btnViewFavorites: MaterialButton
+    private lateinit var btnSettings: MaterialButton
+    private lateinit var progressBar: LinearProgressIndicator
     private lateinit var favoritesManager: FavoritesManager
     private lateinit var privacySettings: PrivacySettings
     private lateinit var biometricHelper: BiometricHelper

@@ -1,6 +1,41 @@
 <resources>
     <string name="app_name">JAVBrowser</string>
+
+    <!-- Main Activity -->
+    <string name="home">Home</string>
+    <string name="add_favorite">Add to favorites</string>
+    <string name="view_favorites">View favorites</string>
+    <string name="settings">Settings</string>
+    <string name="play">Play</string>
     <string name="play_video">Play Video</string>
     <string name="error_no_player">No video player found</string>
     <string name="video_found">Video found!</string>
+
+    <!-- Favorites Activity -->
+    <string name="search_favorites">Search favorites…</string>
+    <string name="import_favorites">Import</string>
+    <string name="export_favorites">Export</string>
+    <string name="no_favorites">No favorites yet</string>
+    <string name="add_some_favorites">Start browsing to add favorites</string>
+
+    <!-- Settings Activity -->
+    <string name="privacy_settings">Privacy Settings</string>
+    <string name="app_lock">App Lock</string>
+    <string name="enable_biometric">Enable biometric lock</string>
+    <string name="set_pin">Set PIN (Backup)</string>
+    <string name="lock_notice">Authentication required after app closes or after 1 hour</string>
+    <string name="app_icon">App Icon</string>
+    <string name="icon_default">JAV Browser (Default)</string>
+    <string name="icon_calculator">Calculator</string>
+    <string name="icon_notes">Notes</string>
+    <string name="icon_file">File Manager</string>
+    <string name="icon_warning">⚠️ After changing icon, the old one will disappear from home screen and the new one will appear\n⚠️ Some launchers may require restart to show changes</string>
+    <string name="ad_filter_rules">Ad Filter Rules</string>
+    <string name="cloud_url">Cloud Rule URL</string>
+    <string name="cloud_url_hint">Enter GitHub rules file URL</string>
+    <string name="update_from_cloud">Update from Cloud</string>
+    <string name="rules_loading">Loading…</string>
+    <string name="export_rules">Export Rules</string>
+    <string name="import_rules">Import Rules</string>
+    <string name="back">Back</string>
 </resources>

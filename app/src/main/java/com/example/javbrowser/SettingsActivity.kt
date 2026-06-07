@@ -1,28 +1,29 @@
 package com.example.javbrowser
 
 import android.os.Bundle
-import android.widget.Button
-import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.radiobutton.MaterialRadioButton
+import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.textfield.TextInputEditText
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var switchLock: SwitchCompat
+    private lateinit var switchLock: SwitchMaterial
     private lateinit var radioGroup: RadioGroup
-    private lateinit var btnBack: Button
+    private lateinit var btnBack: MaterialButton
     private lateinit var privacySettings: PrivacySettings
     private lateinit var appIconManager: AppIconManager
     private lateinit var biometricHelper: BiometricHelper
     private lateinit var adFilterRules: AdFilterRules
-    private lateinit var etCloudUrl: android.widget.EditText
-    private lateinit var btnUpdateFromCloud: Button
+    private lateinit var etCloudUrl: TextInputEditText
+    private lateinit var btnUpdateFromCloud: MaterialButton
     private lateinit var tvRulesStatus: android.widget.TextView
-    private lateinit var btnExportRules: Button
-    private lateinit var btnImportRules: Button
+    private lateinit var btnExportRules: MaterialButton
+    private lateinit var btnImportRules: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -4,110 +4,106 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/nav_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+    <!-- Top App Bar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height"
+        android:background="?attr/colorSurface"
+        android:elevation="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:padding="8dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
-            android:id="@+id/btn_home"
-            android:layout_width="48dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:minHeight="0dp"
-            android:paddingStart="0dp"
-            android:paddingEnd="0dp"
-            android:text="🏠"
-            android:textSize="18sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingEnd="@dimen/spacing_sm">
 
-        <Button
-            android:id="@+id/btn_add_favorite"
-            android:layout_width="48dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:minHeight="0dp"
-            android:paddingStart="0dp"
-            android:paddingEnd="0dp"
-            android:text="♡"
-            android:textSize="20sp" />
+            <!-- Home Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_home"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="@dimen/min_touch_target"
+                android:layout_height="@dimen/min_touch_target"
+                android:contentDescription="@string/home"
+                app:icon="@drawable/ic_home"
+                app:iconTint="?attr/colorOnSurface" />
 
-        <Button
-            android:id="@+id/btn_view_favorites"
-            android:layout_width="48dp"
-            android:layout_height="40dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:minHeight="0dp"
-            android:paddingStart="0dp"
-            android:paddingEnd="0dp"
-            android:text="📚"
-            android:textSize="18sp" />
-    </LinearLayout>
+            <!-- Add to Favorites Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_add_favorite"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="@dimen/min_touch_target"
+                android:layout_height="@dimen/min_touch_target"
+                android:contentDescription="@string/add_favorite"
+                app:icon="@drawable/ic_favorite_border"
+                app:iconTint="?attr/colorOnSurface" />
+
+            <!-- View Favorites Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_view_favorites"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="@dimen/min_touch_target"
+                android:layout_height="@dimen/min_touch_target"
+                android:contentDescription="@string/view_favorites"
+                app:icon="@drawable/ic_collections"
+                app:iconTint="?attr/colorOnSurface" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Play Button (visible when video detected) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_play"
+                style="@style/Widget.Material3.Button.TonalButton.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/play"
+                android:visibility="gone"
+                android:layout_marginEnd="@dimen/spacing_sm"
+                app:icon="@drawable/ic_play_arrow" />
+
+            <!-- Settings Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_settings"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="@dimen/min_touch_target"
+                android:layout_height="@dimen/min_touch_target"
+                android:contentDescription="@string/settings"
+                app:icon="@drawable/ic_settings"
+                app:iconTint="?attr/colorOnSurface" />
+        </LinearLayout>
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <!-- Loading Progress Bar -->
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
-        android:layout_height="4dp"
+        android:layout_height="wrap_content"
         android:visibility="gone"
-        android:progressTint="#BB86FC"
-        android:layout_marginTop="60dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:indicatorColor="?attr/colorPrimary"
+        app:trackColor="?attr/colorSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- WebView -->
     <WebView
         android:id="@+id/webView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="60dp"
+        android:background="?attr/colorSurface"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Play Button (Top Right, visible when video detected) -->
-    <Button
-        android:id="@+id/btn_play"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:minHeight="0dp"
-        android:text="▶ Play"
-        android:visibility="gone"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="60dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Settings Button (Top Right Corner) -->
-    <Button
-        android:id="@+id/btn_settings"
-        android:layout_width="48dp"
-        android:layout_height="40dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:minHeight="0dp"
-        android:paddingStart="0dp"
-        android:paddingEnd="0dp"
-        android:text="⚙️"
-        android:textSize="18sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/progressBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
