@@ -27,6 +27,7 @@
 
         <!-- Background -->
         <item name="android:colorBackground">@color/md_theme_dark_background</item>
+        <item name="colorBackground">@color/md_theme_dark_background</item>
         <item name="colorOnBackground">@color/md_theme_dark_onBackground</item>
 
         <!-- Surface -->
