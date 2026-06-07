@@ -1,8 +1,13 @@
 name: Build and Test
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      - "**.md"
   pull_request:
     branches: [ main, develop ]
 
@@ -34,16 +39,16 @@ jobs:
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
+          name: app-debug-${{ github.sha }}
           path: app/build/outputs/apk/debug/app-debug.apk
 
       - name: Run lint
-        run: ./gradlew lint
+        run: ./gradlew lint --stacktrace
         continue-on-error: true
 
       - name: Upload lint report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lint-report
+          name: lint-report-${{ github.sha }}
           path: app/build/reports/lint-results-debug.html

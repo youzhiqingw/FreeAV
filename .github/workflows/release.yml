@@ -1,5 +1,8 @@
 name: Release Build
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
@@ -9,8 +12,6 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout code
@@ -29,16 +30,51 @@ jobs:
       - name: Build release APK
         run: ./gradlew assembleRelease --stacktrace
 
+      - name: Get version info
+        id: version
+        run: |
+          VERSION_NAME=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts)
+          VERSION_CODE=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' app/build.gradle.kts)
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+
       - name: Rename APK with version
         run: |
           VERSION=${GITHUB_REF_NAME}
           cd app/build/outputs/apk/release
-          mv app-release-unsigned.apk javbrowser-${VERSION}.apk || mv app-release.apk javbrowser-${VERSION}.apk
+          if [ -f app-release-unsigned.apk ]; then
+            mv app-release-unsigned.apk javbrowser-${VERSION}.apk
+          elif [ -f app-release.apk ]; then
+            mv app-release.apk javbrowser-${VERSION}.apk
+          fi
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          name: "JAV Browser ${{ github.ref_name }}"
+          body: |
+            ## JAV Browser ${{ github.ref_name }}
+
+            ### 功能特性
+            - 隐私聚焦的 Android 浏览器
+            - 多层广告拦截系统
+            - 智能视频检测与外部播放器支持
+            - 视觉书签收藏系统
+            - 生物识别应用锁
+            - 图标伪装功能
+
+            ### 构建信息
+            - 版本号: ${{ steps.version.outputs.version_name }}
+            - 版本代码: ${{ steps.version.outputs.version_code }}
+            - Commit: ${{ github.sha }}
+
+            ### 安装说明
+            1. 下载 APK 文件
+            2. 在 Android 设备上安装（需要 Android 7.0+）
+            3. 首次安装可能需要允许"未知来源"安装
           files: app/build/outputs/apk/release/javbrowser-*.apk
           generate_release_notes: true
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
