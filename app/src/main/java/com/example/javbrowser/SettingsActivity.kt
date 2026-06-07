@@ -1,6 +1,8 @@
 package com.example.javbrowser
 
 import android.os.Bundle
+import android.widget.Button
+import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog

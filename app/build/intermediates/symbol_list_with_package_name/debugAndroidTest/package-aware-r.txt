@@ -1,3 +1,0 @@
-com.example.javbrowser.test
-style WhiteBackgroundDialogTheme
-style WhiteBackgroundTheme
