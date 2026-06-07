@@ -27,7 +27,6 @@
 
         <!-- Background -->
         <item name="android:colorBackground">@color/md_theme_light_background</item>
-        <item name="colorBackground">@color/md_theme_light_background</item>
         <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
 
         <!-- Surface -->
