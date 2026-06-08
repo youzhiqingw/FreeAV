@@ -4,10 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.CycleInterpolator
+import android.view.animation.TranslateAnimation
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 
 class LockActivity : AppCompatActivity() {
@@ -56,36 +59,54 @@ class LockActivity : AppCompatActivity() {
         setupPinPad()
         setupBiometricButton()
 
+        // Handle back press with OnBackPressedDispatcher (replaces deprecated onBackPressed)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                moveTaskToBack(true)
+            }
+        })
+
         // Auto-start biometric if available
         if (biometricHelper.canAuthenticate()) {
             startBiometricAuth()
         }
+
+        // Enter transition animation
+        @Suppress("DEPRECATION")
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
+
+    @Suppress("DEPRECATION")
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     private fun setupPinPad() {
-        val pinButtons = listOf(
-            R.id.grid_pin to "0", // This is the container, need to iterate children or find by ID
-        )
-        
-        // Find all number buttons
+        // Find all number buttons in the grid
         val gridLayout = findViewById<android.widget.GridLayout>(R.id.grid_pin)
         for (i in 0 until gridLayout.childCount) {
             val view = gridLayout.getChildAt(i)
             if (view is Button && view.tag != null) {
+                view.setScaleAnimation(0.9f, 120)
                 view.setOnClickListener {
                     appendPinDigit(view.tag.toString())
                 }
             }
         }
 
-        findViewById<ImageButton>(R.id.btn_delete).setOnClickListener {
+        val btnDelete = findViewById<ImageButton>(R.id.btn_delete)
+        btnDelete.setScaleAnimation(0.9f, 120)
+        btnDelete.setOnClickListener {
             if (currentPinInput.isNotEmpty()) {
                 currentPinInput.deleteCharAt(currentPinInput.length - 1)
                 updatePinDisplay()
             }
         }
 
-        findViewById<ImageButton>(R.id.btn_enter).setOnClickListener {
+        val btnEnter = findViewById<ImageButton>(R.id.btn_enter)
+        btnEnter.setScaleAnimation(0.9f, 120)
+        btnEnter.setOnClickListener {
             verifyPin()
         }
         
@@ -122,12 +143,19 @@ class LockActivity : AppCompatActivity() {
             currentPinInput.clear()
             updatePinDisplay()
             
-            // Shake animation or vibration could be added here
+            // Shake animation on incorrect PIN
+            val shake = TranslateAnimation(0f, 20f, 0f, 0f).apply {
+                duration = 400
+                interpolator = CycleInterpolator(4f)
+            }
+            tvPinDisplay.startAnimation(shake)
         }
     }
 
     private fun setupBiometricButton() {
-        findViewById<Button>(R.id.btn_use_biometric).setOnClickListener {
+        val btnBiometric = findViewById<Button>(R.id.btn_use_biometric)
+        btnBiometric.setScaleAnimation()
+        btnBiometric.setOnClickListener {
             startBiometricAuth()
         }
     }
@@ -147,13 +175,5 @@ class LockActivity : AppCompatActivity() {
         privacySettings.updateUnlockTime()
         setResult(RESULT_OK)
         finish()
-        // Disable animation for smoother transition
-        overridePendingTransition(0, 0)
-    }
-
-    override fun onBackPressed() {
-        // Prevent going back to the app content
-        // Minimize the app instead
-        moveTaskToBack(true)
     }
 }

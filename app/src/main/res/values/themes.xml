@@ -1,19 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme (Material Design 3) -->
+    <!-- Base application theme (Material Design 3 with unified brand colors) -->
     <style name="Base.Theme.JAVBrowser" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Primary -->
-        <item name="colorPrimary">@color/md_theme_light_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <!-- Primary (Brand Green) -->
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
 
-        <!-- Secondary -->
+        <!-- Secondary (Brand Orange — unified tonal palette) -->
         <item name="colorSecondary">@color/md_theme_light_secondary</item>
         <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
         <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
         <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
 
-        <!-- Tertiary -->
+        <!-- Tertiary (Teal-blue complement — unified tonal palette) -->
         <item name="colorTertiary">@color/md_theme_light_tertiary</item>
         <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
         <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
@@ -39,6 +39,18 @@
         <item name="colorOutline">@color/md_theme_light_outline</item>
         <item name="colorOutlineVariant">@color/md_theme_light_outlineVariant</item>
 
+        <!-- Surface Containers -->
+        <item name="colorSurfaceContainerLowest">@color/md_theme_light_surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/md_theme_light_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/md_theme_light_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/md_theme_light_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/md_theme_light_surfaceContainerHighest</item>
+
+        <!-- Inverse -->
+        <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary</item>
+
         <!-- Shape -->
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.JAVBrowser.SmallComponent</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.JAVBrowser.MediumComponent</item>
@@ -47,14 +59,18 @@
         <!-- Status bar color -->
         <item name="android:statusBarColor">@color/md_theme_light_surface</item>
         <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Activity Transitions -->
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="Theme.JAVBrowser" parent="Base.Theme.JAVBrowser" />
 
     <!-- NoActionBar theme for LockActivity -->
     <style name="Theme.AppCompat.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/md_theme_light_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="android:statusBarColor">@color/md_theme_light_surface</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
@@ -77,8 +93,8 @@
 
     <!-- Pin Button (for LockActivity) -->
     <style name="PinButtonStyle" parent="Widget.Material3.Button.TextButton">
-        <item name="android:layout_width">80dp</item>
-        <item name="android:layout_height">80dp</item>
+        <item name="android:layout_width">@dimen/pin_button_size</item>
+        <item name="android:layout_height">@dimen/pin_button_size</item>
         <item name="android:layout_margin">@dimen/spacing_sm</item>
         <item name="android:textSize">28sp</item>
         <item name="cornerRadius">40dp</item>

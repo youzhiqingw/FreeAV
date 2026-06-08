@@ -17,6 +17,7 @@
     <string name="export_favorites">Export</string>
     <string name="no_favorites">No favorites yet</string>
     <string name="add_some_favorites">Start browsing to add favorites</string>
+    <string name="start_browsing">Start Browsing</string>
 
     <!-- Settings Activity -->
     <string name="privacy_settings">Privacy Settings</string>
@@ -46,6 +47,12 @@
     <string name="incorrect_pin">Incorrect PIN</string>
     <string name="unlock">Unlock</string>
     <string name="delete">Delete</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_favorite">Favorites</string>
+    <string name="nav_settings">Settings</string>
 
     <!-- Favorites -->
     <string name="video_thumbnail">Video Thumbnail</string>

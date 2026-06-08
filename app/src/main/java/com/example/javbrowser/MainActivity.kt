@@ -10,9 +10,11 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.io.ByteArrayInputStream
 
@@ -121,11 +123,41 @@ class MainActivity : AppCompatActivity() {
         setupHomeButton()
         setupFavoritesButtons()
         setupSettingsButton()
+        setupBottomNavigation()
+        setupBackPressedHandler()
 
         loadLandingPage()
-        
+
         // Handle URL if opened via external app intent
         handleIncomingIntent(intent)
+    }
+
+    private fun setupBackPressedHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (webView.canGoBack()) {
+                    webView.evaluateJavascript(
+                        """
+                        (function() {
+                            var sy = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+                            var key = 'scrollPos__' + window.location.href;
+                            sessionStorage.setItem(key, sy);
+                            return sy;
+                        })();
+                        """.trimIndent()
+                    ) { _ ->
+                        webView.goBack()
+                    }
+                } else {
+                    if (backPressedTime + 2000 > System.currentTimeMillis()) {
+                        showExitConfirmationDialog()
+                    } else {
+                        Toast.makeText(this@MainActivity, "再按一次退出", Toast.LENGTH_SHORT).show()
+                        backPressedTime = System.currentTimeMillis()
+                    }
+                }
+            }
+        })
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -884,6 +916,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupPlayButton() {
+        btnPlay.setScaleAnimation()
         btnPlay.setOnClickListener {
             currentVideoUrl?.let { url ->
                 playVideo(url)
@@ -1007,33 +1040,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
-    override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            // 返回上一頁前，把當前的 Y 軸位置直接寫進該網頁的 sessionStorage
-            webView.evaluateJavascript(
-                """
-                (function() {
-                    var sy = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
-                    var key = 'scrollPos__' + window.location.href;
-                    sessionStorage.setItem(key, sy);
-                    return sy;
-                })();
-                """.trimIndent()
-            ) { sy ->
-                android.util.Log.d("ScrollRestore", "Saved position to session: $sy")
-                // 寫完後立刻執行返回
-                webView.goBack()
-            }
-        } else {
-            if (backPressedTime + 2000 > System.currentTimeMillis()) {
-                showExitConfirmationDialog()
-            } else {
-                Toast.makeText(this, "再按一次退出", Toast.LENGTH_SHORT).show()
-                backPressedTime = System.currentTimeMillis()
-            }
-        }
-    }
-
+    
     private fun showExitConfirmationDialog() {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("退出應用程式")
@@ -1057,16 +1064,51 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun loadLandingPage() {
-        // Reload the landing page
+        // Reload the landing page with theme-aware CSS
         val landingHtml = """
             <!DOCTYPE html>
             <html>
             <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="color-scheme" content="light dark">
                 <style>
+                    :root {
+                        --bg: #FBFDF8;
+                        --text: #191C1A;
+                        --text-secondary: #414941;
+                        --surface: #FFFFFF;
+                        --surface-variant: #DDE5DB;
+                        --primary: #5DAC81;
+                        --on-primary: #FFFFFF;
+                        --primary-hover: #4A8B6A;
+                        --outline: #C1C9BF;
+                        --input-bg: #FFFFFF;
+                        --input-border: #5DAC81;
+                        --help-bg: #DDE5DB;
+                        --help-text: #414941;
+                        --help-border: #C1C9BF;
+                    }
+                    @media (prefers-color-scheme: dark) {
+                        :root {
+                            --bg: #191C1A;
+                            --text: #E1E3DE;
+                            --text-secondary: #C1C9BF;
+                            --surface: #1C1F1C;
+                            --surface-variant: #414941;
+                            --primary: #7EC99D;
+                            --on-primary: #003822;
+                            --primary-hover: #5DAC81;
+                            --outline: #414941;
+                            --input-bg: #1C1F1C;
+                            --input-border: #7EC99D;
+                            --help-bg: #414941;
+                            --help-text: #C1C9BF;
+                            --help-border: #8B938A;
+                        }
+                    }
                     body { 
-                        background-color: #121212; 
-                        color: white; 
+                        background-color: var(--bg); 
+                        color: var(--text); 
                         font-family: sans-serif; 
                         display: flex; 
                         flex-direction: column; 
@@ -1080,6 +1122,7 @@ class MainActivity : AppCompatActivity() {
                     h1 {
                         margin-bottom: 20px;
                         margin-top: 0;
+                        color: var(--text);
                     }
                     .search-container {
                         width: 100%;
@@ -1090,15 +1133,16 @@ class MainActivity : AppCompatActivity() {
                         width: 100%;
                         padding: 15px;
                         font-size: 16px;
-                        border: 2px solid #BB86FC;
-                        border-radius: 8px;
-                        background-color: #1E1E1E;
-                        color: white;
+                        border: 2px solid var(--input-border);
+                        border-radius: 12px;
+                        background-color: var(--input-bg);
+                        color: var(--text);
                         box-sizing: border-box;
+                        transition: border-color 0.2s;
                     }
                     .search-box:focus {
                         outline: none;
-                        border-color: #CF6FFF;
+                        border-color: var(--primary-hover);
                     }
                     .search-results {
                         width: 100%;
@@ -1113,30 +1157,31 @@ class MainActivity : AppCompatActivity() {
                         display: block; 
                         margin: 10px 0; 
                         padding: 15px 30px; 
-                        background-color: #BB86FC; 
-                        color: black; 
+                        background-color: var(--primary); 
+                        color: var(--on-primary); 
                         text-decoration: none; 
-                        border-radius: 8px; 
+                        border-radius: 12px; 
                         font-size: 16px; 
                         font-weight: bold;
                         text-align: center;
+                        transition: background-color 0.2s;
                     }
-                    a:hover {
-                        background-color: #CF6FFF;
+                    a:hover, a:active {
+                        background-color: var(--primary-hover);
                     }
                     .divider {
                         width: 100%;
                         max-width: 500px;
                         text-align: center;
                         margin: 20px 0;
-                        color: #888;
+                        color: var(--text-secondary);
                     }
                     .help-button {
                         width: 20px;
                         height: 20px;
                         border-radius: 50%;
-                        background-color: #333;
-                        color: white;
+                        background-color: var(--help-bg);
+                        color: var(--help-text);
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -1144,7 +1189,7 @@ class MainActivity : AppCompatActivity() {
                         font-size: 10px;
                         margin: 10px auto;
                         cursor: pointer;
-                        border: 2px solid #555;
+                        border: 2px solid var(--help-border);
                     }
                 </style>
             </head>
@@ -1160,14 +1205,14 @@ class MainActivity : AppCompatActivity() {
                     </div>
                 </div>
 
-                <div class="divider">🎬 JAV 視頻站點</div>
+                <div class="divider">JAV 視頻站點</div>
 
                 <a href="javascript:Android.navigateToUrl('${domainConfig.getMissAvBaseUrl()}')">Go to MissAV</a>
                 <a href="javascript:Android.navigateToUrl('https://${domainConfig.getJableDomain()}/')">Go to Jable</a>
                 <a href="javascript:Android.navigateToUrl('https://${domainConfig.getRouVideoDomain()}/home')">Go to Rou.Video</a>
                 <a href="javascript:Android.navigateToUrl('https://${domainConfig.getAvJoyDomain()}/')">Go to AvJoy</a>
 
-                <div class="divider">🔥 Hentai 動畫站點</div>
+                <div class="divider">Hentai 動畫站點</div>
 
                 <a href="javascript:Android.navigateToUrl('https://hanime.tv')">Hanime.tv</a>
                 <a href="javascript:Android.navigateToUrl('https://hentaihaven.xxx')">HentaiHaven</a>
@@ -1200,7 +1245,6 @@ class MainActivity : AppCompatActivity() {
                             searchJable.textContent = '在 Jable.TV 搜尋: ' + keyword;
                             searchAvJoy.textContent = '在 AvJoy 搜尋: ' + keyword;
 
-                            // Update URLs
                             searchMissAV.href = 'https://${domainConfig.getMissAvDomain()}/search/' + encodeURIComponent(keyword);
                             searchJable.href = 'https://jable.tv/search/' + encodeURIComponent(keyword) + '/';
                             searchAvJoy.href = 'https://${domainConfig.getAvJoyDomain()}/search/videos/' + encodeURIComponent(keyword);
@@ -1211,7 +1255,6 @@ class MainActivity : AppCompatActivity() {
                     
                     searchInput.addEventListener('keypress', function(e) {
                         if (e.key === 'Enter' && this.value.trim().length > 0) {
-                            // Default to MissAV on Enter
                             Android.navigateToUrl(searchMissAV.href);
                         }
                     });
@@ -1238,7 +1281,33 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-    
+
+    private fun setupBottomNavigation() {
+        val navigationBar = findViewById<NavigationBarView>(R.id.bottom_navigation)
+        navigationBar.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    loadLandingPage()
+                    true
+                }
+                R.id.nav_search -> {
+                    Toast.makeText(this, "搜索功能开发中", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.nav_favorite -> {
+                    val intent = Intent(this, FavoritesActivity::class.java)
+                    favoritesLauncher.launch(intent)
+                    true
+                }
+                R.id.nav_settings -> {
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
+    }
 
 
     private fun startLoadTimeout() {
@@ -1288,10 +1357,37 @@ class MainActivity : AppCompatActivity() {
             <head>
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="color-scheme" content="light dark">
                 <style>
+                    :root {
+                        --bg: #FBFDF8;
+                        --text: #191C1A;
+                        --text-secondary: #414941;
+                        --surface: #FFFFFF;
+                        --surface-variant: #DDE5DB;
+                        --primary: #5DAC81;
+                        --on-primary: #FFFFFF;
+                        --primary-hover: #4A8B6A;
+                        --error: #B3261E;
+                        --outline: #C1C9BF;
+                    }
+                    @media (prefers-color-scheme: dark) {
+                        :root {
+                            --bg: #191C1A;
+                            --text: #E1E3DE;
+                            --text-secondary: #C1C9BF;
+                            --surface: #1C1F1C;
+                            --surface-variant: #414941;
+                            --primary: #7EC99D;
+                            --on-primary: #003822;
+                            --primary-hover: #5DAC81;
+                            --error: #F2B8B5;
+                            --outline: #414941;
+                        }
+                    }
                     body {
-                        background-color: #121212;
-                        color: white;
+                        background-color: var(--bg);
+                        color: var(--text);
                         font-family: Arial, sans-serif;
                         text-align: center;
                         padding: 40px 20px;
@@ -1302,62 +1398,70 @@ class MainActivity : AppCompatActivity() {
                         margin-bottom: 20px;
                     }
                     h1 {
-                        color: #FF6B6B;
+                        color: var(--error);
                         margin-bottom: 15px;
                     }
                     p {
-                        color: #CCCCCC;
+                        color: var(--text-secondary);
                         line-height: 1.6;
                         margin-bottom: 10px;
                     }
                     .url {
-                        background-color: #1E1E1E;
+                        background-color: var(--surface);
+                        border: 1px solid var(--outline);
                         padding: 10px;
-                        border-radius: 5px;
+                        border-radius: 8px;
                         word-break: break-all;
                         margin: 20px 0;
                         font-size: 14px;
-                        color: #888;
+                        color: var(--text-secondary);
                     }
                     .button {
                         display: inline-block;
-                        background-color: #BB86FC;
-                        color: black;
+                        background-color: var(--primary);
+                        color: var(--on-primary);
                         padding: 12px 30px;
                         margin: 10px 5px;
-                        border-radius: 8px;
+                        border-radius: 12px;
                         text-decoration: none;
                         font-weight: bold;
+                        transition: background-color 0.2s;
                     }
                     .button:active {
-                        background-color: #CF6FFF;
+                        background-color: var(--primary-hover);
+                    }
+                    .button-secondary {
+                        background-color: var(--surface);
+                        color: var(--text);
+                        border: 1px solid var(--outline);
                     }
                     .suggestions {
                         text-align: left;
                         max-width: 400px;
                         margin: 30px auto;
-                        background-color: #1E1E1E;
+                        background-color: var(--surface);
+                        border: 1px solid var(--outline);
                         padding: 20px;
-                        border-radius: 10px;
+                        border-radius: 16px;
                     }
                     .suggestions h3 {
-                        color: #BB86FC;
+                        color: var(--primary);
                         margin-top: 0;
                     }
                     .suggestions li {
                         margin: 10px 0;
-                        color: #CCCCCC;
+                        color: var(--text-secondary);
                     }
                 </style>
             </head>
             <body>
-                <div class="error-icon">⚠️</div>
+                <div class="error-icon">!</div>
                 <h1>無法載入頁面</h1>
                 <p>$errorDescription</p>
                 <div class="url">$failingUrl</div>
                 
                 <div class="suggestions">
-                    <h3>💡 建議解決方式：</h3>
+                    <h3>建議解決方式：</h3>
                     <ul>
                         <li>檢查網路連線是否正常</li>
                         <li>嘗試切換 WiFi 和行動數據</li>
@@ -1366,12 +1470,11 @@ class MainActivity : AppCompatActivity() {
                     </ul>
                 </div>
 
-                <a href="javascript:location.reload();" class="button">🔄 重新載入</a>
+                <a href="javascript:location.reload();" class="button">重新載入</a>
                 <br><br>
-                <a href="javascript:Android.loadLandingPage();" class="button" style="background-color: #333; color: white; border: 1px solid #555;">🏠 返回首頁</a>
+                <a href="javascript:Android.loadLandingPage();" class="button button-secondary">返回首頁</a>
                 
                 <script>
-                    // Ensure Android interface exists for the back button
                     if (typeof Android === 'undefined') {
                         Android = {
                             loadLandingPage: function() { window.history.back(); }

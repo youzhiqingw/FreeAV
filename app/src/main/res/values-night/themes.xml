@@ -1,19 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Dark theme (Material Design 3) -->
+    <!-- Dark theme (Material Design 3 with unified brand colors) -->
     <style name="Base.Theme.JAVBrowser" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Primary -->
+        <!-- Primary (Brand Green) -->
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/md_theme_dark_onPrimaryContainer</item>
 
-        <!-- Secondary -->
+        <!-- Secondary (Brand Orange — unified tonal palette) -->
         <item name="colorSecondary">@color/md_theme_dark_secondary</item>
         <item name="colorOnSecondary">@color/md_theme_dark_onSecondary</item>
         <item name="colorSecondaryContainer">@color/md_theme_dark_secondaryContainer</item>
         <item name="colorOnSecondaryContainer">@color/md_theme_dark_onSecondaryContainer</item>
 
-        <!-- Tertiary -->
+        <!-- Tertiary (Teal-blue — unified tonal palette) -->
         <item name="colorTertiary">@color/md_theme_dark_tertiary</item>
         <item name="colorOnTertiary">@color/md_theme_dark_onTertiary</item>
         <item name="colorTertiaryContainer">@color/md_theme_dark_tertiaryContainer</item>
@@ -39,9 +39,30 @@
         <item name="colorOutline">@color/md_theme_dark_outline</item>
         <item name="colorOutlineVariant">@color/md_theme_dark_outlineVariant</item>
 
+        <!-- Surface Containers -->
+        <item name="colorSurfaceContainerLowest">@color/md_theme_dark_surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/md_theme_dark_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/md_theme_dark_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/md_theme_dark_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/md_theme_dark_surfaceContainerHighest</item>
+
+        <!-- Inverse -->
+        <item name="colorSurfaceInverse">@color/md_theme_dark_inverseSurface</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_dark_inverseOnSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_dark_inversePrimary</item>
+
+        <!-- Shape (must mirror light theme; shape is not theme-variant-dependent) -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.JAVBrowser.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.JAVBrowser.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.JAVBrowser.LargeComponent</item>
+
         <!-- Status bar -->
         <item name="android:statusBarColor">@color/md_theme_dark_surface</item>
         <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Activity Transitions -->
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="Theme.JAVBrowser" parent="Base.Theme.JAVBrowser" />

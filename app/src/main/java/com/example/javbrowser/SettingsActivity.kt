@@ -50,6 +50,16 @@ class SettingsActivity : AppCompatActivity() {
         loadSettings()
         setupListeners()
         updateRulesStatus()
+
+        // Enter transition animation
+        @Suppress("DEPRECATION")
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
+
+    @Suppress("DEPRECATION")
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     private fun loadSettings() {

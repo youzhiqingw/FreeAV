@@ -17,8 +17,9 @@ class AdFilterRules(private val context: Context) {
         private const val KEY_RULES_JSON = "rules_json"
         private const val KEY_LAST_UPDATE = "last_update"
         private const val KEY_CLOUD_URL = "cloud_url"
-        const val DEFAULT_CLOUD_URL = "https://raw.githubusercontent.com/fekilooo/javbrowser/refs/heads/main/ad-filter-rules.json"
-        
+        // Cloud update URL - can be configured in Settings
+        const val DEFAULT_CLOUD_URL = ""
+
         // 預設規則（首次安裝時使用）
         private val DEFAULT_RULES = """
         {

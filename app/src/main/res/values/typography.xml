@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Display -->
+    <style name="TextAppearance.JAVBrowser.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge" />
+    <style name="TextAppearance.JAVBrowser.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium" />
+    <style name="TextAppearance.JAVBrowser.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall" />
+
+    <!-- Headline -->
+    <style name="TextAppearance.JAVBrowser.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge" />
+    <style name="TextAppearance.JAVBrowser.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium" />
+    <style name="TextAppearance.JAVBrowser.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall" />
+
+    <!-- Title -->
+    <style name="TextAppearance.JAVBrowser.TitleLarge" parent="TextAppearance.Material3.TitleLarge" />
+    <style name="TextAppearance.JAVBrowser.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.JAVBrowser.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Body -->
+    <style name="TextAppearance.JAVBrowser.BodyLarge" parent="TextAppearance.Material3.BodyLarge" />
+    <style name="TextAppearance.JAVBrowser.BodyMedium" parent="TextAppearance.Material3.BodyMedium" />
+    <style name="TextAppearance.JAVBrowser.BodySmall" parent="TextAppearance.Material3.BodySmall" />
+
+    <!-- Label -->
+    <style name="TextAppearance.JAVBrowser.LabelLarge" parent="TextAppearance.Material3.LabelLarge" />
+    <style name="TextAppearance.JAVBrowser.LabelMedium" parent="TextAppearance.Material3.LabelMedium" />
+    <style name="TextAppearance.JAVBrowser.LabelSmall" parent="TextAppearance.Material3.LabelSmall" />
+
+    <!-- Section Header (for Settings) -->
+    <style name="TextAppearance.JAVBrowser.SectionHeader" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

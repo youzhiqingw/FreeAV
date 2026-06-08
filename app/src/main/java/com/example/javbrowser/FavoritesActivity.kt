@@ -6,11 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -27,7 +30,7 @@ class FavoritesActivity : AppCompatActivity() {
     private lateinit var favoritesManager: FavoritesManager
     private var allFavorites: List<FavoriteItem> = emptyList()
 
-    // Activity Result Launchers (替代已弃用的 startActivityForResult)
+    // Activity Result Launchers
     private val exportLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         uri?.let {
             val success = favoritesManager.exportFavoritesToFile(this, it)
@@ -48,7 +51,6 @@ class FavoritesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Prevent screenshots and hide content in recent apps
         window.setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE, android.view.WindowManager.LayoutParams.FLAG_SECURE)
         setContentView(R.layout.activity_favorites)
 
@@ -61,8 +63,7 @@ class FavoritesActivity : AppCompatActivity() {
         btnExport = findViewById(R.id.btn_export)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = FavoritesAdapter(mutableListOf()) { item ->
-            // On Item Click
+        adapter = FavoritesAdapter { item ->
             val intent = Intent()
             intent.putExtra("url", item.url)
             setResult(RESULT_OK, intent)
@@ -73,20 +74,38 @@ class FavoritesActivity : AppCompatActivity() {
         setupSearch()
         setupHomeButton()
         setupBackupButtons()
+        setupEmptyState()
         loadFavorites()
+
+        // Enter transition animation
+        @Suppress("DEPRECATION")
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
-    
-    private fun setupHomeButton() {
-        btnHome.setOnClickListener {
-            finish() // Go back to MainActivity
+
+    @Suppress("DEPRECATION")
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
+
+    private fun setupEmptyState() {
+        val btnBrowse = findViewById<MaterialButton>(R.id.btn_empty_browse)
+        btnBrowse.setScaleAnimation()
+        btnBrowse.setOnClickListener {
+            finish()
         }
     }
-    
+
+    private fun setupHomeButton() {
+        btnHome.setOnClickListener {
+            finish()
+        }
+    }
+
     private fun setupBackupButtons() {
         btnExport.setOnClickListener {
             exportLauncher.launch("javbrowser_favorites.json")
         }
-
         btnImport.setOnClickListener {
             importLauncher.launch(arrayOf("application/json"))
         }
@@ -101,17 +120,17 @@ class FavoritesActivity : AppCompatActivity() {
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
     }
-    
+
     private fun filterFavorites(query: String) {
         val filtered = if (query.isEmpty()) {
             allFavorites
         } else {
-            allFavorites.filter { 
-                it.title.contains(query, ignoreCase = true) || 
+            allFavorites.filter {
+                it.title.contains(query, ignoreCase = true) ||
                 it.url.contains(query, ignoreCase = true)
             }
         }
-        adapter.updateList(filtered)
+        adapter.submitList(filtered)
 
         if (filtered.isEmpty()) {
             emptyState.visibility = View.VISIBLE
@@ -127,15 +146,25 @@ class FavoritesActivity : AppCompatActivity() {
         filterFavorites(etSearch.text.toString())
     }
 
+    // DiffUtil callback for efficient list updates
+    class FavoriteDiffCallback : DiffUtil.ItemCallback<FavoriteItem>() {
+        override fun areItemsTheSame(oldItem: FavoriteItem, newItem: FavoriteItem): Boolean {
+            return oldItem.url == newItem.url
+        }
+
+        override fun areContentsTheSame(oldItem: FavoriteItem, newItem: FavoriteItem): Boolean {
+            return oldItem == newItem
+        }
+    }
+
     inner class FavoritesAdapter(
-        private var items: MutableList<FavoriteItem>,
         private val onItemClick: (FavoriteItem) -> Unit
-    ) : RecyclerView.Adapter<FavoritesAdapter.ViewHolder>() {
+    ) : ListAdapter<FavoriteItem, FavoritesAdapter.ViewHolder>(FavoriteDiffCallback()) {
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val tvTitle: TextView = view.findViewById(R.id.tv_title)
             val tvUrl: TextView = view.findViewById(R.id.tv_url)
-            val ivThumbnail: android.widget.ImageView = view.findViewById(R.id.iv_thumbnail)
+            val ivThumbnail: ImageView = view.findViewById(R.id.iv_thumbnail)
             val btnDelete: ImageButton = view.findViewById(R.id.btn_delete)
         }
 
@@ -146,13 +175,12 @@ class FavoritesActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = items[position]
+            val item = getItem(position)
             holder.tvTitle.text = item.title
-            
-            // Extract and display domain only
+
             val domain = extractDomain(item.url)
             holder.tvUrl.text = getString(R.string.from_domain, domain)
-            
+
             // Load thumbnail using Glide
             if (!item.thumbnailUrl.isNullOrEmpty()) {
                 com.bumptech.glide.Glide.with(holder.itemView.context)
@@ -162,7 +190,6 @@ class FavoritesActivity : AppCompatActivity() {
                     .centerCrop()
                     .into(holder.ivThumbnail)
             } else {
-                // Set default icon based on site
                 val iconRes = when {
                     item.url.contains("missav") -> android.R.drawable.ic_menu_camera
                     item.url.contains("jable") -> android.R.drawable.ic_menu_gallery
@@ -171,30 +198,16 @@ class FavoritesActivity : AppCompatActivity() {
                 }
                 holder.ivThumbnail.setImageResource(iconRes)
             }
-            
+
             holder.itemView.setOnClickListener { onItemClick(item) }
-            
+
             holder.btnDelete.setOnClickListener {
                 favoritesManager.removeFavorite(item.url)
-                items.removeAt(position)
-                notifyItemRemoved(position)
-                notifyItemRangeChanged(position, items.size)
-
-                if (items.isEmpty()) {
-                    emptyState.visibility = View.VISIBLE
-                    recyclerView.visibility = View.GONE
-                }
+                // Reload from source to keep data consistent
+                loadFavorites()
             }
         }
 
-        override fun getItemCount() = items.size
-
-        fun updateList(newItems: List<FavoriteItem>) {
-            items.clear()
-            items.addAll(newItems)
-            notifyDataSetChanged()
-        }
-        
         private fun extractDomain(url: String): String {
             return try {
                 val uri = java.net.URI(url)

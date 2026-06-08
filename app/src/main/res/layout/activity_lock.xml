@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_md"
         android:text="@string/app_locked"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+        android:textAppearance="@style/TextAppearance.JAVBrowser.HeadlineMedium"
         android:textColor="?attr/colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_lg"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineLarge"
+        android:textAppearance="@style/TextAppearance.JAVBrowser.HeadlineLarge"
         android:textColor="?attr/colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,96 +57,60 @@
 
         <!-- Row 1 -->
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="1"
             android:tag="1"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="1" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="2"
             android:tag="2"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="2" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="3"
             android:tag="3"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="3" />
 
         <!-- Row 2 -->
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="4"
             android:tag="4"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="4" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="5"
             android:tag="5"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="5" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="6"
             android:tag="6"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="6" />
 
         <!-- Row 3 -->
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="7"
             android:tag="7"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="7" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="8"
             android:tag="8"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="8" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="9"
             android:tag="9"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="9" />
 
         <!-- Row 4 -->
         <com.google.android.material.button.MaterialButton
@@ -160,14 +124,10 @@
             app:iconTint="?attr/colorOnSurface" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="@dimen/pin_button_size"
-            android:layout_height="@dimen/pin_button_size"
-            android:layout_margin="@dimen/spacing_sm"
+            style="@style/PinButtonStyle"
             android:text="0"
             android:tag="0"
-            android:contentDescription="@string/unlock"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:contentDescription="0" />
 
         <com.google.android.material.button.MaterialButton
             style="@style/Widget.Material3.Button"
@@ -190,7 +150,7 @@
         android:layout_marginBottom="@dimen/spacing_lg"
         android:minHeight="@dimen/min_touch_target"
         android:text="@string/use_biometric"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:textAppearance="@style/TextAppearance.JAVBrowser.BodyLarge"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
