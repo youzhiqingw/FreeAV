@@ -71,7 +71,7 @@ class FavoritesManager(context: Context) {
         return try {
             val jsonString = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
             if (jsonString.isNullOrEmpty()) {
-                return Pair(false, "檔案為空")
+                return Pair(false, "文件为空")
             }
 
             val jsonArray = JSONArray(jsonString)
@@ -94,10 +94,10 @@ class FavoritesManager(context: Context) {
             }
 
             saveFavorites(currentFavorites)
-            Pair(true, "成功匯入 ${addedCount} 筆書籤")
+            Pair(true, "成功导入 ${addedCount} 条书签")
         } catch (e: Exception) {
             android.util.Log.e("FavoritesManager", "Error importing favorites: ${e.message}", e)
-            Pair(false, "無法解析檔案格式")
+            Pair(false, "无法解析文件格式")
         }
     }
 }

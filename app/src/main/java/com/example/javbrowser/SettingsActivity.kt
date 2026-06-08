@@ -85,20 +85,20 @@ class SettingsActivity : AppCompatActivity() {
                         onSuccess = {
                             privacySettings.isLockEnabled = true
                             privacySettings.updateUnlockTime()
-                            Toast.makeText(this, "應用鎖已啟用", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "应用锁已启用", Toast.LENGTH_SHORT).show()
                         },
                         onError = { error ->
                             switchLock.isChecked = false
-                            Toast.makeText(this, "驗證失敗: $error", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "验证失败：$error", Toast.LENGTH_SHORT).show()
                         }
                     )
                 } else {
                     switchLock.isChecked = false
-                    Toast.makeText(this, "此裝置不支援生物識別", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "此设备不支持生物识别", Toast.LENGTH_LONG).show()
                 }
             } else {
                 privacySettings.isLockEnabled = false
-                Toast.makeText(this, "應用鎖已停用", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "应用锁已停用", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -133,7 +133,7 @@ class SettingsActivity : AppCompatActivity() {
         val input = android.widget.EditText(this)
         input.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
         input.filters = arrayOf(android.text.InputFilter.LengthFilter(6))
-        input.hint = "Enter 4-6 digit PIN"
+        input.hint = "请输入 4-6 位 PIN 码"
         
         // Add padding
         val container = android.widget.FrameLayout(this)
@@ -147,38 +147,38 @@ class SettingsActivity : AppCompatActivity() {
         container.addView(input)
 
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Set PIN Code")
-            .setMessage("Enter a backup PIN code (4-6 digits)")
+            .setTitle("设置 PIN 码")
+            .setMessage("请输入备用 PIN 码（4-6 位数字）")
             .setView(container)
-            .setPositiveButton("Save") { _, _ ->
+            .setPositiveButton("保存") { _, _ ->
                 val pin = input.text.toString()
                 if (pin.length in 4..6) {
                     privacySettings.pinCode = pin
-                    Toast.makeText(this, "PIN Code saved", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "PIN 码已保存", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "PIN must be 4-6 digits", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "PIN 码需为 4-6 位", Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("取消", null)
             .show()
     }
 
     private fun showIconChangeDialog(newIcon: String) {
         val iconName = when (newIcon) {
-            PrivacySettings.ICON_DEFAULT -> "JAV Browser"
-            PrivacySettings.ICON_CALCULATOR -> "Calculator"
-            PrivacySettings.ICON_NOTES -> "Notes"
-            PrivacySettings.ICON_FILE -> "File Manager"
-            else -> "JAV Browser"
+            PrivacySettings.ICON_DEFAULT -> "JAV 浏览器"
+            PrivacySettings.ICON_CALCULATOR -> "计算器"
+            PrivacySettings.ICON_NOTES -> "备忘录"
+            PrivacySettings.ICON_FILE -> "文件管理器"
+            else -> "JAV 浏览器"
         }
 
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("更換應用圖標")
-            .setMessage("確定要將圖標更換為「$iconName」嗎？\n\n舊圖標會從桌面消失，新圖標會出現。")
-            .setPositiveButton("確定") { _, _ ->
+            .setTitle("更换应用图标")
+            .setMessage("确定要将图标更换为「$iconName」吗？\n\n旧图标将从桌面消失，新图标会出现。")
+            .setPositiveButton("确定") { _, _ ->
                 appIconManager.switchIcon(newIcon)
                 privacySettings.selectedIcon = newIcon
-                Toast.makeText(this, "圖標已更換，請在桌面尋找新圖標", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "图标已更换，请在桌面寻找新图标", Toast.LENGTH_LONG).show()
             }
             .setNegativeButton("取消") { _, _ ->
                 loadSettings() // Revert selection
@@ -196,20 +196,20 @@ class SettingsActivity : AppCompatActivity() {
             java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
                 .format(java.util.Date(adFilterRules.getLastUpdateTime()))
         } else {
-            "從未更新"
+            "从未更新"
         }
         
         val statusText = """
-            版本: ${adFilterRules.getVersion()}
-            最後更新: $lastUpdate
+            版本：${adFilterRules.getVersion()}
+            最后更新：$lastUpdate
             
-            通用遮蔽 (commonBlock): ${stats["commonBlock"]} 個
-            網路攔截 (僅專用): ${stats["networkBlock"]} 個
-            超連結遮蔽 (僅專用): ${stats["linkBlock"]} 個
-            Iframe 遮蔽 (僅專用): ${stats["iframeBlock"]} 個
-            重定向阻擋 (僅專用): ${stats["redirectBlock"]} 個
+            通用屏蔽 (commonBlock)：${stats["commonBlock"]} 个
+            网络拦截（仅专用）：${stats["networkBlock"]} 个
+            超链接屏蔽（仅专用）：${stats["linkBlock"]} 个
+            Iframe 屏蔽（仅专用）：${stats["iframeBlock"]} 个
+            重定向拦截（仅专用）：${stats["redirectBlock"]} 个
             
-            總計: ${stats["total"]} 個規則
+            总计：${stats["total"]} 条规则
         """.trimIndent()
         
         tvRulesStatus.text = statusText
@@ -218,7 +218,7 @@ class SettingsActivity : AppCompatActivity() {
         btnUpdateFromCloud.setOnClickListener {
             val url = etCloudUrl.text.toString().trim()
             if (url.isEmpty()) {
-                Toast.makeText(this, "請輸入雲端規則網址", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "请输入云端规则地址", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             
@@ -231,7 +231,7 @@ class SettingsActivity : AppCompatActivity() {
             
             adFilterRules.updateRulesFromCloud(url) { success, message ->
                 btnUpdateFromCloud.isEnabled = true
-                btnUpdateFromCloud.text = "從雲端更新規則"
+                btnUpdateFromCloud.text = "从云端更新"
                 
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show()
                 
@@ -244,9 +244,9 @@ class SettingsActivity : AppCompatActivity() {
         btnExportRules.setOnClickListener {
             val json = adFilterRules.exportToJson()
             val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-            val clip = android.content.ClipData.newPlainText("Ad Filter Rules", json)
+            val clip = android.content.ClipData.newPlainText("广告过滤规则", json)
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, "規則已複製到剪貼簿", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "规则已复制到剪贴板", Toast.LENGTH_SHORT).show()
         }
         
         btnImportRules.setOnClickListener {
@@ -257,13 +257,13 @@ class SettingsActivity : AppCompatActivity() {
                 val json = clipData.getItemAt(0).text.toString()
                 
                 if (adFilterRules.importFromJson(json)) {
-                    Toast.makeText(this, "規則導入成功", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "规则导入成功", Toast.LENGTH_SHORT).show()
                     updateRulesStatus()
                 } else {
-                    Toast.makeText(this, "規則格式錯誤，導入失敗", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "规则格式错误，导入失败", Toast.LENGTH_LONG).show()
                 }
             } else {
-                Toast.makeText(this, "剪貼簿中沒有內容", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "剪贴板中没有内容", Toast.LENGTH_SHORT).show()
             }
         }
     }

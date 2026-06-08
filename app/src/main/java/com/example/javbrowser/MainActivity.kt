@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
                 urlToLoad = extractUrl(sharedText)
                 if (urlToLoad == null) {
                     runOnUiThread {
-                        Toast.makeText(this, "無法從分享的內容中找到網址", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "无法从分享内容中找到网址", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -248,7 +248,7 @@ class MainActivity : AppCompatActivity() {
             @android.webkit.JavascriptInterface
             fun navigateToUrl(url: String) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Connecting...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "正在连接...", Toast.LENGTH_SHORT).show()
                     progressBar.visibility = View.VISIBLE
                     progressBar.progress = 10
                     webView.loadUrl(url)
@@ -939,7 +939,7 @@ class MainActivity : AppCompatActivity() {
                     if (itemToRemove != null) {
                         favoritesManager.removeFavorite(itemToRemove.url)
                     }
-                    Toast.makeText(this, "已從收藏移除", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "已从收藏移除", Toast.LENGTH_SHORT).show()
                     btnAddFavorite.text = "♡"
                 } else {
                     // Extract thumbnail URL from current page
@@ -976,7 +976,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                Toast.makeText(this, "Cannot add this page", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "无法添加此页面", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -1017,9 +1017,9 @@ class MainActivity : AppCompatActivity() {
 
             // Copy real URL to clipboard (not proxy URL)
             val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-            val clip = android.content.ClipData.newPlainText("Video URL", url)
+            val clip = android.content.ClipData.newPlainText("视频地址", url)
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, "Video URL copied to clipboard", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "视频地址已复制到剪贴板", Toast.LENGTH_SHORT).show()
 
             val mimeType = if (url.contains(".mp4")) "video/mp4" else "video/*"
             val intent = Intent(Intent.ACTION_VIEW)
@@ -1036,19 +1036,19 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "错误：${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
     
     
     private fun showExitConfirmationDialog() {
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("退出應用程式")
-            .setMessage("確定要退出嗎？")
-            .setPositiveButton("是") { _, _ ->
+            .setTitle("退出应用")
+            .setMessage("确定要退出吗？")
+            .setPositiveButton("确定") { _, _ ->
                 finish()
             }
-            .setNegativeButton("否", null)
+            .setNegativeButton("取消", null)
             .show()
     }
     
@@ -1197,22 +1197,22 @@ class MainActivity : AppCompatActivity() {
                 <h1>JAV Browser</h1>
                 
                 <div class="search-container">
-                    <input type="text" id="searchInput" class="search-box" placeholder="輸入搜尋關鍵字..." />
+                    <input type="text" id="searchInput" class="search-box" placeholder="输入搜索关键词..." />
                     <div id="searchResults" class="search-results">
-                        <a href="#" id="searchMissAV">在 MissAV 搜尋</a>
-                        <a href="#" id="searchJable">在 Jable.TV 搜尋</a>
-                        <a href="#" id="searchAvJoy">在 AvJoy 搜尋</a>
+                        <a href="#" id="searchMissAV">在 MissAV 搜索</a>
+                        <a href="#" id="searchJable">在 Jable.TV 搜索</a>
+                        <a href="#" id="searchAvJoy">在 AvJoy 搜索</a>
                     </div>
                 </div>
 
-                <div class="divider">JAV 視頻站點</div>
+                <div class="divider">JAV 视频站点</div>
 
-                <a href="javascript:Android.navigateToUrl('${domainConfig.getMissAvBaseUrl()}')">Go to MissAV</a>
-                <a href="javascript:Android.navigateToUrl('https://${domainConfig.getJableDomain()}/')">Go to Jable</a>
-                <a href="javascript:Android.navigateToUrl('https://${domainConfig.getRouVideoDomain()}/home')">Go to Rou.Video</a>
-                <a href="javascript:Android.navigateToUrl('https://${domainConfig.getAvJoyDomain()}/')">Go to AvJoy</a>
+                <a href="javascript:Android.navigateToUrl('${domainConfig.getMissAvBaseUrl()}')">前往 MissAV</a>
+                <a href="javascript:Android.navigateToUrl('https://${domainConfig.getJableDomain()}/')">前往 Jable</a>
+                <a href="javascript:Android.navigateToUrl('https://${domainConfig.getRouVideoDomain()}/home')">前往 Rou.Video</a>
+                <a href="javascript:Android.navigateToUrl('https://${domainConfig.getAvJoyDomain()}/')">前往 AvJoy</a>
 
-                <div class="divider">Hentai 動畫站點</div>
+                <div class="divider">Hentai 动画站点</div>
 
                 <a href="javascript:Android.navigateToUrl('https://hanime.tv')">Hanime.tv</a>
                 <a href="javascript:Android.navigateToUrl('https://hentaihaven.xxx')">HentaiHaven</a>
@@ -1241,9 +1241,9 @@ class MainActivity : AppCompatActivity() {
                         const keyword = this.value.trim();
                         if (keyword.length > 0) {
                             searchResults.classList.add('show');
-                            searchMissAV.textContent = '在 MissAV 搜尋: ' + keyword;
-                            searchJable.textContent = '在 Jable.TV 搜尋: ' + keyword;
-                            searchAvJoy.textContent = '在 AvJoy 搜尋: ' + keyword;
+                            searchMissAV.textContent = '在 MissAV 搜索: ' + keyword;
+                            searchJable.textContent = '在 Jable.TV 搜索: ' + keyword;
+                            searchAvJoy.textContent = '在 AvJoy 搜索: ' + keyword;
 
                             searchMissAV.href = 'https://${domainConfig.getMissAvDomain()}/search/' + encodeURIComponent(keyword);
                             searchJable.href = 'https://jable.tv/search/' + encodeURIComponent(keyword) + '/';
@@ -1327,15 +1327,15 @@ class MainActivity : AppCompatActivity() {
                 progressBar.visibility = View.GONE
                 
                 androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("Connection Timeout")
-                    .setMessage("Page load took too long.\n\nSuggestions:\n• Check your internet connection\n• Switch between WiFi/4G\n• Tap Retry")
-                    .setPositiveButton("Retry") { _, _ ->
+                    .setTitle("连接超时")
+                    .setMessage("页面加载时间过长。\n\n建议：\n• 检查网络连接\n• 切换 WiFi / 移动数据\n• 点击重试")
+                    .setPositiveButton("重试") { _, _ ->
                         webView.reload()
                     }
-                    .setNegativeButton("Go Home") { _, _ ->
+                    .setNegativeButton("返回首页") { _, _ ->
                         loadLandingPage()
                     }
-                    .setNeutralButton("Cancel", null)
+                    .setNeutralButton("取消", null)
                     .show()
             }
         }
@@ -1456,23 +1456,23 @@ class MainActivity : AppCompatActivity() {
             </head>
             <body>
                 <div class="error-icon">!</div>
-                <h1>無法載入頁面</h1>
+                <h1>无法加载页面</h1>
                 <p>$errorDescription</p>
                 <div class="url">$failingUrl</div>
                 
                 <div class="suggestions">
-                    <h3>建議解決方式：</h3>
+                    <h3>建议解决方式：</h3>
                     <ul>
-                        <li>檢查網路連線是否正常</li>
-                        <li>嘗試切換 WiFi 和行動數據</li>
-                        <li>重新整理頁面</li>
-                        <li>稍後再試</li>
+                        <li>检查网络连接是否正常</li>
+                        <li>尝试切换 WiFi 和移动数据</li>
+                        <li>刷新页面</li>
+                        <li>稍后再试</li>
                     </ul>
                 </div>
 
-                <a href="javascript:location.reload();" class="button">重新載入</a>
+                <a href="javascript:location.reload();" class="button">重新加载</a>
                 <br><br>
-                <a href="javascript:Android.loadLandingPage();" class="button button-secondary">返回首頁</a>
+                <a href="javascript:Android.loadLandingPage();" class="button button-secondary">返回首页</a>
                 
                 <script>
                     if (typeof Android === 'undefined') {
@@ -1489,31 +1489,31 @@ class MainActivity : AppCompatActivity() {
     private fun showHelpDialog() {
         val message = """
         
-            JAV Browser - Video Player & Downloader
+            JAV 浏览器 - 视频播放与下载
             
-            🎬 Features:
-            • Auto-detect m3u8 video streams
-            • Play externally (VLC, MX Player)
-            • Download support
-            • Ad blocking
-            • Favorites system
+            🎬 功能：
+            • 自动检测 m3u8 视频流
+            • 外部播放器播放（VLC、MX Player）
+            • 支持下载
+            • 广告过滤
+            • 收藏管理
             
-            📱 Recommended Players:
+            📱 推荐播放器：
             • VLC Media Player
             • MX Player
             • KM Player
             
-            💾 Recommended Downloader:
-            Lj Video Downloader (m3u8, mp4, mpd)
+            💾 推荐下载器：
+            Lj Video Downloader（支持 m3u8、mp4、mpd）
             
-            💡 Tip:
-            Ad-free MOD versions of Lj Downloader are available online.
+            💡 提示：
+            Lj Downloader 的无广告修改版可在线获取。
         """.trimIndent()
         
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("❓ Help")
+            .setTitle("❓ 帮助")
             .setMessage(message)
-            .setPositiveButton("Close", null)
+            .setPositiveButton("关闭", null)
             .show()
     }
 

@@ -2,62 +2,62 @@
     <string name="app_name">JAVBrowser</string>
 
     <!-- Main Activity -->
-    <string name="home">Home</string>
-    <string name="add_favorite">Add to favorites</string>
-    <string name="view_favorites">View favorites</string>
-    <string name="settings">Settings</string>
-    <string name="play">Play</string>
-    <string name="play_video">Play Video</string>
-    <string name="error_no_player">No video player found</string>
-    <string name="video_found">Video found!</string>
+    <string name="home">首页</string>
+    <string name="add_favorite">添加收藏</string>
+    <string name="view_favorites">查看收藏</string>
+    <string name="settings">设置</string>
+    <string name="play">播放</string>
+    <string name="play_video">播放视频</string>
+    <string name="error_no_player">未找到视频播放器</string>
+    <string name="video_found">已检测到视频</string>
 
     <!-- Favorites Activity -->
-    <string name="search_favorites">Search favorites…</string>
-    <string name="import_favorites">Import</string>
-    <string name="export_favorites">Export</string>
-    <string name="no_favorites">No favorites yet</string>
-    <string name="add_some_favorites">Start browsing to add favorites</string>
-    <string name="start_browsing">Start Browsing</string>
+    <string name="search_favorites">搜索收藏…</string>
+    <string name="import_favorites">导入</string>
+    <string name="export_favorites">导出</string>
+    <string name="no_favorites">暂无收藏</string>
+    <string name="add_some_favorites">浏览页面即可添加收藏</string>
+    <string name="start_browsing">开始浏览</string>
 
     <!-- Settings Activity -->
-    <string name="privacy_settings">Privacy Settings</string>
-    <string name="app_lock">App Lock</string>
-    <string name="enable_biometric">Enable biometric lock</string>
-    <string name="set_pin">Set PIN (Backup)</string>
-    <string name="lock_notice">Authentication required after app closes or after 1 hour</string>
-    <string name="app_icon">App Icon</string>
-    <string name="icon_default">JAV Browser (Default)</string>
-    <string name="icon_calculator">Calculator</string>
-    <string name="icon_notes">Notes</string>
-    <string name="icon_file">File Manager</string>
-    <string name="icon_warning">⚠️ After changing icon, the old one will disappear from home screen and the new one will appear\n⚠️ Some launchers may require restart to show changes</string>
-    <string name="ad_filter_rules">Ad Filter Rules</string>
-    <string name="cloud_url">Cloud Rule URL</string>
-    <string name="cloud_url_hint">Enter GitHub rules file URL</string>
-    <string name="update_from_cloud">Update from Cloud</string>
-    <string name="rules_loading">Loading…</string>
-    <string name="export_rules">Export Rules</string>
-    <string name="import_rules">Import Rules</string>
-    <string name="back">Back</string>
+    <string name="privacy_settings">隐私设置</string>
+    <string name="app_lock">应用锁</string>
+    <string name="enable_biometric">启用生物识别锁</string>
+    <string name="set_pin">设置 PIN 码（备用）</string>
+    <string name="lock_notice">应用关闭后或超过 1 小时需重新验证</string>
+    <string name="app_icon">应用图标</string>
+    <string name="icon_default">JAV 浏览器（默认）</string>
+    <string name="icon_calculator">计算器</string>
+    <string name="icon_notes">备忘录</string>
+    <string name="icon_file">文件管理器</string>
+    <string name="icon_warning">⚠️ 更换图标后，旧图标将从桌面消失，新图标会出现\n⚠️ 部分启动器可能需要重启才能生效</string>
+    <string name="ad_filter_rules">广告过滤规则</string>
+    <string name="cloud_url">云端规则地址</string>
+    <string name="cloud_url_hint">请输入 GitHub 规则文件地址</string>
+    <string name="update_from_cloud">从云端更新</string>
+    <string name="rules_loading">加载中…</string>
+    <string name="export_rules">导出规则</string>
+    <string name="import_rules">导入规则</string>
+    <string name="back">返回</string>
 
     <!-- Lock Screen -->
-    <string name="app_locked">App Locked</string>
-    <string name="enter_pin">Enter PIN</string>
-    <string name="use_biometric">Use Biometric</string>
-    <string name="incorrect_pin">Incorrect PIN</string>
-    <string name="unlock">Unlock</string>
-    <string name="delete">Delete</string>
+    <string name="app_locked">应用已锁定</string>
+    <string name="enter_pin">请输入 PIN 码</string>
+    <string name="use_biometric">使用生物识别</string>
+    <string name="incorrect_pin">PIN 码错误</string>
+    <string name="unlock">解锁</string>
+    <string name="delete">删除</string>
 
     <!-- Bottom Navigation -->
-    <string name="nav_home">Home</string>
-    <string name="nav_search">Search</string>
-    <string name="nav_favorite">Favorites</string>
-    <string name="nav_settings">Settings</string>
+    <string name="nav_home">首页</string>
+    <string name="nav_search">搜索</string>
+    <string name="nav_favorite">收藏</string>
+    <string name="nav_settings">设置</string>
 
     <!-- Favorites -->
-    <string name="video_thumbnail">Video Thumbnail</string>
-    <string name="delete_favorite">Delete favorite</string>
-    <string name="export_success">Export successful</string>
-    <string name="export_failed">Export failed</string>
-    <string name="from_domain">From: %s</string>
+    <string name="video_thumbnail">视频缩略图</string>
+    <string name="delete_favorite">删除收藏</string>
+    <string name="export_success">导出成功</string>
+    <string name="export_failed">导出失败</string>
+    <string name="from_domain">来源：%s</string>
 </resources>

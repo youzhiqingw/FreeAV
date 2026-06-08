@@ -44,8 +44,8 @@ class BiometricHelper(private val activity: FragmentActivity, private val privac
         val appLabel = privacySettings.currentAppLabel
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("解鎖 $appLabel")
-            .setSubtitle("使用生物識別驗證")
+            .setTitle("解锁 $appLabel")
+            .setSubtitle("使用生物识别验证")
             .setNegativeButtonText("取消")
             .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
             .build()
