@@ -131,12 +131,12 @@ class SettingsActivity : AppCompatActivity() {
             android.view.ViewGroup.LayoutParams.MATCH_PARENT,
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        params.leftMargin = 50
-        params.rightMargin = 50
+        params.leftMargin = resources.getDimensionPixelSize(R.dimen.spacing_md)
+        params.rightMargin = resources.getDimensionPixelSize(R.dimen.spacing_md)
         input.layoutParams = params
         container.addView(input)
 
-        AlertDialog.Builder(this)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle("Set PIN Code")
             .setMessage("Enter a backup PIN code (4-6 digits)")
             .setView(container)
@@ -162,7 +162,7 @@ class SettingsActivity : AppCompatActivity() {
             else -> "JAV Browser"
         }
 
-        AlertDialog.Builder(this)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle("更換應用圖標")
             .setMessage("確定要將圖標更換為「$iconName」嗎？\n\n舊圖標會從桌面消失，新圖標會出現。")
             .setPositiveButton("確定") { _, _ ->

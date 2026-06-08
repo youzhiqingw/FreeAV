@@ -35,7 +35,7 @@ class FavoritesManager(context: Context) {
                 list.add(FavoriteItem(obj.getString("title"), obj.getString("url"), thumbnailUrl))
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("FavoritesManager", "Error loading favorites: ${e.message}", e)
         }
         return list
     }
@@ -62,7 +62,7 @@ class FavoritesManager(context: Context) {
             }
             true
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("FavoritesManager", "Error exporting favorites: ${e.message}", e)
             false
         }
     }
@@ -73,7 +73,7 @@ class FavoritesManager(context: Context) {
             if (jsonString.isNullOrEmpty()) {
                 return Pair(false, "檔案為空")
             }
-            
+
             val jsonArray = JSONArray(jsonString)
             val importedList = mutableListOf<FavoriteItem>()
             for (i in 0 until jsonArray.length()) {
@@ -81,22 +81,22 @@ class FavoritesManager(context: Context) {
                 val thumbnailUrl = if (obj.has("thumbnail")) obj.getString("thumbnail") else null
                 importedList.add(FavoriteItem(obj.getString("title"), obj.getString("url"), thumbnailUrl))
             }
-            
+
             // 合併既有書籤（避免重複網址）
             val currentFavorites = getFavorites().toMutableList()
             var addedCount = 0
-            
+
             importedList.forEach { importedItem ->
                 if (currentFavorites.none { it.url == importedItem.url }) {
                     currentFavorites.add(importedItem)
                     addedCount++
                 }
             }
-            
+
             saveFavorites(currentFavorites)
             Pair(true, "成功匯入 ${addedCount} 筆書籤")
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("FavoritesManager", "Error importing favorites: ${e.message}", e)
             Pair(false, "無法解析檔案格式")
         }
     }

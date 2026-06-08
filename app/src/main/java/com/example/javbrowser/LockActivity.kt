@@ -105,11 +105,11 @@ class LockActivity : AppCompatActivity() {
             sb.append("•")
         }
         if (sb.isEmpty()) {
-            tvPinDisplay.text = "Enter PIN"
-            tvPinDisplay.textSize = 24f
+            tvPinDisplay.text = getString(R.string.enter_pin)
+            tvPinDisplay.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_HeadlineMedium)
         } else {
             tvPinDisplay.text = sb.toString()
-            tvPinDisplay.textSize = 32f
+            tvPinDisplay.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_HeadlineLarge)
         }
     }
 
@@ -118,7 +118,7 @@ class LockActivity : AppCompatActivity() {
         if (privacySettings.validatePin(input)) {
             unlockApp()
         } else {
-            Toast.makeText(this, "Incorrect PIN", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.incorrect_pin, Toast.LENGTH_SHORT).show()
             currentPinInput.clear()
             updatePinDisplay()
             

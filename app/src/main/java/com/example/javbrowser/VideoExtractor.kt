@@ -130,7 +130,7 @@ object VideoExtractor {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("VideoExtractor", "Error extracting MissAV video: ${e.message}", e)
         }
 
         // Fallback to old method: Look for <video> tag with src attribute containing .m3u8
@@ -195,14 +195,14 @@ object VideoExtractor {
                 connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
                 connection.connectTimeout = 10000
                 connection.readTimeout = 10000
-                
+
                 if (connection.responseCode == 200) {
                     val content = connection.inputStream.bufferedReader().use { it.readText() }
                     val lines = content.lines()
-                    
+
                     var bestUrl: String? = null
                     var maxResolution = 0
-                    
+
                     for (i in lines.indices) {
                         val line = lines[i]
                         if (line.startsWith("#EXT-X-STREAM-INF")) {
@@ -211,7 +211,7 @@ object VideoExtractor {
                                 val width = resMatcher.group(1)?.toInt() ?: 0
                                 val height = resMatcher.group(2)?.toInt() ?: 0
                                 val pixelCount = width * height
-                                
+
                                 if (pixelCount > maxResolution) {
                                     maxResolution = pixelCount
                                     if (i + 1 < lines.size) {
@@ -222,7 +222,7 @@ object VideoExtractor {
                                                 val masterUri = java.net.URI(masterUrl)
                                                 // Resolve relative path correctly
                                                 val nextUri = masterUri.resolve(nextLine)
-                                                
+
                                                 // If the new URL doesn't have query params, but the master did, inherit them
                                                 // This is a heuristic for sites that use token authentication in the URL
                                                 if (masterUri.rawQuery != null && nextUri.rawQuery == null) {
@@ -245,7 +245,7 @@ object VideoExtractor {
                             }
                         }
                     }
-                    
+
                     val finalUrl = bestUrl ?: masterUrl
                     android.os.Handler(android.os.Looper.getMainLooper()).post {
                         callback(finalUrl)
@@ -262,5 +262,207 @@ object VideoExtractor {
                 }
             }
         }
+    }
+
+    fun extractHentaiHaven(html: String): String? {
+        // Pattern 1: Look for video.js player source
+        val videoJsPattern = Pattern.compile("sources?\\s*:\\s*\\[?\\s*\\{[^}]*src\\s*:\\s*[\"']([^\"']+\\.m3u8[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher1 = videoJsPattern.matcher(html)
+        if (matcher1.find()) {
+            return matcher1.group(1)
+        }
+
+        // Pattern 2: Direct m3u8 URL in script
+        val m3u8Pattern = Pattern.compile("[\"'](https?://[^\"']+\\.m3u8[^\"']*)[\"']")
+        val matcher2 = m3u8Pattern.matcher(html)
+        if (matcher2.find()) {
+            return matcher2.group(1)
+        }
+
+        // Pattern 3: MP4 video source
+        val mp4Pattern = Pattern.compile("<video[^>]+src\\s*=\\s*[\"']([^\"']+\\.mp4[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher3 = mp4Pattern.matcher(html)
+        if (matcher3.find()) {
+            return matcher3.group(1)
+        }
+
+        return null
+    }
+
+    fun extractHanime(html: String): String? {
+        // Hanime.tv typically uses HLS streaming
+        // Pattern 1: Look for player config with m3u8
+        val configPattern = Pattern.compile("videos_manifest\\s*[:\\{]\\s*[\"']?servers?[\"']?\\s*:\\s*\\[?[^\\]]*[\"']([^\"']+\\.m3u8[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher1 = configPattern.matcher(html)
+        if (matcher1.find()) {
+            return matcher1.group(1)
+        }
+
+        // Pattern 2: Direct server URL
+        val serverPattern = Pattern.compile("[\"'](https?://[^\"']*stream[^\"']*\\.m3u8[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher2 = serverPattern.matcher(html)
+        if (matcher2.find()) {
+            return matcher2.group(1)
+        }
+
+        // Pattern 3: Generic m3u8 URL
+        val m3u8Pattern = Pattern.compile("[\"'](https?://[^\"']+\\.m3u8[^\"']*)[\"']")
+        val matcher3 = m3u8Pattern.matcher(html)
+        if (matcher3.find()) {
+            return matcher3.group(1)
+        }
+
+        return null
+    }
+
+    fun extractWatchHentai(html: String): String? {
+        // Similar to generic video.js pattern
+        // Pattern 1: video.js source
+        val sourcePattern = Pattern.compile("source\\s*:\\s*[\"']([^\"']+\\.(m3u8|mp4)[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher1 = sourcePattern.matcher(html)
+        if (matcher1.find()) {
+            return matcher1.group(1)
+        }
+
+        // Pattern 2: <video> or <source> tag
+        val videoTagPattern = Pattern.compile("<(?:video|source)[^>]+src\\s*=\\s*[\"']([^\"']+\\.(m3u8|mp4)[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher2 = videoTagPattern.matcher(html)
+        if (matcher2.find()) {
+            return matcher2.group(1)
+        }
+
+        return null
+    }
+
+    fun extractOppai(html: String): String? {
+        // Pattern 1: Look for stream URLs
+        val streamPattern = Pattern.compile("[\"'](https?://[^\"']*(?:stream|video)[^\"']*\\.(?:m3u8|mp4)[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher = streamPattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+
+        // Pattern 2: Generic m3u8/mp4
+        val genericPattern = Pattern.compile("[\"'](https?://[^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']")
+        val matcher2 = genericPattern.matcher(html)
+        if (matcher2.find()) {
+            return matcher2.group(1)
+        }
+
+        return null
+    }
+
+    fun extractMuchoHentai(html: String): String? {
+        // Pattern 1: Player source
+        val playerPattern = Pattern.compile("file\\s*:\\s*[\"']([^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher = playerPattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+
+        // Pattern 2: Video tag
+        val videoPattern = Pattern.compile("<video[^>]+src\\s*=\\s*[\"']([^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher2 = videoPattern.matcher(html)
+        if (matcher2.find()) {
+            return matcher2.group(1)
+        }
+
+        return null
+    }
+
+    fun extractHentaiMama(html: String): String? {
+        // Similar pattern to others
+        val pattern = Pattern.compile("[\"'](https?://[^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']")
+        val matcher = pattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+        return null
+    }
+
+    fun extractHentaiFreak(html: String): String? {
+        // Pattern for HD streams
+        val hdPattern = Pattern.compile("[\"'](https?://[^\"']*(?:hd|720|1080)[^\"']*\\.(?:m3u8|mp4)[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher = hdPattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+
+        // Fallback to generic
+        val genericPattern = Pattern.compile("[\"'](https?://[^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']")
+        val matcher2 = genericPattern.matcher(html)
+        if (matcher2.find()) {
+            return matcher2.group(1)
+        }
+
+        return null
+    }
+
+    fun extractXanimeporn(html: String): String? {
+        // Generic extractor
+        val pattern = Pattern.compile("[\"'](https?://[^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']")
+        val matcher = pattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+        return null
+    }
+
+    fun extractKissHentai(html: String): String? {
+        // Pattern 1: Player config
+        val configPattern = Pattern.compile("(?:source|file)\\s*:\\s*[\"']([^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']", Pattern.CASE_INSENSITIVE)
+        val matcher = configPattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+
+        // Pattern 2: Generic
+        val genericPattern = Pattern.compile("[\"'](https?://[^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']")
+        val matcher2 = genericPattern.matcher(html)
+        if (matcher2.find()) {
+            return matcher2.group(1)
+        }
+
+        return null
+    }
+
+    fun extractHentaiCity(html: String): String? {
+        // Generic MP4/M3U8 extractor
+        val pattern = Pattern.compile("[\"'](https?://[^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']")
+        val matcher = pattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+        return null
+    }
+
+    fun extractHentaiUniverse(html: String): String? {
+        // HD stream pattern
+        val pattern = Pattern.compile("[\"'](https?://[^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']")
+        val matcher = pattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+        return null
+    }
+
+    fun extractAnimeIDHentai(html: String): String? {
+        // Anime-style naming pattern
+        val pattern = Pattern.compile("[\"'](https?://[^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']")
+        val matcher = pattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+        return null
+    }
+
+    fun extractOhentai(html: String): String? {
+        // Multi-format support
+        val pattern = Pattern.compile("[\"'](https?://[^\"']+\\.(?:m3u8|mp4)[^\"']*)[\"']")
+        val matcher = pattern.matcher(html)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+        return null
     }
 }

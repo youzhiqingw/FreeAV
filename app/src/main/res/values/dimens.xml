@@ -21,4 +21,9 @@
     <dimen name="elevation_sm">2dp</dimen>
     <dimen name="elevation_md">4dp</dimen>
     <dimen name="elevation_lg">8dp</dimen>
+
+    <!-- Component Sizes -->
+    <dimen name="icon_size_large">64dp</dimen>
+    <dimen name="pin_button_size">80dp</dimen>
+    <dimen name="thumbnail_size">72dp</dimen>
 </resources>

@@ -38,4 +38,19 @@
     <string name="export_rules">Export Rules</string>
     <string name="import_rules">Import Rules</string>
     <string name="back">Back</string>
+
+    <!-- Lock Screen -->
+    <string name="app_locked">App Locked</string>
+    <string name="enter_pin">Enter PIN</string>
+    <string name="use_biometric">Use Biometric</string>
+    <string name="incorrect_pin">Incorrect PIN</string>
+    <string name="unlock">Unlock</string>
+    <string name="delete">Delete</string>
+
+    <!-- Favorites -->
+    <string name="video_thumbnail">Video Thumbnail</string>
+    <string name="delete_favorite">Delete favorite</string>
+    <string name="export_success">Export successful</string>
+    <string name="export_failed">Export failed</string>
+    <string name="from_domain">From: %s</string>
 </resources>

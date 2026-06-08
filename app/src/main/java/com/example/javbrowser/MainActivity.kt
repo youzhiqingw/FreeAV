@@ -10,6 +10,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -31,24 +32,42 @@ class MainActivity : AppCompatActivity() {
     private lateinit var biometricHelper: BiometricHelper
     private var currentVideoUrl: String? = null
     private var currentVideoReferer: String? = null
-    private var videoFoundToastShown = false
     private var videoProxyServer: VideoProxyServer? = null
     private var cachedBlockList: Set<String> = emptySet()
     private var isUnlocked = false
     private var isFreshStart = true
-    private val REQUEST_CODE_FAVORITES = 1001
-    private val REQUEST_CODE_LOCK = 1002
-    
+    private var backPressedTime: Long = 0
+
     // Loading Timeout & Progress
     private var loadStartTime: Long = 0
     private var timeoutHandler: android.os.Handler? = null
     private var timeoutRunnable: Runnable? = null
     private val TIMEOUT_DURATION = 30000L // 30 seconds
-    private var backPressedTime: Long = 0
     // 儲存每個 URL 對應的滾動位置，格式為 url -> Pair(scrollX, scrollY)
     private val scrollPositionMap = HashMap<String, Pair<Int, Int>>()
     // 標記下一次 onPageFinished 是否需要恢復滾動位置（因為是 goBack 觸發的）
     private var pendingScrollRestoreUrl: String? = null
+
+    // Activity Result Launchers (替代已弃用的 startActivityForResult)
+    private val favoritesLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val url = result.data?.getStringExtra("url")
+            if (url != null) {
+                val updatedUrl = domainConfig.updateUrlIfNeeded(url)
+                webView.loadUrl(updatedUrl)
+            }
+        }
+    }
+
+    private val lockLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            isUnlocked = true
+            privacySettings.updateUnlockTime()
+        } else {
+            // Lock failed or cancelled, finish app
+            finish()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -160,29 +179,10 @@ class MainActivity : AppCompatActivity() {
         if (privacySettings.isLockEnabled && !isUnlocked) {
             if (isFreshStart || privacySettings.shouldLock()) {
                 val intent = Intent(this, LockActivity::class.java)
-                startActivityForResult(intent, REQUEST_CODE_LOCK)
+                lockLauncher.launch(intent)
             }
         }
         isFreshStart = false
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_FAVORITES && resultCode == RESULT_OK) {
-            val url = data?.getStringExtra("url")
-            if (url != null) {
-                val updatedUrl = domainConfig.updateUrlIfNeeded(url)
-                webView.loadUrl(updatedUrl)
-            }
-        } else if (requestCode == REQUEST_CODE_LOCK) {
-            if (resultCode == RESULT_OK) {
-                isUnlocked = true
-                privacySettings.updateUnlockTime()
-            } else {
-                // Lock failed or cancelled, finish app
-                finish()
-            }
-        }
     }
 
     override fun onStop() {
@@ -311,8 +311,7 @@ class MainActivity : AppCompatActivity() {
                 btnPlay.visibility = View.GONE
                 currentVideoUrl = null
                 currentVideoReferer = null
-                videoFoundToastShown = false
-                
+
                 // Show progress bar and start timeout
                 if (!isOnLandingPage()) {
                     progressBar.visibility = View.VISIBLE
@@ -835,6 +834,32 @@ class MainActivity : AppCompatActivity() {
                 if (extractedUrl != null) {
                     currentVideoReferer = "https://avjoy.me/"
                 }
+            } else if (url.contains("hentaihaven")) {
+                extractedUrl = VideoExtractor.extractHentaiHaven(rawHtml)
+            } else if (url.contains("hanime.tv")) {
+                extractedUrl = VideoExtractor.extractHanime(rawHtml)
+            } else if (url.contains("watchhentai")) {
+                extractedUrl = VideoExtractor.extractWatchHentai(rawHtml)
+            } else if (url.contains("oppai.stream")) {
+                extractedUrl = VideoExtractor.extractOppai(rawHtml)
+            } else if (url.contains("muchohentai")) {
+                extractedUrl = VideoExtractor.extractMuchoHentai(rawHtml)
+            } else if (url.contains("hentaimama")) {
+                extractedUrl = VideoExtractor.extractHentaiMama(rawHtml)
+            } else if (url.contains("hentaifreak")) {
+                extractedUrl = VideoExtractor.extractHentaiFreak(rawHtml)
+            } else if (url.contains("xanimeporn")) {
+                extractedUrl = VideoExtractor.extractXanimeporn(rawHtml)
+            } else if (url.contains("kisshentai")) {
+                extractedUrl = VideoExtractor.extractKissHentai(rawHtml)
+            } else if (url.contains("hentaicity")) {
+                extractedUrl = VideoExtractor.extractHentaiCity(rawHtml)
+            } else if (url.contains("hentaiuniverse")) {
+                extractedUrl = VideoExtractor.extractHentaiUniverse(rawHtml)
+            } else if (url.contains("animeidhentai")) {
+                extractedUrl = VideoExtractor.extractAnimeIDHentai(rawHtml)
+            } else if (url.contains("ohentai")) {
+                extractedUrl = VideoExtractor.extractOhentai(rawHtml)
             }
 
             if (extractedUrl != null) {
@@ -924,7 +949,7 @@ class MainActivity : AppCompatActivity() {
 
         btnViewFavorites.setOnClickListener {
             val intent = Intent(this, FavoritesActivity::class.java)
-            startActivityForResult(intent, REQUEST_CODE_FAVORITES)
+            favoritesLauncher.launch(intent)
         }
     }
     
@@ -1134,14 +1159,30 @@ class MainActivity : AppCompatActivity() {
                         <a href="#" id="searchAvJoy">在 AvJoy 搜尋</a>
                     </div>
                 </div>
-                
-                <div class="divider">或直接前往</div>
-                
+
+                <div class="divider">🎬 JAV 視頻站點</div>
+
                 <a href="javascript:Android.navigateToUrl('${domainConfig.getMissAvBaseUrl()}')">Go to MissAV</a>
                 <a href="javascript:Android.navigateToUrl('https://${domainConfig.getJableDomain()}/')">Go to Jable</a>
                 <a href="javascript:Android.navigateToUrl('https://${domainConfig.getRouVideoDomain()}/home')">Go to Rou.Video</a>
                 <a href="javascript:Android.navigateToUrl('https://${domainConfig.getAvJoyDomain()}/')">Go to AvJoy</a>
-                
+
+                <div class="divider">🔥 Hentai 動畫站點</div>
+
+                <a href="javascript:Android.navigateToUrl('https://hanime.tv')">Hanime.tv</a>
+                <a href="javascript:Android.navigateToUrl('https://hentaihaven.xxx')">HentaiHaven</a>
+                <a href="javascript:Android.navigateToUrl('https://hentaifreak.org')">HentaiFreak</a>
+                <a href="javascript:Android.navigateToUrl('https://oppai.stream')">Oppai.stream</a>
+                <a href="javascript:Android.navigateToUrl('https://watchhentai.net')">WatchHentai</a>
+                <a href="javascript:Android.navigateToUrl('https://muchohentai.com')">MuchoHentai</a>
+                <a href="javascript:Android.navigateToUrl('https://hentaimama.io')">HentaiMama</a>
+                <a href="javascript:Android.navigateToUrl('https://xanimeporn.com')">Xanimeporn</a>
+                <a href="javascript:Android.navigateToUrl('https://kisshentai.net')">KissHentai</a>
+                <a href="javascript:Android.navigateToUrl('https://hentaicity.com')">HentaiCity</a>
+                <a href="javascript:Android.navigateToUrl('https://hentaiuniverse.net')">HentaiUniverse</a>
+                <a href="javascript:Android.navigateToUrl('https://animeidhentai.com')">AnimeIDHentai</a>
+                <a href="javascript:Android.navigateToUrl('https://ohentai.org')">Ohentai</a>
+
                 <div class="help-button" onclick="showHelp()">?</div>
 
                 <script>
@@ -1179,16 +1220,6 @@ class MainActivity : AppCompatActivity() {
                         Android.showHelpDialog();
                     }
                 </script>
-                
-                <div style="margin-top: 10px; padding: 10px;">
-                    <a href="https://www.277sy.com/index.php/Rmiddle/down_ra/?appid=401&tgid=da0003500&type=1" 
-                       style="display: block; padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                              border-radius: 12px; text-decoration: none; color: white; text-align: center; 
-                              font-size: 18px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                        🐱 靈貓遊戲 - 超低折扣 | 海量福利 | 專屬特權<br>
-                        <span style="font-size: 14px; opacity: 0.9;">點擊下載 APP</span>
-                    </a>
-                </div>
             </body>
             </html>
         """.trimIndent()

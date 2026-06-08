@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,9 +27,23 @@ class FavoritesActivity : AppCompatActivity() {
     private lateinit var favoritesManager: FavoritesManager
     private var allFavorites: List<FavoriteItem> = emptyList()
 
-    companion object {
-        private const val REQUEST_CODE_EXPORT = 2001
-        private const val REQUEST_CODE_IMPORT = 2002
+    // Activity Result Launchers (替代已弃用的 startActivityForResult)
+    private val exportLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri?.let {
+            val success = favoritesManager.exportFavoritesToFile(this, it)
+            val msg = if (success) getString(R.string.export_success) else getString(R.string.export_failed)
+            android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val importLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let {
+            val result = favoritesManager.importFavoritesFromFile(this, it)
+            android.widget.Toast.makeText(this, result.second, android.widget.Toast.LENGTH_SHORT).show()
+            if (result.first) {
+                loadFavorites()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,43 +84,14 @@ class FavoritesActivity : AppCompatActivity() {
     
     private fun setupBackupButtons() {
         btnExport.setOnClickListener {
-            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/json"
-                putExtra(Intent.EXTRA_TITLE, "javbrowser_favorites.json")
-            }
-            startActivityForResult(intent, REQUEST_CODE_EXPORT)
+            exportLauncher.launch("javbrowser_favorites.json")
         }
 
         btnImport.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/json"
-            }
-            startActivityForResult(intent, REQUEST_CODE_IMPORT)
+            importLauncher.launch(arrayOf("application/json"))
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK && data?.data != null) {
-            when (requestCode) {
-                REQUEST_CODE_EXPORT -> {
-                    val success = favoritesManager.exportFavoritesToFile(this, data.data!!)
-                    val msg = if (success) "匯出成功" else "匯出失敗"
-                    android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
-                }
-                REQUEST_CODE_IMPORT -> {
-                    val result = favoritesManager.importFavoritesFromFile(this, data.data!!)
-                    android.widget.Toast.makeText(this, result.second, android.widget.Toast.LENGTH_SHORT).show()
-                    if (result.first) {
-                        loadFavorites()
-                    }
-                }
-            }
-        }
-    }
-    
     private fun setupSearch() {
         etSearch.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -165,7 +151,7 @@ class FavoritesActivity : AppCompatActivity() {
             
             // Extract and display domain only
             val domain = extractDomain(item.url)
-            holder.tvUrl.text = "來自: $domain"
+            holder.tvUrl.text = getString(R.string.from_domain, domain)
             
             // Load thumbnail using Glide
             if (!item.thumbnailUrl.isNullOrEmpty()) {

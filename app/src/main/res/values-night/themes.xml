@@ -43,4 +43,14 @@
         <item name="android:statusBarColor">@color/md_theme_dark_surface</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
+
+    <style name="Theme.JAVBrowser" parent="Base.Theme.JAVBrowser" />
+
+    <!-- NoActionBar theme for LockActivity in dark mode -->
+    <style name="Theme.AppCompat.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
+        <item name="android:statusBarColor">@color/md_theme_dark_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>

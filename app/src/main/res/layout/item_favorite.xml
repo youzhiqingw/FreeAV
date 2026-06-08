@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:layout_margin="@dimen/spacing_sm"
+    style="@style/Widget.Material3.CardView.Elevated"
+    app:cardCornerRadius="@dimen/corner_radius_sm"
+    app:cardElevation="@dimen/elevation_sm">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="@dimen/spacing_md"
         android:gravity="center_vertical">
 
         <!-- Thumbnail/Icon -->
         <ImageView
             android:id="@+id/iv_thumbnail"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="@dimen/thumbnail_size"
+            android:layout_height="@dimen/thumbnail_size"
             android:scaleType="centerCrop"
-            android:background="@android:color/darker_gray"
-            android:layout_marginEnd="12dp"
-            android:contentDescription="Video Thumbnail" />
+            android:background="?attr/colorSurfaceVariant"
+            android:layout_marginEnd="@dimen/spacing_md"
+            android:contentDescription="@string/video_thumbnail" />
 
         <!-- Title and URL container -->
         <LinearLayout
@@ -35,9 +36,8 @@
                 android:id="@+id/tv_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="?attr/colorOnSurface"
                 android:maxLines="4"
                 android:ellipsize="end"
                 android:lineSpacingMultiplier="1.1" />
@@ -46,23 +46,24 @@
                 android:id="@+id/tv_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="11sp"
-                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:maxLines="1"
                 android:ellipsize="end" />
         </LinearLayout>
 
         <!-- Delete button -->
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_delete"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:src="@android:drawable/ic_menu_delete"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Delete" />
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/min_touch_target"
+            android:layout_height="@dimen/min_touch_target"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/delete_favorite"
+            app:icon="@drawable/ic_delete"
+            app:iconTint="?attr/colorOnSurfaceVariant" />
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

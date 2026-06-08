@@ -51,6 +51,14 @@
 
     <style name="Theme.JAVBrowser" parent="Base.Theme.JAVBrowser" />
 
+    <!-- NoActionBar theme for LockActivity -->
+    <style name="Theme.AppCompat.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="android:statusBarColor">@color/md_theme_light_surface</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
     <!-- Shape Appearances -->
     <style name="ShapeAppearance.JAVBrowser.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
