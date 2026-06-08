@@ -2,9 +2,10 @@ package com.example.javbrowser
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
-import android.util.Log
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.concurrent.thread
@@ -167,13 +168,6 @@ class AdFilterRules(private val context: Context) {
                 if (url.contains(pattern)) return true
             }
 
-            // 4. 第三方请求额外检查（预留扩展点）
-            if (isThirdParty) {
-                for (pattern in blockPatterns) {
-                    if (host.contains(pattern)) return true
-                }
-            }
-
             return false
         } catch (e: Exception) {
             return false
@@ -193,16 +187,25 @@ class AdFilterRules(private val context: Context) {
                     parseRule(array.getString(i))?.let { rule ->
                         when (rule.type) {
                             RuleType.BLOCK -> {
-                                if (rule.domain != null) blockRules.add(rule.domain)
-                                else if (rule.pattern != null) blockPatterns.add(rule.pattern)
+                                if (rule.domain != null) {
+                                    blockRules.add(rule.domain)
+                                } else if (rule.pattern != null) {
+                                    blockPatterns.add(rule.pattern)
+                                }
                             }
                             RuleType.WHITELIST -> {
-                                if (rule.domain != null) whiteList.add(rule.domain)
+                                if (rule.domain != null) {
+                                    whiteList.add(rule.domain)
+                                }
                             }
                             RuleType.ELEMENT_HIDE -> {
-                                if (rule.pattern != null) elementHideRules.add(rule.pattern)
+                                if (rule.pattern != null) {
+                                    elementHideRules.add(rule.pattern)
+                                }
                             }
+                            else -> {}
                         }
+                        Unit
                     }
                 }
             }
@@ -294,16 +297,25 @@ class AdFilterRules(private val context: Context) {
                         parseRule(rule)?.let { adRule ->
                             when (adRule.type) {
                                 RuleType.BLOCK -> {
-                                    if (adRule.domain != null) newBlockRules.add(adRule.domain)
-                                    else if (adRule.pattern != null) newBlockPatterns.add(adRule.pattern)
+                                    if (adRule.domain != null) {
+                                        newBlockRules.add(adRule.domain)
+                                    } else if (adRule.pattern != null) {
+                                        newBlockPatterns.add(adRule.pattern)
+                                    }
                                 }
                                 RuleType.WHITELIST -> {
-                                    if (adRule.domain != null) newWhiteList.add(adRule.domain)
+                                    if (adRule.domain != null) {
+                                        newWhiteList.add(adRule.domain)
+                                    }
                                 }
                                 RuleType.ELEMENT_HIDE -> {
-                                    if (adRule.pattern != null) newElementHideRules.add(adRule.pattern)
+                                    if (adRule.pattern != null) {
+                                        newElementHideRules.add(adRule.pattern)
+                                    }
                                 }
+                                else -> {}
                             }
+                            Unit
                         }
                     }
 
@@ -416,6 +428,7 @@ class AdFilterRules(private val context: Context) {
                 RuleType.LINK_BLOCK -> "linkBlock"
                 RuleType.IFRAME_BLOCK -> "iframeBlock"
                 RuleType.REDIRECT_BLOCK -> "redirectBlock"
+                else -> return emptyList() // 不支持的类型，返回空列表
             }
             
             try {
@@ -511,6 +524,7 @@ class AdFilterRules(private val context: Context) {
                 RuleType.LINK_BLOCK -> "linkBlock"
                 RuleType.IFRAME_BLOCK -> "iframeBlock"
                 RuleType.REDIRECT_BLOCK -> "redirectBlock"
+                else -> return false // 不支持的类型
             }
             
             val array = rulesObject.getJSONArray(key)
@@ -545,6 +559,7 @@ class AdFilterRules(private val context: Context) {
                 RuleType.LINK_BLOCK -> "linkBlock"
                 RuleType.IFRAME_BLOCK -> "iframeBlock"
                 RuleType.REDIRECT_BLOCK -> "redirectBlock"
+                else -> return false // 不支持的类型
             }
             
             val array = rulesObject.getJSONArray(key)
@@ -608,33 +623,21 @@ class AdFilterRules(private val context: Context) {
         )
     }
     
-    // 规则类型枚举
-    private enum class RuleType {
-        BLOCK,       // 拦截规则
-        WHITELIST,   // 白名单规则
-        ELEMENT_HIDE // 元素隐藏规则
-    }
-    
-    // 规则数据结构
-    private data class AdRule(
-        val type: RuleType,
-        val domain: String?,    // 匹配的域名
-        val pattern: String?    // 匹配的模式或选择器
-    )
-    
     // 僅獲取特定類型規則（不包含 commonBlock）
     private fun getRulesListOnly(type: RuleType): List<String> {
         return try {
             val json = prefs.getString(KEY_RULES_JSON, DEFAULT_RULES) ?: DEFAULT_RULES
             val jsonObject = JSONObject(json)
             val rulesObject = jsonObject.getJSONObject("rules")
-            
+
             val key = when (type) {
                 RuleType.NETWORK_BLOCK -> "networkBlock"
                 RuleType.LINK_BLOCK -> "linkBlock"
                 RuleType.IFRAME_BLOCK -> "iframeBlock"
                 RuleType.REDIRECT_BLOCK -> "redirectBlock"
+                else -> ""
             }
+            if (key.isEmpty()) return emptyList()
             
             val array = rulesObject.getJSONArray(key)
             val list = mutableListOf<String>()

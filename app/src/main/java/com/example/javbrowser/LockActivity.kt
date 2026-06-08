@@ -7,11 +7,11 @@ import android.view.WindowManager
 import android.view.animation.CycleInterpolator
 import android.view.animation.TranslateAnimation
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButton
 
 class LockActivity : AppCompatActivity() {
 
@@ -95,7 +95,7 @@ class LockActivity : AppCompatActivity() {
             }
         }
 
-        val btnDelete = findViewById<ImageButton>(R.id.btn_delete)
+        val btnDelete = findViewById<MaterialButton>(R.id.btn_delete)
         btnDelete.setScaleAnimation(0.9f, 120)
         btnDelete.setOnClickListener {
             if (currentPinInput.isNotEmpty()) {
@@ -104,7 +104,7 @@ class LockActivity : AppCompatActivity() {
             }
         }
 
-        val btnEnter = findViewById<ImageButton>(R.id.btn_enter)
+        val btnEnter = findViewById<MaterialButton>(R.id.btn_enter)
         btnEnter.setScaleAnimation(0.9f, 120)
         btnEnter.setOnClickListener {
             verifyPin()
