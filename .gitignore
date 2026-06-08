@@ -11,4 +11,6 @@
 /local.properties
 *.md
 !README.md
+!docs/**/*.md
+!DOCS_INDEX.md
 .vscode/
