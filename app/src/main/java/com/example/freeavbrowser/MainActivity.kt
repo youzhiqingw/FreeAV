@@ -1192,7 +1192,9 @@ class MainActivity : AppCompatActivity() {
                             <a class="site-btn" href="javascript:Android.navigateToUrl('${domainConfig.getMissAvBaseUrl()}')"><span class="dot"></span>MissAV</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://${domainConfig.getJableDomain()}/')"><span class="dot"></span>Jable</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://${domainConfig.getRouVideoDomain()}/home')"><span class="dot"></span>Rou.Video</a>
-                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://${domainConfig.getAvJoyDomain()}/')"><span class="dot"></span>AvJoy</a>
+                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://supjav.com/')"><span class="dot"></span>SupJAV</a>
+                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://javgg.net/')"><span class="dot"></span>JavGG</a>
+                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://njav.tv/')"><span class="dot"></span>Njav.tv</a>
                         </div>
                     </div>
 
@@ -1204,14 +1206,12 @@ class MainActivity : AppCompatActivity() {
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://hentaifreak.org')">HentaiFreak</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://oppai.stream')">Oppai.stream</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://watchhentai.net')">WatchHentai</a>
-                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://muchohentai.com')">MuchoHentai</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://hentaimama.io')">HentaiMama</a>
-                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://xanimeporn.com')">Xanimeporn</a>
-                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://kisshentai.net')">KissHentai</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://hentaicity.com')">HentaiCity</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://hentaiuniverse.net')">HentaiUniverse</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://animeidhentai.com')">AnimeIDHentai</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://ohentai.org')">Ohentai</a>
+                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://muchohentai.com')">MuchoHentai</a>
                         </div>
                     </div>
 
