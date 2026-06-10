@@ -1,0 +1,21 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]: 14:32
+    - generic [ref=e5]:
+      - generic [ref=e6]: 5G
+      - generic [ref=e7]: ▂▄▆█
+      - generic [ref=e8]: 85%
+  - generic [ref=e9]:
+    - img [ref=e12]
+    - heading "安全浏览器" [level=1] [ref=e14]
+    - paragraph [ref=e15]:
+      - text: 请验证身份以继续访问
+      - text: 您的隐私数据已加密保护
+    - img [ref=e20]
+    - paragraph [ref=e22]: 触摸指纹传感器
+    - button "立即进入" [ref=e23] [cursor=pointer]:
+      - generic [ref=e24]: 立即进入
+    - paragraph [ref=e25]: 验证成功后 3 秒自动跳转
+    - generic [ref=e26]:
+      - img [ref=e27]
+      - generic [ref=e29]: 禁止截屏 · FLAG_SECURE 已启用

@@ -57,7 +57,7 @@
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.JAVBrowser.LargeComponent</item>
 
         <!-- Status bar color -->
-        <item name="android:statusBarColor">@color/md_theme_light_surface</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
 
         <!-- Activity Transitions -->

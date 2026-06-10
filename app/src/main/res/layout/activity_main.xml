@@ -7,7 +7,7 @@
     android:background="?attr/colorSurface"
     tools:context=".MainActivity">
 
-    <!-- Main Content Container (existing content) -->
+    <!-- Main Content Container -->
     <FrameLayout
         android:id="@+id/main_content_container"
         android:layout_width="0dp"
@@ -17,98 +17,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Top App Bar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbar_height"
-            android:background="?attr/colorSurfaceContainer"
-            android:elevation="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingEnd="@dimen/spacing_sm">
-
-                <!-- Home Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_home"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="@dimen/min_touch_target"
-                    android:layout_height="@dimen/min_touch_target"
-                    android:contentDescription="@string/home"
-                    app:icon="@drawable/ic_home"
-                    app:iconTint="?attr/colorOnSurface" />
-
-                <!-- Add to Favorites Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_add_favorite"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="@dimen/min_touch_target"
-                    android:layout_height="@dimen/min_touch_target"
-                    android:contentDescription="@string/add_favorite"
-                    app:icon="@drawable/ic_favorite_border"
-                    app:iconTint="?attr/colorOnSurface" />
-
-                <!-- View Favorites Button (will be hidden) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_view_favorites"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="@dimen/min_touch_target"
-                    android:layout_height="@dimen/min_touch_target"
-                    android:contentDescription="@string/view_favorites"
-                    android:visibility="gone"
-                    app:icon="@drawable/ic_collections"
-                    app:iconTint="?attr/colorOnSurface" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <!-- Play Button (visible when video detected) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_play"
-                    style="@style/Widget.Material3.Button.TonalButton.Icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/play"
-                    android:visibility="gone"
-                    android:layout_marginEnd="@dimen/spacing_sm"
-                    app:icon="@drawable/ic_play_arrow" />
-
-                <!-- Settings Button (will be hidden) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_settings"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="@dimen/min_touch_target"
-                    android:layout_height="@dimen/min_touch_target"
-                    android:contentDescription="@string/settings"
-                    android:visibility="gone"
-                    app:icon="@drawable/ic_settings"
-                    app:iconTint="?attr/colorOnSurface" />
-            </LinearLayout>
-        </com.google.android.material.appbar.MaterialToolbar>
-
-        <!-- Loading Progress Bar -->
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progressBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/toolbar_height"
-            android:visibility="gone"
-            app:indicatorColor="?attr/colorPrimary"
-            app:trackColor="?attr/colorSurfaceVariant" />
-
         <!-- WebView -->
         <WebView
             android:id="@+id/webView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/toolbar_height"
             android:background="?attr/colorSurface" />
+
+        <!-- Loading Progress Bar (top of WebView) -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:indicatorColor="?attr/colorPrimary"
+            app:trackColor="?attr/colorSurfaceVariant"
+            app:trackThickness="3dp" />
+
+        <!-- Play Button (floating, visible when video detected) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_play"
+            style="@style/Widget.Material3.Button.TonalButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:layout_marginEnd="@dimen/spacing_md"
+            android:text="@string/play"
+            android:visibility="gone"
+            app:icon="@drawable/ic_play_arrow"
+            app:cornerRadius="20dp" />
     </FrameLayout>
 
     <!-- Divider -->
@@ -126,6 +64,11 @@
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="?attr/colorSurfaceContainer"
+        app:itemIconTint="@drawable/selector_nav_color"
+        app:itemTextColor="@drawable/selector_nav_color"
+        app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView.ActiveIndicator"
+        app:itemRippleColor="?attr/colorPrimaryContainer"
         app:menu="@menu/navigation_menu"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"

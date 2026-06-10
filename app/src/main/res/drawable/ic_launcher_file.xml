@@ -1,9 +1,22 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Background rounded square -->
     <path
         android:fillColor="#2196F3"
-        android:pathData="M10,4H4C2.9,4 2,4.9 2,6V18C2,19.1 2.9,20 4,20H20C21.1,20 22,19.1 22,18V8C22,6.9 21.1,6 20,6H12L10,4Z"/>
+        android:pathData="M18,12C18,8.69 20.69,6 24,6h60c3.31,0 6,2.69 6,6v60c0,3.31 -2.69,6 -6,6h-60c-3.31,0 -6,-2.69 -6,-6V12Z" />
+
+    <!-- Folder symbol (24x24 scaled 3x, centered) -->
+    <group
+        android:translateX="18"
+        android:translateY="18"
+        android:scaleX="3"
+        android:scaleY="3">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M10,4H4C2.9,4 2,4.9 2,6V18C2,19.1 2.9,20 4,20H20C21.1,20 22,19.1 22,18V8C22,6.9 21.1,6 20,6H12L10,4Z" />
+    </group>
 </vector>

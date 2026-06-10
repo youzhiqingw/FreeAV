@@ -143,7 +143,7 @@ dependencies {
 
 #### 3.1 Hosts 文件格式
 ```
-# /data/data/com.example.javbrowser/files/hosts
+# /data/data/com.example.freeavbrowser/files/hosts
 127.0.0.1 localhost
 185.199.108.133 raw.githubusercontent.com
 104.21.12.34 missav.ai

@@ -25,7 +25,7 @@
 | **Min SDK** | API 24 (Android 7.0 Nougat) | 支持 95%+ 设备 |
 | **Target SDK** | API 34 (Android 14) | 最新稳定版 |
 | **Compile SDK** | 34 | 编译目标 |
-| **Package Name** | `com.example.javbrowser` | 应用唯一标识 |
+| **Package Name** | `com.example.freeavbrowser` | 应用唯一标识 |
 | **Version Code** | 1 | 构建版本号 |
 | **Version Name** | 1.0 | 用户可见版本 |
 
@@ -85,8 +85,8 @@
 | **图片存储** | Base64 编码 → JSON | 收藏夹缩略图（内嵌存储） |
 
 **存储路径**:  
-- 主配置: `/data/data/com.example.javbrowser/shared_prefs/favorites.xml`
-- WebView 缓存: `/data/data/com.example.javbrowser/cache/`
+- 主配置: `/data/data/com.example.freeavbrowser/shared_prefs/favorites.xml`
+- WebView 缓存: `/data/data/com.example.freeavbrowser/cache/`
 
 ### 4.2 网络层
 
@@ -269,7 +269,7 @@ gradlew.bat test               # 运行单元测试
 ```
 Project Dependencies Graph:
 
-com.example.javbrowser
+com.example.freeavbrowser
 ├── Android SDK 34
 │   ├── androidx.* (UI/Core Libraries)
 │   ├── com.google.android.material (Material Design)

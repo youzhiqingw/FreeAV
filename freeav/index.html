@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全浏览器 - Android 原型</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+    /* Material Design 3 主题 - 深色模式 */
+    :root {
+      --md-sys-color-primary: #D0BCFF;
+      --md-sys-color-on-primary: #381E72;
+      --md-sys-color-primary-container: #4F378B;
+      --md-sys-color-on-primary-container: #EADDFF;
+      --md-sys-color-secondary: #CCC2DC;
+      --md-sys-color-on-secondary: #332D41;
+      --md-sys-color-secondary-container: #4A4458;
+      --md-sys-color-on-secondary-container: #E8DEF8;
+      --md-sys-color-tertiary: #EFB8C8;
+      --md-sys-color-on-tertiary: #492532;
+      --md-sys-color-tertiary-container: #633B48;
+      --md-sys-color-on-tertiary-container: #FFD8E4;
+      --md-sys-color-error: #F2B8B5;
+      --md-sys-color-on-error: #601410;
+      --md-sys-color-surface: #1C1B1F;
+      --md-sys-color-on-surface: #E6E1E5;
+      --md-sys-color-surface-variant: #49454F;
+      --md-sys-color-on-surface-variant: #CAC4D0;
+      --md-sys-color-outline: #938F99;
+      --md-sys-color-outline-variant: #49454F;
+      --md-sys-color-background: #141218;
+      --md-sys-color-on-background: #E6E1E5;
+      --md-sys-color-surface-dim: #141218;
+      --md-sys-color-surface-bright: #3B383E;
+      --md-sys-color-surface-container-lowest: #0F0D13;
+      --md-sys-color-surface-container-low: #1D1B20;
+      --md-sys-color-surface-container: #211F26;
+      --md-sys-color-surface-container-high: #2B2930;
+      --md-sys-color-surface-container-highest: #36343B;
+      --md-sys-color-inverse-surface: #E6E0E9;
+      --md-sys-color-inverse-on-surface: #322F35;
+
+      --md-sys-elevation-level0: none;
+      --md-sys-elevation-level1: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
+      --md-sys-elevation-level2: 0 1px 2px rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15);
+      --md-sys-elevation-level3: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* 日间模式 */
+    [data-theme="light"] {
+      --md-sys-color-primary: #6750A4;
+      --md-sys-color-on-primary: #FFFFFF;
+      --md-sys-color-primary-container: #EADDFF;
+      --md-sys-color-on-primary-container: #21005D;
+      --md-sys-color-secondary: #625B71;
+      --md-sys-color-on-secondary: #FFFFFF;
+      --md-sys-color-secondary-container: #E8DEF8;
+      --md-sys-color-on-secondary-container: #1D192B;
+      --md-sys-color-tertiary: #7D5260;
+      --md-sys-color-on-tertiary: #FFFFFF;
+      --md-sys-color-tertiary-container: #FFD8E4;
+      --md-sys-color-on-tertiary-container: #31111D;
+      --md-sys-color-error: #B3261E;
+      --md-sys-color-on-error: #FFFFFF;
+      --md-sys-color-surface: #FFFBFE;
+      --md-sys-color-on-surface: #1C1B1F;
+      --md-sys-color-surface-variant: #E7E0EC;
+      --md-sys-color-on-surface-variant: #49454F;
+      --md-sys-color-outline: #79747E;
+      --md-sys-color-outline-variant: #CAC4D0;
+      --md-sys-color-background: #FEF7FF;
+      --md-sys-color-on-background: #1D1B20;
+      --md-sys-color-surface-dim: #DED8E1;
+      --md-sys-color-surface-bright: #FEF7FF;
+      --md-sys-color-surface-container-lowest: #FFFFFF;
+      --md-sys-color-surface-container-low: #F7F2FA;
+      --md-sys-color-surface-container: #F3EDF7;
+      --md-sys-color-surface-container-high: #ECE6F0;
+      --md-sys-color-surface-container-highest: #E6E0E9;
+      --md-sys-color-inverse-surface: #322F35;
+      --md-sys-color-inverse-on-surface: #F5EFF7;
+
+      --md-sys-elevation-level0: none;
+      --md-sys-elevation-level1: 0 1px 3px 1px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3);
+      --md-sys-elevation-level2: 0 2px 6px 2px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3);
+      --md-sys-elevation-level3: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'Noto Sans SC', 'Roboto', Arial, sans-serif;
+      background: var(--md-sys-color-background);
+      color: var(--md-sys-color-on-background);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      padding: clamp(16px, 3vw, 32px) clamp(12px, 2vw, 24px);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: clamp(24px, 5vw, 48px);
+    }
+
+    .app-icon {
+      width: clamp(56px, 8vw, 80px);
+      height: clamp(56px, 8vw, 80px);
+      border-radius: clamp(14px, 2vw, 18px);
+      background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-primary-container) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto clamp(16px, 3vw, 24px);
+      box-shadow: var(--md-sys-elevation-level2);
+    }
+
+    .app-icon svg {
+      width: clamp(32px, 5vw, 48px);
+      height: clamp(32px, 5vw, 48px);
+      fill: var(--md-sys-color-on-primary);
+    }
+
+    h1 {
+      font-family: 'Noto Sans SC', 'Roboto', Arial, sans-serif;
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 500;
+      margin-bottom: clamp(8px, 1.5vw, 12px);
+      color: var(--md-sys-color-on-background);
+    }
+
+    .subtitle {
+      font-size: clamp(14px, 2vw, 16px);
+      color: var(--md-sys-color-on-surface-variant);
+      margin-bottom: clamp(4px, 1vw, 8px);
+    }
+
+    .meta {
+      font-size: clamp(12px, 1.5vw, 14px);
+      color: var(--md-sys-color-primary);
+      font-family: 'Roboto Mono', ui-monospace, Menlo, monospace;
+    }
+
+    .section {
+      margin-bottom: clamp(32px, 5vw, 48px);
+    }
+
+    .section-title {
+      font-family: 'Noto Sans SC', 'Roboto', Arial, sans-serif;
+      font-size: clamp(18px, 2.5vw, 24px);
+      font-weight: 500;
+      margin-bottom: clamp(16px, 2.5vw, 24px);
+      color: var(--md-sys-color-on-background);
+    }
+
+    /* 响应式栅格 - 使用 CSS Grid */
+    .screens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(clamp(260px, 30vw, 320px), 1fr));
+      gap: clamp(16px, 2vw, 24px);
+    }
+
+    .screen-card {
+      background: var(--md-sys-color-surface-container);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .screen-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--md-sys-elevation-level2);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .screen-preview {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      background: linear-gradient(135deg, var(--md-sys-color-surface-container-low) 0%, var(--md-sys-color-surface-container-highest) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 平板横屏时调整预览比例 */
+    @media (min-width: 768px) and (orientation: landscape) {
+      .screen-preview {
+        aspect-ratio: 9 / 18;
+      }
+    }
+
+    /* 大屏幕时限制预览高度 */
+    @media (min-width: 1024px) {
+      .screen-preview {
+        aspect-ratio: 9 / 16;
+        max-height: 400px;
+      }
+    }
+
+    .screen-preview svg {
+      width: clamp(40px, 6vw, 64px);
+      height: clamp(40px, 6vw, 64px);
+      fill: var(--md-sys-color-on-surface-variant);
+      opacity: 0.4;
+    }
+
+    .screen-badge {
+      position: absolute;
+      top: clamp(8px, 1.5vw, 12px);
+      right: clamp(8px, 1.5vw, 12px);
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      font-size: clamp(10px, 1.2vw, 11px);
+      font-weight: 600;
+      padding: clamp(2px, 0.5vw, 4px) clamp(6px, 1vw, 8px);
+      border-radius: 6px;
+      font-family: 'Roboto Mono', ui-monospace, Menlo, monospace;
+    }
+
+    .screen-info {
+      padding: clamp(12px, 2vw, 20px);
+    }
+
+    .screen-title {
+      font-size: clamp(15px, 1.8vw, 18px);
+      font-weight: 500;
+      margin-bottom: clamp(4px, 1vw, 8px);
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .screen-desc {
+      font-size: clamp(12px, 1.5vw, 14px);
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.5;
+    }
+
+    .features {
+      background: var(--md-sys-color-surface-container);
+      border-radius: 12px;
+      padding: clamp(16px, 2.5vw, 24px);
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    /* 功能特性响应式栅格 */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(clamp(220px, 28vw, 280px), 1fr));
+      gap: clamp(16px, 2vw, 24px);
+      margin-top: clamp(12px, 2vw, 16px);
+    }
+
+    .feature-item {
+      display: flex;
+      gap: clamp(8px, 1.5vw, 12px);
+      align-items: flex-start;
+    }
+
+    .feature-icon {
+      width: clamp(32px, 5vw, 40px);
+      height: clamp(32px, 5vw, 40px);
+      border-radius: 8px;
+      background: var(--md-sys-color-surface-container-high);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .feature-icon svg {
+      width: clamp(16px, 2.5vw, 20px);
+      height: clamp(16px, 2.5vw, 20px);
+      fill: var(--md-sys-color-primary);
+    }
+
+    .feature-content h3 {
+      font-size: clamp(13px, 1.5vw, 15px);
+      font-weight: 500;
+      margin-bottom: clamp(2px, 0.5vw, 4px);
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .feature-content p {
+      font-size: clamp(11px, 1.2vw, 13px);
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.4;
+    }
+
+    .footer {
+      text-align: center;
+      padding-top: clamp(20px, 3vw, 32px);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: clamp(12px, 1.5vw, 14px);
+    }
+
+    .footer p {
+      margin-bottom: clamp(4px, 1vw, 8px);
+    }
+
+    .footer .meta {
+      color: var(--md-sys-color-primary);
+    }
+
+    /* 响应式断点 */
+
+    /* 小平板 */
+    @media (min-width: 600px) {
+      .screens-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* 大平板 */
+    @media (min-width: 768px) {
+      .screens-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* 桌面 */
+    @media (min-width: 1024px) {
+      .screens-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* 超大屏幕 */
+    @media (min-width: 1400px) {
+      .screens-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    /* 小屏手机优化 */
+    @media (max-width: 360px) {
+      body {
+        padding: 12px 8px;
+      }
+
+      .screens-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .screen-preview {
+        aspect-ratio: 9 / 14;
+      }
+    }
+
+    /* 容器查询 - 卡片内部自适应 */
+    .screen-card {
+      container-type: inline-size;
+      container-name: screen;
+    }
+
+    @container screen (min-width: 300px) {
+      .screen-info {
+        padding: 16px 20px;
+      }
+
+      .screen-title {
+        font-size: 16px;
+      }
+
+      .screen-desc {
+        font-size: 13px;
+      }
+    }
+
+    @container screen (max-width: 250px) {
+      .screen-info {
+        padding: 10px 12px;
+      }
+
+      .screen-title {
+        font-size: 14px;
+      }
+
+      .screen-desc {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="app-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+      </div>
+      <h1>安全浏览器</h1>
+      <p class="subtitle">Android 媒体/娱乐应用原型</p>
+      <p class="meta">目标用户：18-35 岁成年用户 · 平台：Android 手机 + 平板</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Android 手机界面</h2>
+      <div class="screens-grid">
+        <a href="mobile-android-lock-md3.html" class="screen-card">
+          <div class="screen-preview">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/>
+            </svg>
+            <span class="screen-badge">MD3</span>
+          </div>
+          <div class="screen-info">
+            <h3 class="screen-title">1. 启动/解锁界面</h3>
+            <p class="screen-desc">生物识别验证（指纹识别），3 秒倒计时自动跳转，FLAG_SECURE 防截屏提示</p>
+          </div>
+        </a>
+
+        <a href="mobile-android-main-md3.html" class="screen-card">
+          <div class="screen-preview">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
+            </svg>
+            <span class="screen-badge">MD3</span>
+          </div>
+          <div class="screen-info">
+            <h3 class="screen-title">2. 主浏览器界面</h3>
+            <p class="screen-desc">WebView 核心，顶部导航（前进/后退/收藏），底部视频检测提示横幅，支持平板横屏侧边导航</p>
+          </div>
+        </a>
+
+        <a href="mobile-android-favorites-md3.html" class="screen-card">
+          <div class="screen-preview">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <span class="screen-badge">MD3</span>
+          </div>
+          <div class="screen-info">
+            <h3 class="screen-title">3. 收藏夹管理</h3>
+            <p class="screen-desc">响应式栅格布局（手机2列→平板3列→桌面4-5列），搜索功能，Base64 缩略图，悬停删除操作</p>
+          </div>
+        </a>
+
+        <a href="mobile-android-settings-md3.html" class="screen-card">
+          <div class="screen-preview">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+            <span class="screen-badge">MD3</span>
+          </div>
+          <div class="screen-info">
+            <h3 class="screen-title">4. 设置中心</h3>
+            <p class="screen-desc">广告规则更新，隐私设置（应用锁/防截屏/图标伪装），代理服务配置，支持平板横屏侧边导航</p>
+          </div>
+        </a>
+
+        <a href="mobile-android-video.html" class="screen-card">
+          <div class="screen-preview">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <span class="screen-badge">MD3</span>
+          </div>
+          <div class="screen-info">
+            <h3 class="screen-title">5. 视频播放页</h3>
+            <p class="screen-desc">横屏播放界面，.m3u8 代理流播放，完整播放控制（播放/暂停/进度/音量/清晰度），容器查询自适应</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">核心功能</h2>
+      <div class="features">
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h3>视频流畅播放</h3>
+              <p>VideoExtractor 解析 .m3u8 链接，VideoProxyServer 代理播放，规避 CDN 防盗链</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h3>广告全面拦截</h3>
+              <p>AdFilterRules 加载数千条规则（ad-filter-rules.json），支持云端更新</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h3>隐私保护</h3>
+              <p>FLAG_SECURE 防截屏，BiometricHelper 生物识别锁，AppIconManager 伪装图标</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h3>收藏夹管理</h3>
+              <p>FavoritesManager 存储书签（含 Base64 缩略图），支持搜索和删除</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h3>网站兼容性</h3>
+              <p>DomainConfig 动态映射域名（如 .ws → .ai），确保网站持续可用</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h3>响应式界面</h3>
+              <p>相对定位、容器查询、栅格化布局，同时适配手机和平板，所见即所得</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Android 媒体浏览器应用原型 · Material Design 3 深色主题 · WebView 单 Activity 架构</p>
+      <p class="meta">点击任意界面卡片查看详细设计 · 支持手机/平板/桌面响应式预览</p>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    try {
+      const pref = localStorage.getItem('theme-mode') || 'system';
+      let isDark;
+      if (pref === 'system') {
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      } else if (pref === 'on') {
+        isDark = true;
+      } else {
+        isDark = false;
+      }
+      if (!isDark) document.documentElement.setAttribute('data-theme', 'light');
+    } catch(e) {}
+  })();
+  </script>
+</body>
+</html>

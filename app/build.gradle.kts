@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.javbrowser"
+    namespace = "com.example.freeavbrowser"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.javbrowser"
+        applicationId = "com.example.freeavbrowser"
         minSdk = 24
         targetSdk = 34
         versionCode = 15

@@ -1,135 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="?android:attr/colorBackground">
 
-    <!-- Top App Bar -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <!-- App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_height"
-        android:background="?attr/colorSurfaceContainer"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
 
-        <LinearLayout
+        <!-- Top App Bar -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingEnd="@dimen/spacing_sm">
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorSurface"
+            app:title="@string/view_favorites"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:titleCentered="true"
+            app:navigationIcon="@drawable/ic_back"
+            app:titleTextColor="?attr/colorOnSurface">
 
-            <!-- Home Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_home"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="@dimen/min_touch_target"
-                android:layout_height="@dimen/min_touch_target"
-                android:contentDescription="@string/home"
-                app:icon="@drawable/ic_home"
-                app:iconTint="?attr/colorOnSurface" />
+            <!-- Action buttons in toolbar -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <!-- Search Field -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_search"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/search_favorites"
+                    app:icon="@drawable/ic_search"
+                    app:iconTint="?attr/colorOnSurfaceVariant" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_menu"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/settings"
+                    app:icon="@drawable/ic_more_vert"
+                    app:iconTint="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <!-- Search Bar (initially hidden) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/search_bar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_md"
+            android:visibility="gone"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_search"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="@string/search_favorites"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:maxLines="1"
+                android:background="@android:color/transparent"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurfaceVariant" />
+        </com.google.android.material.card.MaterialCardView>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Favorites Grid -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_favorites"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="@dimen/spacing_sm"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense">
+                android:padding="@dimen/spacing_md"
+                android:clipToPadding="false"
+                android:paddingBottom="100dp" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_search"
-                    android:layout_width="match_parent"
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/empty_state"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="@dimen/spacing_xl"
+                android:visibility="gone">
+
+                <!-- Empty Icon -->
+                <FrameLayout
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginBottom="@dimen/spacing_lg"
+                    android:background="@drawable/bg_empty_icon">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_favorite_border"
+                        android:contentDescription="@string/no_favorites"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+                </FrameLayout>
+
+                <!-- Title -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="@string/search_favorites"
-                    android:inputType="text"
-                    android:imeOptions="actionSearch"
-                    android:maxLines="1" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:text="@string/no_favorites"
+                    android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+                    android:textColor="?attr/colorOnSurface"
+                    android:layout_marginBottom="@dimen/spacing_sm" />
 
-            <!-- Import Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_import"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/import_favorites"
-                android:textAppearance="@style/TextAppearance.JAVBrowser.LabelMedium"
-                android:minWidth="0dp"
-                android:paddingHorizontal="@dimen/spacing_sm" />
+                <!-- Subtitle -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_some_favorites"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:gravity="center"
+                    android:layout_marginBottom="@dimen/spacing_lg" />
 
-            <!-- Export Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_export"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/export_favorites"
-                android:textAppearance="@style/TextAppearance.JAVBrowser.LabelMedium"
-                android:minWidth="0dp"
-                android:paddingHorizontal="@dimen/spacing_sm" />
-        </LinearLayout>
-    </com.google.android.material.appbar.MaterialToolbar>
+                <!-- Action Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_empty_browse"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/start_browsing"
+                    android:paddingStart="@dimen/spacing_lg"
+                    android:paddingEnd="@dimen/spacing_lg" />
+            </LinearLayout>
+        </FrameLayout>
+    </androidx.core.widget.NestedScrollView>
 
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_favorites"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="@dimen/spacing_sm"
-        android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
-    <!-- Empty State -->
-    <LinearLayout
-        android:id="@+id/empty_state"
+    <!-- Extended FAB for Import/Export -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="@dimen/spacing_lg"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/spacing_md"
+        android:text="@string/manage"
+        app:icon="@drawable/ic_settings"
+        app:iconTint="?attr/colorOnPrimaryContainer"
+        app:backgroundTint="?attr/colorPrimaryContainer"
+        android:textColor="?attr/colorOnPrimaryContainer" />
 
-        <ImageView
-            android:layout_width="@dimen/icon_size_large"
-            android:layout_height="@dimen/icon_size_large"
-            android:src="@drawable/ic_collections"
-            android:contentDescription="@string/no_favorites"
-            app:tint="?attr/colorOutline"
-            android:layout_marginBottom="@dimen/spacing_md" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/no_favorites"
-            style="@style/TextAppearance.JAVBrowser.HeadlineSmall"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginBottom="@dimen/spacing_xs" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add_some_favorites"
-            style="@style/TextAppearance.JAVBrowser.BodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginBottom="@dimen/spacing_md" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_empty_browse"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/start_browsing" />
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

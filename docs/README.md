@@ -8,21 +8,15 @@ Welcome to the JAV Browser documentation hub. This directory contains all techni
 Architecture and technology stack documentation
 - [TECH_STACK.md](architecture/TECH_STACK.md) - Technology stack overview
 
-### [🔧 Deployment](deployment/)
-Build, CI/CD, and deployment documentation
-- [AGENTS.md](deployment/AGENTS.md) - Build agents and CI/CD configuration
-
 ### [🎨 Design](design/)
 UI/UX design and refactoring documentation
-- [UI_DESIGN_ANALYSIS.md](design/UI_DESIGN_ANALYSIS.md) - UI design analysis
-- [UI_REFACTOR_COMPLETE.md](design/UI_REFACTOR_COMPLETE.md) - UI refactoring completion report
-- [ui-md3-modernization-log.md](design/ui-md3-modernization-log.md) - Material Design 3 modernization log
+- [adfilter-enhancement-log.md](design/adfilter-enhancement-log.md) - AdFilterRules enhancement log
+- [adblock-engine-upgrade-proposal.md](design/adblock-engine-upgrade-proposal.md) - Ad block engine upgrade proposal
 
 ### [💻 Implementation](implementation/)
 Technical implementation details
-- [CLAUDE.md](implementation/CLAUDE.md) - Architecture documentation
 - [IMPLEMENTATION_GUIDE.md](implementation/IMPLEMENTATION_GUIDE.md) - Implementation guide
-- [JAVBROWSER_IMPLEMENTATION_PLAN.md](implementation/JAVBROWSER_IMPLEMENTATION_PLAN.md) - Implementation plan
+- [JAVBROWSER_IMPLEMENTATION_PLAN.md](implementation/JAVBROWSER_IMPLEMENTATION_PLAN.md) - Implementation plan (historical reference)
 - [FEATURE_IMPLEMENTATION_SPECS.md](implementation/FEATURE_IMPLEMENTATION_SPECS.md) - Feature implementation specs
 - [HENTAI_SITES_TECH_DOC.md](implementation/HENTAI_SITES_TECH_DOC.md) - Hentai sites technical documentation
 
@@ -40,23 +34,25 @@ Version release information
 Development roadmap and goals
 - [ROADMAP.md](roadmap/ROADMAP.md) - Development roadmap
 
-### [🤝 Community](community/)
-Community and extension proposals
-- [javbrowser-extension-proposal.md](community/javbrowser-extension-proposal.md) - Browser extension proposal
+### [📦 Archive](archive/)
+Archived and historical documents
+- [README.md](archive/README.md) - Archive index
 
-### [📋 Core Documentation](..)
-- [README.md](../README.md) - Project overview
+### [📋 Core Documents](.)
+
 - [FEATURES.md](FEATURES.md) - Complete feature list
-- [DOCS_INDEX.md](../DOCS_INDEX.md) - Documentation index
+- [DESIGN_SYSTEM_MD3.md](DESIGN_SYSTEM_MD3.md) - Material Design 3 design system spec
+- [MD3_REFACTOR_SUMMARY.md](MD3_REFACTOR_SUMMARY.md) - MD3 refactoring completion report
+- [FRONTEND_CODE_REVIEW.md](FRONTEND_CODE_REVIEW.md) - Frontend code review report
+- [AD_BLOCKING_ARCHITECTURE.md](AD_BLOCKING_ARCHITECTURE.md) - Ad blocking system architecture
+- [PRIVACY_AND_ADBLOCK.md](PRIVACY_AND_ADBLOCK.md) - Privacy and ad blocking overview
+- [POST_BUILD_CHECKLIST.md](POST_BUILD_CHECKLIST.md) - Post-build verification checklist
+- [BUILD_SUCCESS_REPORT.md](BUILD_SUCCESS_REPORT.md) - Build success report
+- [SUMMARY.md](SUMMARY.md) - Documentation organization log
 
 ## 📖 Getting Started
 
-For new developers, start with:
-1. [README.md](../README.md) - Project overview
-2. [TECH_STACK.md](architecture/TECH_STACK.md) - Technology stack
-3. [CLAUDE.md](implementation/CLAUDE.md) - Development setup
+1. [../README.md](../README.md) - Project overview
+2. [../CLAUDE.md](../CLAUDE.md) - AI assistant guidance
+3. [TECH_STACK.md](architecture/TECH_STACK.md) - Technology stack
 4. [IMPLEMENTATION_GUIDE.md](implementation/IMPLEMENTATION_GUIDE.md) - Implementation details
-
-## 🔍 Documentation Index
-
-For a complete index of all documentation, see [DOCS_INDEX.md](../DOCS_INDEX.md).

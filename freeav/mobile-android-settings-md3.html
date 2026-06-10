@@ -1,0 +1,1778 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SettingsActivity - Material Design 3</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --md-sys-color-primary: #D0BCFF;
+      --md-sys-color-on-primary: #381E72;
+      --md-sys-color-primary-container: #4F378B;
+      --md-sys-color-on-primary-container: #EADDFF;
+      --md-sys-color-secondary: #CCC2DC;
+      --md-sys-color-on-secondary: #332D41;
+      --md-sys-color-secondary-container: #4A4458;
+      --md-sys-color-on-secondary-container: #E8DEF8;
+      --md-sys-color-tertiary: #EFB8C8;
+      --md-sys-color-on-tertiary: #492532;
+      --md-sys-color-tertiary-container: #633B48;
+      --md-sys-color-on-tertiary-container: #FFD8E4;
+      --md-sys-color-error: #F2B8B5;
+      --md-sys-color-on-error: #601410;
+      --md-sys-color-surface: #141218;
+      --md-sys-color-surface-dim: #141218;
+      --md-sys-color-surface-bright: #3B383E;
+      --md-sys-color-surface-container-lowest: #0F0D13;
+      --md-sys-color-surface-container-low: #1D1B20;
+      --md-sys-color-surface-container: #211F26;
+      --md-sys-color-surface-container-high: #2B2930;
+      --md-sys-color-surface-container-highest: #36343B;
+      --md-sys-color-on-surface: #E6E0E9;
+      --md-sys-color-on-surface-variant: #CAC4D0;
+      --md-sys-color-outline: #938F99;
+      --md-sys-color-outline-variant: #49454F;
+      --md-sys-color-background: #141218;
+      --md-sys-color-on-background: #E6E0E9;
+      --md-sys-color-inverse-surface: #E6E0E9;
+      --md-sys-color-inverse-on-surface: #322F35;
+    }
+
+    [data-theme="light"] {
+      --md-sys-color-primary: #6750A4;
+      --md-sys-color-on-primary: #FFFFFF;
+      --md-sys-color-primary-container: #EADDFF;
+      --md-sys-color-on-primary-container: #21005D;
+      --md-sys-color-secondary: #625B71;
+      --md-sys-color-on-secondary: #FFFFFF;
+      --md-sys-color-secondary-container: #E8DEF8;
+      --md-sys-color-on-secondary-container: #1D192B;
+      --md-sys-color-tertiary: #7D5260;
+      --md-sys-color-on-tertiary: #FFFFFF;
+      --md-sys-color-tertiary-container: #FFD8E4;
+      --md-sys-color-on-tertiary-container: #31111D;
+      --md-sys-color-error: #B3261E;
+      --md-sys-color-on-error: #FFFFFF;
+      --md-sys-color-surface: #FEF7FF;
+      --md-sys-color-surface-dim: #DED8E1;
+      --md-sys-color-surface-bright: #FEF7FF;
+      --md-sys-color-surface-container-lowest: #FFFFFF;
+      --md-sys-color-surface-container-low: #F7F2FA;
+      --md-sys-color-surface-container: #F3EDF7;
+      --md-sys-color-surface-container-high: #ECE6F0;
+      --md-sys-color-surface-container-highest: #E6E0E9;
+      --md-sys-color-on-surface: #1D1B20;
+      --md-sys-color-on-surface-variant: #49454F;
+      --md-sys-color-outline: #79747E;
+      --md-sys-color-outline-variant: #CAC4D0;
+      --md-sys-color-background: #FEF7FF;
+      --md-sys-color-on-background: #1D1B20;
+      --md-sys-color-inverse-surface: #322F35;
+      --md-sys-color-inverse-on-surface: #F5EFF7;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Noto Sans SC', 'Roboto', sans-serif;
+      background: var(--md-sys-color-background);
+      color: var(--md-sys-color-on-surface);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .device-frame {
+      width: 100%;
+      height: 100vh;
+      max-width: 100%;
+      margin: 0 auto;
+      background: var(--md-sys-color-background);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .status-bar {
+      height: 28px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      font-weight: 500;
+      background: var(--md-sys-color-surface);
+      flex-shrink: 0;
+      letter-spacing: 0.3px;
+    }
+
+    .status-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .top-app-bar {
+      height: 56px;
+      background: var(--md-sys-color-surface);
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .icon-button {
+      width: 48px;
+      height: 48px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 200ms cubic-bezier(0.2, 0, 0, 1);
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .icon-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0;
+      transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .icon-button:hover::before {
+      opacity: 0.08;
+    }
+
+    .icon-button:active::before {
+      opacity: 0.12;
+    }
+
+    .icon-button svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--md-sys-color-on-surface);
+    }
+
+    .app-bar-title {
+      flex: 1;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+      letter-spacing: 0.15px;
+      padding: 0 8px;
+    }
+
+    .content-container {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--md-sys-color-background);
+      min-height: 0;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .content-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .content-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .content-container::-webkit-scrollbar-thumb {
+      background: var(--md-sys-color-outline-variant);
+      border-radius: 4px;
+    }
+
+    .settings-content {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 8px 16px 100px;
+    }
+
+    .settings-section {
+      margin-bottom: 12px;
+      background: var(--md-sys-color-surface-container);
+      border-radius: 24px;
+      overflow: hidden;
+      transition: box-shadow 300ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .section-header {
+      padding: 20px 20px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--md-sys-color-primary);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .section-header svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--md-sys-color-primary);
+      margin-right: 8px;
+      vertical-align: -3px;
+    }
+
+    .list-item {
+      background: transparent;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: background 200ms cubic-bezier(0.2, 0, 0, 1);
+      min-height: 64px;
+      position: relative;
+    }
+
+    .list-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 68px;
+      right: 20px;
+      height: 1px;
+      background: var(--md-sys-color-outline-variant);
+      opacity: 0.5;
+    }
+
+    .list-item:hover {
+      background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent);
+    }
+
+    .list-item:active {
+      background: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent);
+    }
+
+    .list-item-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--md-sys-color-on-surface-variant);
+      flex-shrink: 0;
+    }
+
+    .list-item-leading-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--md-sys-color-surface-container-highest);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .list-item-leading-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--md-sys-color-on-surface-variant);
+    }
+
+    .list-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .list-item-title {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--md-sys-color-on-surface);
+      line-height: 1.5;
+      letter-spacing: 0.15px;
+    }
+
+    .list-item-subtitle {
+      font-size: 13px;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.4;
+      letter-spacing: 0.25px;
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .list-item-trailing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .switch-track {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--md-sys-color-surface-container-highest);
+      border: 2px solid var(--md-sys-color-outline);
+      border-radius: 16px;
+      transition: all 250ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .switch-thumb {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      top: 2px;
+      background: var(--md-sys-color-outline);
+      border-radius: 50%;
+      transition: all 250ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .switch input:checked + .switch-track {
+      background: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .switch input:checked + .switch-track .switch-thumb {
+      transform: translateX(20px);
+      background: var(--md-sys-color-on-primary);
+      width: 24px;
+      height: 24px;
+      top: -2px;
+      left: -2px;
+    }
+
+    .arrow-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--md-sys-color-on-surface-variant);
+      flex-shrink: 0;
+      transition: transform 300ms cubic-bezier(0.2, 0, 0, 1);
+      opacity: 0.7;
+    }
+
+    .list-item.expanded .arrow-icon {
+      transform: rotate(90deg);
+    }
+
+    .collapse-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 400ms cubic-bezier(0.2, 0, 0, 1);
+      background: var(--md-sys-color-surface-container-low);
+    }
+
+    .collapse-panel.open {
+      max-height: 800px;
+    }
+
+    .collapse-inner {
+      padding: 8px 20px 16px 68px;
+    }
+
+    .icon-selector {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 8px 20px 20px;
+    }
+
+    @media (min-width: 600px) {
+      .icon-selector {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .icon-option {
+      aspect-ratio: 1;
+      border-radius: 20px;
+      background: var(--md-sys-color-surface-container-high);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 250ms cubic-bezier(0.2, 0, 0, 1);
+      padding: 12px;
+      border: 2px solid transparent;
+    }
+
+    .icon-option:hover {
+      background: var(--md-sys-color-surface-container-highest);
+    }
+
+    .icon-option.selected {
+      border-color: var(--md-sys-color-primary);
+      background: var(--md-sys-color-primary-container);
+    }
+
+    .icon-option svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--md-sys-color-on-surface-variant);
+    }
+
+    .icon-option.selected svg {
+      fill: var(--md-sys-color-on-primary-container);
+    }
+
+    .icon-option-label {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      text-align: center;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .icon-option.selected .icon-option-label {
+      color: var(--md-sys-color-on-primary-container);
+      font-weight: 600;
+    }
+
+    .proxy-chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px 0;
+    }
+
+    .proxy-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--md-sys-color-outline);
+      background: transparent;
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+      letter-spacing: 0.25px;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .proxy-chip:hover {
+      background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent);
+    }
+
+    .proxy-chip.selected {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: transparent;
+    }
+
+    .proxy-chip svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .input-field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-field.port-field {
+      max-width: 120px;
+      flex: 0 0 auto;
+    }
+
+    .input-label {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0.4px;
+      font-weight: 500;
+    }
+
+    .input-field input {
+      width: 100%;
+      height: 48px;
+      background: var(--md-sys-color-surface-container-highest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: 12px;
+      padding: 0 16px;
+      color: var(--md-sys-color-on-surface);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .input-field input:focus {
+      border-color: var(--md-sys-color-primary);
+      border-width: 2px;
+      padding: 0 15px;
+      background: var(--md-sys-color-surface-container-high);
+    }
+
+    .input-field input::placeholder {
+      color: var(--md-sys-color-outline);
+    }
+
+    .latency-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .latency-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.25px;
+    }
+
+    .latency-badge.good {
+      background: rgba(76, 175, 80, 0.15);
+      color: #81C784;
+    }
+
+    .latency-badge.medium {
+      background: rgba(255, 183, 77, 0.15);
+      color: #FFB74D;
+    }
+
+    .latency-badge.poor {
+      background: rgba(229, 115, 115, 0.15);
+      color: #E57373;
+    }
+
+    .latency-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .latency-test-btn {
+      background: transparent;
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: 20px;
+      padding: 6px 16px;
+      color: var(--md-sys-color-primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+
+    .latency-test-btn:hover {
+      background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
+    }
+
+    .latency-test-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .latency-test-btn.testing svg {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .node-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px 0;
+    }
+
+    .node-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: background 200ms cubic-bezier(0.2, 0, 0, 1);
+      background: var(--md-sys-color-surface-container-high);
+    }
+
+    .node-item:hover {
+      background: var(--md-sys-color-surface-container-highest);
+    }
+
+    .node-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .node-name {
+      font-size: 14px;
+      color: var(--md-sys-color-on-surface);
+      font-weight: 500;
+    }
+
+    .node-addr {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 2px;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .rule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      transition: background 200ms cubic-bezier(0.2, 0, 0, 1);
+      background: var(--md-sys-color-surface-container-high);
+    }
+
+    .rule-item:hover {
+      background: var(--md-sys-color-surface-container-highest);
+    }
+
+    .rule-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .rule-name {
+      font-size: 14px;
+      color: var(--md-sys-color-on-surface);
+      font-weight: 500;
+    }
+
+    .rule-url {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 2px;
+      font-family: 'Roboto Mono', monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .rule-delete-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+      flex-shrink: 0;
+    }
+
+    .rule-delete-btn:hover {
+      background: rgba(229, 115, 115, 0.12);
+    }
+
+    .rule-delete-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: #E57373;
+    }
+
+    .link-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .link-status-badge.online {
+      background: rgba(76, 175, 80, 0.15);
+      color: #81C784;
+    }
+
+    .link-status-badge.slow {
+      background: rgba(255, 183, 77, 0.15);
+      color: #FFB74D;
+    }
+
+    .link-status-badge.timeout {
+      background: rgba(229, 115, 115, 0.15);
+      color: #E57373;
+    }
+
+    .segmented-button-group {
+      display: flex;
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .segment-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border: none;
+      background: transparent;
+      color: var(--md-sys-color-on-surface);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1px;
+      cursor: pointer;
+      transition: all 250ms cubic-bezier(0.2, 0, 0, 1);
+      position: relative;
+      font-family: inherit;
+    }
+
+    .segment-btn:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 20%;
+      height: 60%;
+      width: 1px;
+      background: var(--md-sys-color-outline-variant);
+    }
+
+    .segment-btn:hover:not(.selected) {
+      background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent);
+    }
+
+    .segment-btn.selected {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .segment-btn.selected::after {
+      display: none;
+    }
+
+    .segment-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .segment-btn .check-icon {
+      display: none;
+    }
+
+    .segment-btn.selected .check-icon {
+      display: block;
+    }
+
+    .segment-btn.selected .theme-icon-default {
+      display: none;
+    }
+
+    .proxy-config {
+      display: none;
+    }
+
+    .proxy-config.visible {
+      display: block;
+    }
+
+    .bottom-nav {
+      height: 80px;
+      background: var(--md-sys-color-surface-container);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px 0 16px;
+      flex-shrink: 0;
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+      padding: 4px 20px;
+      border-radius: 16px;
+      flex: 1;
+      max-width: 100px;
+    }
+
+    .nav-item:hover {
+      background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent);
+    }
+
+    .nav-item.active {
+      background: var(--md-sys-color-secondary-container);
+    }
+
+    .nav-icon-wrapper {
+      width: 56px;
+      height: 28px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-item.active .nav-icon-wrapper {
+      background: var(--md-sys-color-secondary-container);
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--md-sys-color-on-surface-variant);
+    }
+
+    .nav-item.active .nav-icon {
+      fill: var(--md-sys-color-on-secondary-container);
+    }
+
+    .nav-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0.5px;
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--md-sys-color-on-surface);
+      font-weight: 600;
+    }
+
+    .add-rule-btn {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      border: none;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .add-rule-btn:hover {
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .add-rule-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .section-description {
+      padding: 0 20px 12px;
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.5;
+      letter-spacing: 0.2px;
+    }
+
+    .version-info {
+      text-align: center;
+      padding: 24px 20px 32px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .version-info .app-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 4px;
+    }
+
+    .version-info .version-text {
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    .version-info .version-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: var(--md-sys-color-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+
+    .version-info .version-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--md-sys-color-on-primary-container);
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+      .device-frame {
+        flex-direction: row;
+      }
+
+      .status-bar {
+        display: none;
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .bottom-nav {
+        width: 80px;
+        height: 100vh;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 16px 0;
+        gap: 8px;
+        border-top: none;
+        border-left: 1px solid var(--md-sys-color-outline-variant);
+      }
+
+      .nav-item {
+        flex-direction: column;
+        padding: 12px 8px;
+        max-width: none;
+        width: 100%;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: #0a0a0e;
+      }
+
+      .device-frame {
+        max-width: 960px;
+        height: calc(100vh - 32px);
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+      }
+    }
+
+    [data-theme="light"] body {
+      background: #e8e0f0;
+    }
+
+    [data-theme="light"] .device-frame {
+      box-shadow: 0 24px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+    }
+
+    @media (max-width: 360px) {
+      .settings-content {
+        padding: 4px 8px 100px;
+      }
+
+      .settings-section {
+        border-radius: 20px;
+        margin-bottom: 8px;
+      }
+
+      .list-item {
+        padding: 10px 14px;
+        gap: 10px;
+        min-height: 56px;
+      }
+
+      .list-item:not(:last-child)::after {
+        left: 58px;
+        right: 14px;
+      }
+
+      .section-header {
+        padding: 16px 14px 6px;
+      }
+
+      .collapse-inner {
+        padding: 4px 14px 12px 58px;
+      }
+
+      .bottom-nav {
+        height: 64px;
+        padding: 8px 0 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="device-frame">
+    <div class="main-content">
+      <div class="status-bar">
+        <span>14:32</span>
+        <div class="status-icons">
+          <span>5G</span>
+          <span>▂▄▆█</span>
+          <span>85%</span>
+        </div>
+      </div>
+
+      <div class="top-app-bar">
+        <button class="icon-button" aria-label="返回">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+        </button>
+        <h1 class="app-bar-title">设置</h1>
+        <div style="width: 48px;"></div>
+      </div>
+
+      <div class="content-container">
+        <div class="settings-content">
+
+          <div class="settings-section">
+            <div class="section-header">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              广告拦截
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">广告拦截</div>
+                <div class="list-item-subtitle">已拦截 15,247 个广告</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="switch-track">
+                  <span class="switch-thumb"></span>
+                </span>
+              </label>
+            </div>
+
+            <div class="list-item" onclick="toggleCollapse('rule-panel', this)">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">广告规则</div>
+                <div class="list-item-subtitle" id="import-status">已加载 2 条规则</div>
+              </div>
+              <svg class="arrow-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+              </svg>
+            </div>
+            <div class="collapse-panel" id="rule-panel">
+              <div class="collapse-inner">
+                <div class="input-group" style="padding-top:0">
+                  <div class="input-field">
+                    <span class="input-label">规则链接</span>
+                    <input type="url" id="rule-url-input" placeholder="https://example.com/rules.json">
+                  </div>
+                  <div style="display:flex;align-items:flex-end;padding-bottom:0">
+                    <button class="add-rule-btn" onclick="addRule()">
+                      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                      添加
+                    </button>
+                  </div>
+                </div>
+                <div class="rule-list" id="rule-list">
+                  <div class="rule-item" data-id="1">
+                    <div class="rule-info">
+                      <div class="rule-name">EasyList China</div>
+                      <div class="rule-url">https://easylist.to/easylistchina.txt</div>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" checked>
+                      <span class="switch-track"><span class="switch-thumb"></span></span>
+                    </label>
+                    <button class="rule-delete-btn" onclick="deleteRule(this)" aria-label="删除">
+                      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    </button>
+                  </div>
+                  <div class="rule-item" data-id="2">
+                    <div class="rule-info">
+                      <div class="rule-name">AdGuard Mobile</div>
+                      <div class="rule-url">https://filters.adguard.com/filters/11.txt</div>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" checked>
+                      <span class="switch-track"><span class="switch-thumb"></span></span>
+                    </label>
+                    <button class="rule-delete-btn" onclick="deleteRule(this)" aria-label="删除">
+                      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="list-item" onclick="window.location.href='mobile-android-main-md3.html'">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">更新规则</div>
+                <div class="list-item-subtitle">从云端获取最新过滤规则</div>
+              </div>
+              <svg class="arrow-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="section-header">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+              隐私安全
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">应用锁</div>
+                <div class="list-item-subtitle">启动时需要验证身份</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="switch-track">
+                  <span class="switch-thumb"></span>
+                </span>
+              </label>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">防截屏</div>
+                <div class="list-item-subtitle">FLAG_SECURE 未启用</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox">
+                <span class="switch-track">
+                  <span class="switch-thumb"></span>
+                </span>
+              </label>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.68-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 6.03 1.52.25.13.34.43.21.67-.09.18-.26.28-.44.28zM3.5 9.72c-.1 0-.2-.03-.29-.09-.23-.16-.28-.47-.12-.7.99-1.4 2.25-2.5 3.75-3.27.24-.13.54-.04.68.2.13.24.04.55-.2.68-1.3.69-2.4 1.62-3.18 2.75-.08.14-.23.23-.39.23z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">指纹识别</div>
+                <div class="list-item-subtitle">使用生物特征快速解锁</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="switch-track">
+                  <span class="switch-thumb"></span>
+                </span>
+              </label>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">隐私模式</div>
+                <div class="list-item-subtitle">自动清除浏览记录和缓存</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox">
+                <span class="switch-track">
+                  <span class="switch-thumb"></span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="section-header">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z"/></svg>
+              应用伪装
+            </div>
+            <div class="section-description">更换桌面图标和应用名称，隐藏应用真实用途</div>
+            <div class="icon-selector">
+              <div class="icon-option selected">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z"/>
+                </svg>
+                <div class="icon-option-label">默认</div>
+              </div>
+
+              <div class="icon-option">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5.97 4.06L14.09 6l1.41 1.41L16.91 6l1.06 1.06-1.41 1.41 1.41 1.41-1.06 1.06-1.41-1.4-1.41 1.41-1.06-1.06 1.41-1.41-1.42-1.42zm-6.78.66h5v1.5h-5v-1.5zM11.5 16h-2v2H8v-2H6v-1.5h2v-2h1.5v2h2V16zm6.5 1.25h-5v-1.5h5v1.5zm0-2.5h-5v-1.5h5v1.5z"/>
+                </svg>
+                <div class="icon-option-label">计算器</div>
+              </div>
+
+              <div class="icon-option">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+                <div class="icon-option-label">笔记</div>
+              </div>
+
+              <div class="icon-option">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+                </svg>
+                <div class="icon-option-label">文件</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="section-header">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+              显示
+            </div>
+
+            <div class="list-item" style="flex-wrap:wrap">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">深色模式</div>
+                <div class="list-item-subtitle" id="dark-mode-label">跟随系统</div>
+              </div>
+              <div class="segmented-button-group" id="dark-mode-group">
+                <button class="segment-btn selected" data-mode="system" onclick="selectDarkMode(this)">
+                  <svg class="check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  <svg class="theme-icon-default" viewBox="0 0 24 24"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+                  <span>跟随系统</span>
+                </button>
+                <button class="segment-btn" data-mode="off" onclick="selectDarkMode(this)">
+                  <svg class="check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  <svg class="theme-icon-default" viewBox="0 0 24 24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/></svg>
+                  <span>关闭</span>
+                </button>
+                <button class="segment-btn" data-mode="on" onclick="selectDarkMode(this)">
+                  <svg class="check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  <svg class="theme-icon-default" viewBox="0 0 24 24"><path d="M9.37 5.51c-.18.64-.27 1.31-.27 1.99 0 4.08 3.32 7.4 7.4 7.4.68 0 1.35-.09 1.99-.27C17.45 17.19 14.93 19 12 19c-3.86 0-7-3.14-7-7 0-2.93 1.81-5.45 4.37-6.49zM12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+                  <span>开启</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="section-header">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+              网络设置
+            </div>
+
+            <div class="list-item" onclick="toggleCollapse('proxy-mode-panel', this)">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">代理模式</div>
+                <div class="list-item-subtitle" id="proxy-mode-label">无</div>
+              </div>
+              <svg class="arrow-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+              </svg>
+            </div>
+            <div class="collapse-panel" id="proxy-mode-panel">
+              <div class="collapse-inner">
+                <div class="proxy-chip-group">
+                  <div class="proxy-chip selected" data-mode="none" onclick="selectProxyMode(this)">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.59 11.14A7.51 7.51 0 0 0 12 7.5c-1.65 0-3.18.53-4.42 1.43L5.7 7.05A9.96 9.96 0 0 1 12 5c3.04 0 5.77 1.35 7.63 3.49l-1.04 1.65zM12 10c-1.1 0-2.13.37-2.96.99L7.16 9.12A7.47 7.47 0 0 1 12 7.5c1.87 0 3.56.68 4.86 1.8l-1.52 1.52A4.98 4.98 0 0 0 12 10zm0 2.5c-.55 0-1.05.18-1.45.49L8.67 11.1A4.98 4.98 0 0 1 12 10c1.2 0 2.3.43 3.16 1.14L13.7 12.6c-.45-.38-1.04-.6-1.7-.6zM1 4.27l2.12 2.12A12.44 12.44 0 0 0 .07 9.05l2.22-.72c.26-.78.62-1.52 1.07-2.19l-1.48-1.48L3.29 3.24 20.76 20.71l-1.41 1.41-2.6-2.6A9.96 9.96 0 0 1 12 21c-3.04 0-5.77-1.35-7.63-3.49l1.62-1.62A7.5 7.5 0 0 0 12 18.5c1.65 0 3.18-.53 4.42-1.43l-2.15-2.15c-.7.48-1.54.78-2.44.82L8.91 12.8c-.46.76-.66 1.69-.45 2.62l-2.03-.77c.34-1.48 1.24-2.73 2.47-3.5L1 4.27z"/></svg>
+                    无
+                  </div>
+                  <div class="proxy-chip" data-mode="system" onclick="selectProxyMode(this)">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+                    系统代理
+                  </div>
+                  <div class="proxy-chip" data-mode="http" onclick="selectProxyMode(this)">HTTP</div>
+                  <div class="proxy-chip" data-mode="https" onclick="selectProxyMode(this)">HTTPS</div>
+                  <div class="proxy-chip" data-mode="socks5" onclick="selectProxyMode(this)">SOCKS5</div>
+                  <div class="proxy-chip" data-mode="ss" onclick="selectProxyMode(this)">SS</div>
+                </div>
+
+                <div class="proxy-config" id="proxy-config-form">
+                  <div class="input-group">
+                    <div class="input-field">
+                      <span class="input-label">主机 / IPv4</span>
+                      <input type="text" id="proxy-host" placeholder="127.0.0.1" value="127.0.0.1">
+                    </div>
+                    <div class="input-field port-field">
+                      <span class="input-label">端口</span>
+                      <input type="number" id="proxy-port" placeholder="8888" value="8888">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="list-item" onclick="toggleCollapse('link-panel', this)">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">链接测速</div>
+                <div class="list-item-subtitle" id="link-summary">共 4 个站点</div>
+              </div>
+              <svg class="arrow-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+              </svg>
+            </div>
+            <div class="collapse-panel" id="link-panel">
+              <div class="collapse-inner">
+                <div class="latency-container">
+                  <button class="latency-test-btn" id="test-all-link-btn" onclick="testAllLinks()">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+                    全部测速
+                  </button>
+                </div>
+                <div class="node-list" id="link-list">
+                  <div class="node-item" style="cursor:default">
+                    <div class="node-info">
+                      <div class="node-name">missav.ws</div>
+                      <div class="node-addr">等待检测…</div>
+                    </div>
+                    <span class="latency-badge good" style="display:none"><span class="latency-dot"></span><span class="latency-value">--</span>ms</span>
+                    <span class="link-status-badge" style="display:none"></span>
+                  </div>
+                  <div class="node-item" style="cursor:default">
+                    <div class="node-info">
+                      <div class="node-name">missav.ai</div>
+                      <div class="node-addr">等待检测…</div>
+                    </div>
+                    <span class="latency-badge good" style="display:none"><span class="latency-dot"></span><span class="latency-value">--</span>ms</span>
+                    <span class="link-status-badge" style="display:none"></span>
+                  </div>
+                  <div class="node-item" style="cursor:default">
+                    <div class="node-info">
+                      <div class="node-name">missav.com</div>
+                      <div class="node-addr">等待检测…</div>
+                    </div>
+                    <span class="latency-badge good" style="display:none"><span class="latency-dot"></span><span class="latency-value">--</span>ms</span>
+                    <span class="link-status-badge" style="display:none"></span>
+                  </div>
+                  <div class="node-item" style="cursor:default">
+                    <div class="node-info">
+                      <div class="node-name">thisav.com</div>
+                      <div class="node-addr">等待检测…</div>
+                    </div>
+                    <span class="latency-badge good" style="display:none"><span class="latency-dot"></span><span class="latency-value">--</span>ms</span>
+                    <span class="link-status-badge" style="display:none"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="section-header">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              域名映射
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">域名映射</div>
+                <div class="list-item-subtitle">自动处理域名变更（如 .ws → .ai）</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox">
+                <span class="switch-track">
+                  <span class="switch-thumb"></span>
+                </span>
+              </label>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-leading-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+                </svg>
+              </div>
+              <div class="list-item-content">
+                <div class="list-item-title">更新映射</div>
+                <div class="list-item-subtitle">从云端获取最新域名映射</div>
+              </div>
+              <svg class="arrow-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="version-info">
+            <div class="version-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+              </svg>
+            </div>
+            <div class="app-name">Freedom</div>
+            <div class="version-text">v1.2.0 (Build 2024.12)</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="window.location.href='mobile-android-main-md3.html'">
+        <div class="nav-icon-wrapper">
+          <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+        </div>
+        <span class="nav-label">浏览</span>
+      </div>
+
+      <div class="nav-item" onclick="window.location.href='mobile-android-favorites-md3.html'">
+        <div class="nav-icon-wrapper">
+          <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </div>
+        <span class="nav-label">收藏</span>
+      </div>
+
+      <div class="nav-item active" onclick="window.location.href='mobile-android-settings-md3.html'">
+        <div class="nav-icon-wrapper">
+          <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+          </svg>
+        </div>
+        <span class="nav-label">设置</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    try {
+      const pref = localStorage.getItem('theme-mode') || 'system';
+      let isDark;
+      if (pref === 'system') {
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      } else if (pref === 'on') {
+        isDark = true;
+      } else {
+        isDark = false;
+      }
+      if (!isDark) document.documentElement.setAttribute('data-theme', 'light');
+    } catch(e) {}
+  })();
+  </script>
+
+  <script>
+    document.querySelectorAll('.switch input').forEach(input => {
+      input.addEventListener('change', function() {
+        console.log('Switch toggled:', this.checked);
+      });
+    });
+
+    document.querySelectorAll('.icon-option').forEach(option => {
+      option.addEventListener('click', function() {
+        document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+      });
+    });
+
+    function toggleCollapse(panelId, triggerEl) {
+      const panel = document.getElementById(panelId);
+      const isOpen = panel.classList.contains('open');
+
+      document.querySelectorAll('.collapse-panel.open').forEach(p => {
+        if (p.id !== panelId) {
+          p.classList.remove('open');
+          p.previousElementSibling.classList.remove('expanded');
+        }
+      });
+
+      panel.classList.toggle('open', !isOpen);
+      if (triggerEl) triggerEl.classList.toggle('expanded', !isOpen);
+    }
+
+    let ruleCounter = 2;
+
+    function addRule() {
+      const input = document.getElementById('rule-url-input');
+      const url = input.value.trim();
+      if (!url) return;
+
+      if (!/^https?:\/\/.+/i.test(url)) {
+        input.style.borderColor = '#E57373';
+        setTimeout(() => { input.style.borderColor = ''; }, 1500);
+        return;
+      }
+
+      ruleCounter++;
+      const list = document.getElementById('rule-list');
+      const name = extractName(url);
+      const item = document.createElement('div');
+      item.className = 'rule-item';
+      item.dataset.id = ruleCounter;
+      item.innerHTML = `
+        <div class="rule-info">
+          <div class="rule-name">${name}</div>
+          <div class="rule-url">${url}</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" checked>
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </label>
+        <button class="rule-delete-btn" onclick="deleteRule(this)" aria-label="删除">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+      `;
+      list.appendChild(item);
+      input.value = '';
+      updateRuleCount();
+
+      item.querySelector('.switch input').addEventListener('change', function() {
+        console.log('Rule toggled:', this.checked);
+      });
+    }
+
+    function deleteRule(btn) {
+      const item = btn.closest('.rule-item');
+      if (item) {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(20px)';
+        item.style.transition = 'all 250ms cubic-bezier(0.2, 0, 0, 1)';
+        setTimeout(() => {
+          item.remove();
+          updateRuleCount();
+        }, 250);
+      }
+    }
+
+    function updateRuleCount() {
+      const count = document.querySelectorAll('.rule-item').length;
+      document.getElementById('import-status').textContent = '已加载 ' + count + ' 条规则';
+    }
+
+    function extractName(url) {
+      try {
+        const path = new URL(url).pathname;
+        const file = path.split('/').pop();
+        return file || new URL(url).hostname;
+      } catch(e) {
+        return url;
+      }
+    }
+
+    const darkModeLabels = {
+      system: '跟随系统',
+      off: '关闭',
+      on: '开启'
+    };
+
+    function selectDarkMode(btn) {
+      document.querySelectorAll('#dark-mode-group .segment-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      const mode = btn.dataset.mode;
+      document.getElementById('dark-mode-label').textContent = darkModeLabels[mode] || mode;
+
+      try { localStorage.setItem('theme-mode', mode); } catch(e) {}
+
+      let isDark;
+      if (mode === 'system') {
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      } else if (mode === 'on') {
+        isDark = true;
+      } else {
+        isDark = false;
+      }
+
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    }
+
+    const proxyModeNames = {
+      none: '无',
+      system: '系统代理',
+      http: 'HTTP 代理',
+      https: 'HTTPS 代理',
+      socks5: 'SOCKS5 代理',
+      ss: 'SS (Shadowsocks)'
+    };
+
+    function selectProxyMode(chip) {
+      document.querySelectorAll('.proxy-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+
+      const mode = chip.dataset.mode;
+      const label = document.getElementById('proxy-mode-label');
+      const configForm = document.getElementById('proxy-config-form');
+
+      label.textContent = proxyModeNames[mode] || mode;
+
+      if (mode === 'none' || mode === 'system') {
+        configForm.classList.remove('visible');
+      } else {
+        configForm.classList.add('visible');
+      }
+    }
+
+    function testAllLinks() {
+      const btn = document.getElementById('test-all-link-btn');
+      btn.classList.add('testing');
+      btn.disabled = true;
+
+      const items = document.querySelectorAll('#link-list .node-item');
+      let completed = 0;
+
+      items.forEach((item, i) => {
+        const badge = item.querySelector('.latency-badge');
+        const statusBadge = item.querySelector('.link-status-badge');
+        const addrEl = item.querySelector('.node-addr');
+
+        badge.style.display = 'none';
+        statusBadge.style.display = 'none';
+        addrEl.textContent = '检测中…';
+
+        const delay = 400 + Math.random() * 1500;
+        setTimeout(() => {
+          const results = [
+            { ms: 45, status: 'online', label: '正常' },
+            { ms: 78, status: 'online', label: '正常' },
+            { ms: 320, status: 'slow', label: '慢' },
+            { ms: 0, status: 'timeout', label: '超时' }
+          ];
+          const r = results[i % results.length];
+
+          addrEl.textContent = r.status === 'timeout' ? '连接超时' :
+                               r.status === 'slow' ? '响应较慢' :
+                               '连接正常';
+
+          if (r.ms > 0) {
+            badge.querySelector('.latency-value').textContent = r.ms;
+            badge.classList.remove('good', 'medium', 'poor');
+            if (r.ms < 100) badge.classList.add('good');
+            else if (r.ms < 200) badge.classList.add('medium');
+            else badge.classList.add('poor');
+            badge.style.display = 'inline-flex';
+          }
+
+          statusBadge.className = 'link-status-badge ' + r.status;
+          statusBadge.textContent = r.label;
+          statusBadge.style.display = 'inline-flex';
+
+          completed++;
+          if (completed === items.length) {
+            btn.classList.remove('testing');
+            btn.disabled = false;
+          }
+        }, delay);
+      });
+    }
+
+    selectProxyMode(document.querySelector('.proxy-chip[data-mode="none"]'));
+  </script>
+</body>
+</html>

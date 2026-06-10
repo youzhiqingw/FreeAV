@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Spacing Scale -->
+    <!-- Spacing Scale (Material Design 3) -->
     <dimen name="spacing_xs">4dp</dimen>
     <dimen name="spacing_sm">8dp</dimen>
     <dimen name="spacing_md">16dp</dimen>
     <dimen name="spacing_lg">24dp</dimen>
     <dimen name="spacing_xl">32dp</dimen>
+    <dimen name="spacing_xxl">48dp</dimen>
 
     <!-- Component Heights -->
     <dimen name="min_touch_target">48dp</dimen>
@@ -13,18 +14,57 @@
     <dimen name="list_item_height">72dp</dimen>
     <dimen name="bottom_nav_height">80dp</dimen>
 
-    <!-- Corner Radius -->
-    <dimen name="corner_radius_sm">12dp</dimen>
-    <dimen name="corner_radius_md">16dp</dimen>
-    <dimen name="corner_radius_lg">24dp</dimen>
+    <!-- Corner Radius (Material Design 3) -->
+    <dimen name="corner_radius_xs">4dp</dimen>
+    <dimen name="corner_radius_sm">8dp</dimen>
+    <dimen name="corner_radius_md">12dp</dimen>
+    <dimen name="corner_radius_lg">16dp</dimen>
+    <dimen name="corner_radius_xl">24dp</dimen>
+    <dimen name="corner_radius_full">9999dp</dimen>
 
     <!-- Elevation -->
-    <dimen name="elevation_sm">2dp</dimen>
-    <dimen name="elevation_md">4dp</dimen>
-    <dimen name="elevation_lg">8dp</dimen>
+    <dimen name="elevation_none">0dp</dimen>
+    <dimen name="elevation_sm">1dp</dimen>
+    <dimen name="elevation_md">2dp</dimen>
+    <dimen name="elevation_lg">4dp</dimen>
+    <dimen name="elevation_xl">8dp</dimen>
 
     <!-- Component Sizes -->
+    <dimen name="icon_size_small">24dp</dimen>
+    <dimen name="icon_size_medium">36dp</dimen>
     <dimen name="icon_size_large">64dp</dimen>
+    <dimen name="icon_size_xlarge">96dp</dimen>
     <dimen name="pin_button_size">80dp</dimen>
     <dimen name="thumbnail_size">72dp</dimen>
+
+    <!-- Button -->
+    <dimen name="button_height">40dp</dimen>
+    <dimen name="button_height_large">56dp</dimen>
+    <dimen name="button_corner_radius">20dp</dimen>
+
+    <!-- Card -->
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+
+    <!-- Progress -->
+    <dimen name="progress_bar_height">3dp</dimen>
+    <dimen name="progress_bar_thickness">3dp</dimen>
+
+    <!-- Text -->
+    <dimen name="text_size_display_large">57sp</dimen>
+    <dimen name="text_size_display_medium">45sp</dimen>
+    <dimen name="text_size_display_small">36sp</dimen>
+    <dimen name="text_size_headline_large">32sp</dimen>
+    <dimen name="text_size_headline_medium">28sp</dimen>
+    <dimen name="text_size_headline_small">24sp</dimen>
+    <dimen name="text_size_title_large">22sp</dimen>
+    <dimen name="text_size_title_medium">16sp</dimen>
+    <dimen name="text_size_title_small">14sp</dimen>
+    <dimen name="text_size_body_large">16sp</dimen>
+    <dimen name="text_size_body_medium">14sp</dimen>
+    <dimen name="text_size_body_small">12sp</dimen>
+    <dimen name="text_size_label_large">14sp</dimen>
+    <dimen name="text_size_label_medium">12sp</dimen>
+    <dimen name="text_size_label_small">11sp</dimen>
 </resources>

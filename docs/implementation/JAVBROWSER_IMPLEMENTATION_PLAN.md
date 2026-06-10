@@ -1,5 +1,7 @@
 # javbrowser 项目 - Kikoeru 风格底部导航实现计划
 
+> ⚠️ **历史文档警告**: 本文档描述的是**早期设计方案**（基于 Kikoeru 的 4-Fragment 导航架构）。当前代码已改为 **3-tab BottomNavigationView + Activity 跳转**（首页/收藏/设置，无搜索标签页）。本文档仅供参考历史设计思路，切勿将其中的 Fragment 架构、4-tab 布局、或 LinearLayout+ImageButton 方案用于当前开发。
+
 > 基于 Kikoeru Android 项目的设计分析，为 javbrowser 项目制定的完整底部导航系统实现方案
 
 ---
@@ -338,14 +340,14 @@ MainActivity (单Activity容器)
 **文件**: `app/src/main/java/com/example/javbrowser/ui/home/HomeFragment.kt`
 
 ```kotlin
-package com.example.javbrowser.ui.home
+package com.example.freeavbrowser.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.javbrowser.R
+import com.example.freeavbrowser.R
 
 class HomeFragment : Fragment() {
     
@@ -387,14 +389,14 @@ class HomeFragment : Fragment() {
 **文件**: `app/src/main/java/com/example/javbrowser/ui/search/SearchFragment.kt`
 
 ```kotlin
-package com.example.javbrowser.ui.search
+package com.example.freeavbrowser.ui.search
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.javbrowser.R
+import com.example.freeavbrowser.R
 
 class SearchFragment : Fragment() {
     
@@ -441,14 +443,14 @@ class SearchFragment : Fragment() {
 **文件**: `app/src/main/java/com/example/javbrowser/ui/favorite/FavoriteFragment.kt`
 
 ```kotlin
-package com.example.javbrowser.ui.favorite
+package com.example.freeavbrowser.ui.favorite
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.javbrowser.R
+import com.example.freeavbrowser.R
 
 class FavoriteFragment : Fragment() {
     
@@ -485,14 +487,14 @@ class FavoriteFragment : Fragment() {
 **文件**: `app/src/main/java/com/example/javbrowser/ui/settings/SettingsFragment.kt`
 
 ```kotlin
-package com.example.javbrowser.ui.settings
+package com.example.freeavbrowser.ui.settings
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.javbrowser.R
+import com.example.freeavbrowser.R
 
 class SettingsFragment : Fragment() {
     
@@ -543,16 +545,16 @@ class SettingsFragment : Fragment() {
 **文件**: `app/src/main/java/com/example/javbrowser/MainActivity.kt`
 
 ```kotlin
-package com.example.javbrowser
+package com.example.freeavbrowser
 
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.javbrowser.ui.favorite.FavoriteFragment
-import com.example.javbrowser.ui.home.HomeFragment
-import com.example.javbrowser.ui.search.SearchFragment
-import com.example.javbrowser.ui.settings.SettingsFragment
+import com.example.freeavbrowser.ui.favorite.FavoriteFragment
+import com.example.freeavbrowser.ui.home.HomeFragment
+import com.example.freeavbrowser.ui.search.SearchFragment
+import com.example.freeavbrowser.ui.settings.SettingsFragment
 
 class MainActivity : AppCompatActivity() {
     

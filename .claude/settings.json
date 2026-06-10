@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@anthropic/playwright-mcp@latest"]
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash:ls",
+      "Bash:cat",
+      "Bash:mkdir",
+      "Read:*",
+      "Write:*",
+      "Edit:*",
+      "mcp__playwright__*"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [],
+    "PostToolUse": [],
+    "PostToolUseFailure": []
+  }
+}

@@ -3,9 +3,101 @@
     <!-- Base Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
 
-    <!-- Brand Colors -->
+    <!-- Brand Colors (Material Design 3) -->
     <color name="brand_primary">#5DAC81</color>
     <color name="brand_primary_dark">#4A8B6A</color>
     <color name="brand_secondary">#FF753F</color>
+
+    <!-- Material Design 3 - Surface Container Colors -->
+    <!-- Light Theme -->
+    <color name="surface_container_lowest_light">#FFFFFF</color>
+    <color name="surface_container_low_light">#F4F8F3</color>
+    <color name="surface_container_light">#EEF2EC</color>
+    <color name="surface_container_high_light">#E3E9E1</color>
+    <color name="surface_container_highest_light">#D8DFD6</color>
+
+    <!-- Dark Theme -->
+    <color name="surface_container_lowest_dark">#0D100E</color>
+    <color name="surface_container_low_dark">#1B1F1C</color>
+    <color name="surface_container_dark">#202421</color>
+    <color name="surface_container_high_dark">#2A2F2B</color>
+    <color name="surface_container_highest_dark">#353A36</color>
+
+    <!-- Material Design 3 - Outline -->
+    <color name="outline_light">#717971</color>
+    <color name="outline_dark">#8B938A</color>
+    <color name="outline_variant_light">#C1C9BF</color>
+    <color name="outline_variant_dark">#414941</color>
+
+    <!-- Material Design 3 - Error -->
+    <color name="error_light">#B3261E</color>
+    <color name="error_dark">#F2B8B5</color>
+
+    <!-- Material Design 3 - OnSurface -->
+    <color name="on_surface_light">#191C1A</color>
+    <color name="on_surface_dark">#E1E3DE</color>
+    <color name="on_surface_variant_light">#414941</color>
+    <color name="on_surface_variant_dark">#C1C9BF</color>
+
+    <!-- Material Design 3 - Background -->
+    <color name="background_light">#FBFDF8</color>
+    <color name="background_dark">#191C1A</color>
+
+    <!-- Material Design 3 - Surface -->
+    <color name="surface_light">#FBFDF8</color>
+    <color name="surface_dark">#191C1A</color>
+
+    <!-- Material Design 3 - Surface Variant -->
+    <color name="surface_variant_light">#DDE5DB</color>
+    <color name="surface_variant_dark">#414941</color>
+
+    <!-- Material Design 3 - Primary -->
+    <color name="primary_light">#5DAC81</color>
+    <color name="primary_dark">#7EC99D</color>
+    <color name="on_primary_light">#FFFFFF</color>
+    <color name="on_primary_dark">#003822</color>
+
+    <!-- Material Design 3 - Primary Container -->
+    <color name="primary_container_light">#C8F0DA</color>
+    <color name="primary_container_dark">#005234</color>
+    <color name="on_primary_container_light">#002114</color>
+    <color name="on_primary_container_dark">#C8F0DA</color>
+
+    <!-- Material Design 3 - Secondary -->
+    <color name="secondary_light">#FF753F</color>
+    <color name="secondary_dark">#FFB68E</color>
+    <color name="on_secondary_light">#FFFFFF</color>
+    <color name="on_secondary_dark">#552100</color>
+
+    <!-- Material Design 3 - Secondary Container -->
+    <color name="secondary_container_light">#FFDBC9</color>
+    <color name="secondary_container_dark">#793400</color>
+    <color name="on_secondary_container_light">#331200</color>
+    <color name="on_secondary_container_dark">#FFDBC9</color>
+
+    <!-- Material Design 3 - Tertiary -->
+    <color name="tertiary_light">#4A6FA5</color>
+    <color name="tertiary_dark">#AAC7FF</color>
+    <color name="on_tertiary_light">#FFFFFF</color>
+    <color name="on_tertiary_dark">#002F65</color>
+
+    <!-- Material Design 3 - Tertiary Container -->
+    <color name="tertiary_container_light">#D6E3FF</color>
+    <color name="tertiary_container_dark">#31568C</color>
+    <color name="on_tertiary_container_light">#001B3E</color>
+    <color name="on_tertiary_container_dark">#D6E3FF</color>
+
+    <!-- Material Design 3 - Inverse -->
+    <color name="inverse_surface_light">#2E312E</color>
+    <color name="inverse_surface_dark">#E1E3DE</color>
+    <color name="inverse_on_surface_light">#EFF1ED</color>
+    <color name="inverse_on_surface_dark">#2E312E</color>
+    <color name="inverse_primary_light">#006C44</color>
+    <color name="inverse_primary_dark">#7EC99D</color>
+
+    <!-- Material Design 3 - Scrim -->
+    <color name="scrim_light">#000000</color>
+    <color name="scrim_dark">#000000</color>
 </resources>

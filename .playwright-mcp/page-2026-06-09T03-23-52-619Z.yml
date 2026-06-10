@@ -1,0 +1,85 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - img [ref=e5]
+    - heading "安全浏览器" [level=1] [ref=e7]
+    - paragraph [ref=e8]: Android 媒体/娱乐应用原型
+    - paragraph [ref=e9]: 目标用户：18-35 岁成年用户 · 平台：Android 手机 + 平板
+  - generic [ref=e10]:
+    - heading "Android 手机界面" [level=2] [ref=e11]
+    - generic [ref=e12]:
+      - link "响应式 1. 启动/解锁界面 生物识别验证（指纹识别），3 秒倒计时自动跳转，FLAG_SECURE 防截屏提示" [ref=e13] [cursor=pointer]:
+        - /url: mobile-android-lock-md3.html
+        - generic [ref=e14]:
+          - img [ref=e15]
+          - generic [ref=e17]: 响应式
+        - generic [ref=e18]:
+          - heading "1. 启动/解锁界面" [level=3] [ref=e19]
+          - paragraph [ref=e20]: 生物识别验证（指纹识别），3 秒倒计时自动跳转，FLAG_SECURE 防截屏提示
+      - link "响应式 2. 主浏览器界面 WebView 核心，顶部导航（前进/后退/收藏），底部视频检测提示横幅，支持平板横屏侧边导航" [ref=e21] [cursor=pointer]:
+        - /url: mobile-android-main-md3.html
+        - generic [ref=e22]:
+          - img [ref=e23]
+          - generic [ref=e25]: 响应式
+        - generic [ref=e26]:
+          - heading "2. 主浏览器界面" [level=3] [ref=e27]
+          - paragraph [ref=e28]: WebView 核心，顶部导航（前进/后退/收藏），底部视频检测提示横幅，支持平板横屏侧边导航
+      - link "响应式 3. 收藏夹管理 响应式栅格布局（手机2列→平板3列→桌面4-5列），搜索功能，Base64 缩略图，悬停删除操作" [ref=e29] [cursor=pointer]:
+        - /url: mobile-android-favorites-md3.html
+        - generic [ref=e30]:
+          - img [ref=e31]
+          - generic [ref=e33]: 响应式
+        - generic [ref=e34]:
+          - heading "3. 收藏夹管理" [level=3] [ref=e35]
+          - paragraph [ref=e36]: 响应式栅格布局（手机2列→平板3列→桌面4-5列），搜索功能，Base64 缩略图，悬停删除操作
+      - link "响应式 4. 设置中心 广告规则更新，隐私设置（应用锁/防截屏/图标伪装），代理服务配置，支持平板横屏侧边导航" [ref=e37] [cursor=pointer]:
+        - /url: mobile-android-settings-md3.html
+        - generic [ref=e38]:
+          - img [ref=e39]
+          - generic [ref=e41]: 响应式
+        - generic [ref=e42]:
+          - heading "4. 设置中心" [level=3] [ref=e43]
+          - paragraph [ref=e44]: 广告规则更新，隐私设置（应用锁/防截屏/图标伪装），代理服务配置，支持平板横屏侧边导航
+      - link "响应式 5. 视频播放页 横屏播放界面，.m3u8 代理流播放，完整播放控制（播放/暂停/进度/音量/清晰度），容器查询自适应" [ref=e45] [cursor=pointer]:
+        - /url: mobile-android-video.html
+        - generic [ref=e46]:
+          - img [ref=e47]
+          - generic [ref=e49]: 响应式
+        - generic [ref=e50]:
+          - heading "5. 视频播放页" [level=3] [ref=e51]
+          - paragraph [ref=e52]: 横屏播放界面，.m3u8 代理流播放，完整播放控制（播放/暂停/进度/音量/清晰度），容器查询自适应
+  - generic [ref=e53]:
+    - heading "核心功能" [level=2] [ref=e54]
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - img [ref=e59]
+        - generic [ref=e61]:
+          - heading "视频流畅播放" [level=3] [ref=e62]
+          - paragraph [ref=e63]: VideoExtractor 解析 .m3u8 链接，VideoProxyServer 代理播放，规避 CDN 防盗链
+      - generic [ref=e64]:
+        - img [ref=e66]
+        - generic [ref=e68]:
+          - heading "广告全面拦截" [level=3] [ref=e69]
+          - paragraph [ref=e70]: AdFilterRules 加载数千条规则（ad-filter-rules.json），支持云端更新
+      - generic [ref=e71]:
+        - img [ref=e73]
+        - generic [ref=e75]:
+          - heading "隐私保护" [level=3] [ref=e76]
+          - paragraph [ref=e77]: FLAG_SECURE 防截屏，BiometricHelper 生物识别锁，AppIconManager 伪装图标
+      - generic [ref=e78]:
+        - img [ref=e80]
+        - generic [ref=e82]:
+          - heading "收藏夹管理" [level=3] [ref=e83]
+          - paragraph [ref=e84]: FavoritesManager 存储书签（含 Base64 缩略图），支持搜索和删除
+      - generic [ref=e85]:
+        - img [ref=e87]
+        - generic [ref=e89]:
+          - heading "网站兼容性" [level=3] [ref=e90]
+          - paragraph [ref=e91]: DomainConfig 动态映射域名（如 .ws → .ai），确保网站持续可用
+      - generic [ref=e92]:
+        - img [ref=e94]
+        - generic [ref=e96]:
+          - heading "响应式界面" [level=3] [ref=e97]
+          - paragraph [ref=e98]: 相对定位、容器查询、栅格化布局，同时适配手机和平板，所见即所得
+  - generic [ref=e99]:
+    - paragraph [ref=e100]: Android 媒体浏览器应用原型 · Material Design 深色主题 · WebView 单 Activity 架构
+    - paragraph [ref=e101]: 点击任意界面卡片查看详细设计 · 支持手机/平板/桌面响应式预览
