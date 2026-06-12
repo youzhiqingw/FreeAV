@@ -2,9 +2,34 @@ package com.example.freeavbrowser
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import java.security.SecureRandom
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
 
 class PrivacySettings(private val context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("privacy_prefs", Context.MODE_PRIVATE)
+
+    private val encryptedPrefs by lazy {
+        try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+
+            EncryptedSharedPreferences.create(
+                context,
+                "encrypted_prefs",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            // Fallback to regular prefs if encryption fails
+            context.getSharedPreferences("encrypted_prefs_fallback", Context.MODE_PRIVATE)
+        }
+    }
     
     companion object {
         private const val KEY_LOCK_ENABLED = "lock_enabled"
@@ -84,18 +109,53 @@ class PrivacySettings(private val context: Context) {
         get() = prefs.getBoolean(KEY_EASYLIST_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_EASYLIST_ENABLED, value).apply()
 
-    // PIN Code Support
-    var pinCode: String?
-        get() = prefs.getString("app_pin_code", null)
-        set(value) = prefs.edit().putString("app_pin_code", value).apply()
+    // PIN Code Support with encryption
+    fun setPIN(pin: String) {
+        val salt = ByteArray(16).apply { SecureRandom().nextBytes(this) }
+        val hash = hashPIN(pin, salt)
 
-    fun isPinSet(): Boolean {
-        return !pinCode.isNullOrEmpty()
+        encryptedPrefs.edit()
+            .putString("pin_hash", hash)
+            .putString("pin_salt", Base64.encodeToString(salt, Base64.NO_WRAP))
+            .apply()
     }
 
     fun validatePin(inputPin: String): Boolean {
-        return inputPin == pinCode
+        val storedHash = encryptedPrefs.getString("pin_hash", null) ?: return false
+        val saltString = encryptedPrefs.getString("pin_salt", null) ?: return false
+        val salt = Base64.decode(saltString, Base64.NO_WRAP)
+
+        val inputHash = hashPIN(inputPin, salt)
+        return inputHash == storedHash
     }
+
+    fun isPinSet(): Boolean {
+        return encryptedPrefs.contains("pin_hash")
+    }
+
+    private fun hashPIN(pin: String, salt: ByteArray): String {
+        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+        val spec = PBEKeySpec(pin.toCharArray(), salt, 100_000, 256)
+        val hash = factory.generateSecret(spec).encoded
+        return Base64.encodeToString(hash, Base64.NO_WRAP)
+    }
+
+    // Migrate old plaintext PIN (one-time)
+    fun migrateOldPIN() {
+        val oldPin = prefs.getString("app_pin_code", null)
+        if (oldPin != null && !isPinSet()) {
+            setPIN(oldPin)
+            prefs.edit().remove("app_pin_code").apply()
+        }
+    }
+
+    // Legacy methods for backward compatibility (deprecated)
+    @Deprecated("Use setPIN() and validatePin() instead")
+    var pinCode: String?
+        get() = null  // Don't expose plaintext PIN
+        set(value) {
+            if (value != null) setPIN(value)
+        }
     
     // Get current icon resource ID based on selected icon
     val currentIconResourceId: Int

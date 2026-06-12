@@ -82,6 +82,10 @@ class MainActivity : AppCompatActivity() {
 
         favoritesManager = FavoritesManager(this)
 
+        // Migrate old plaintext PIN to encrypted storage (one-time)
+        privacySettings = PrivacySettings(this)
+        privacySettings.migrateOldPIN()
+
         // Start local proxy for CDN-protected video (e.g. avjoy.me)
         try {
             videoProxyServer = VideoProxyServer(this)
@@ -91,7 +95,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         adFilterRules = AdFilterRules(this)
-        privacySettings = PrivacySettings(this)
         domainConfig = DomainConfig()
 
         // biometricHelper = BiometricHelper(this) // Moved to LockActivity

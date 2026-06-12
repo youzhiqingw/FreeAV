@@ -47,6 +47,9 @@ dependencies {
     // Biometric authentication
     implementation("androidx.biometric:biometric:1.1.0")
 
+    // Encrypted SharedPreferences for secure data storage
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
     // Local HTTP proxy for CDN-protected video streaming
     implementation("org.nanohttpd:nanohttpd:2.3.1")
 

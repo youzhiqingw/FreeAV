@@ -655,7 +655,7 @@ class SettingsActivity : AppCompatActivity() {
             .setPositiveButton("保存") { _, _ ->
                 val pin = input.text.toString()
                 if (pin.length in 4..6) {
-                    privacySettings.pinCode = pin
+                    privacySettings.setPIN(pin)
                     Toast.makeText(this, "PIN 码已保存", Toast.LENGTH_SHORT).show()
                     // 保存 PIN 后自动开启锁定（避免递归触发监听器）
                     isSettingPin = true
@@ -766,7 +766,7 @@ class SettingsActivity : AppCompatActivity() {
             .setPositiveButton("保存") { _, _ ->
                 val newPin = newInput.text.toString()
                 if (newPin.length in 4..6) {
-                    privacySettings.pinCode = newPin
+                    privacySettings.setPIN(newPin)
                     Toast.makeText(this, "PIN 码已更新", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "PIN 码必须是 4-6 位数字", Toast.LENGTH_SHORT).show()
