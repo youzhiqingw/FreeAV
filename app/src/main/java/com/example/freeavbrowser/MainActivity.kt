@@ -1085,6 +1085,29 @@ class MainActivity : AppCompatActivity() {
                 playVideo(url)
             }
         }
+
+        btnPlay.setOnLongClickListener {
+            currentVideoUrl?.let { url ->
+                showVideoMenu(url)
+            }
+            true
+        }
+    }
+
+    private fun showVideoMenu(url: String) {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("视频操作")
+            .setItems(arrayOf("播放", "复制地址")) { _, which ->
+                when (which) {
+                    0 -> playVideo(url)
+                    1 -> {
+                        val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("视频地址", url))
+                        Toast.makeText(this, "已复制到剪贴板", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .show()
     }
 
     private fun playVideo(url: String) {
@@ -1101,12 +1124,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 playUrl = url
             }
-
-            // Copy real URL to clipboard (not proxy URL)
-            val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-            val clip = android.content.ClipData.newPlainText("视频地址", url)
-            clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, "视频地址已复制到剪贴板", Toast.LENGTH_SHORT).show()
 
             val mimeType = if (url.contains(".mp4")) "video/mp4" else "video/*"
             val intent = Intent(Intent.ACTION_VIEW)
