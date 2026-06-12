@@ -155,17 +155,15 @@ class MainActivity : AppCompatActivity() {
 
         var urlToLoad: String? = null
 
-        if (intent.action == Intent.ACTION_VIEW) {
-            val data: Uri? = intent.data
-            if (data != null) {
-                urlToLoad = data.toString()
+        when (intent.action) {
+            Intent.ACTION_VIEW -> {
+                urlToLoad = intent.data?.toString()
             }
-        } else if (intent.action == Intent.ACTION_SEND && intent.type == "text/plain") {
-            val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
-            if (sharedText != null) {
-                urlToLoad = extractUrl(sharedText)
-                if (urlToLoad == null) {
-                    runOnUiThread {
+            Intent.ACTION_SEND -> {
+                if (intent.type == "text/plain") {
+                    val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
+                    urlToLoad = sharedText?.let { extractUrl(it) }
+                    if (urlToLoad == null && sharedText != null) {
                         Toast.makeText(this, "无法从分享内容中找到网址", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -173,10 +171,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (urlToLoad != null) {
-            val updatedUrl = domainConfig.updateUrlIfNeeded(urlToLoad)
-            // Use post to ensure webview is fully initialized
-            webView.post {
-                webView.loadUrl(updatedUrl)
+            // Use UrlSecurityValidator to prevent javascript:/file: injection
+            when (val result = com.example.freeavbrowser.security.UrlSecurityValidator.validateExternalUrl(urlToLoad)) {
+                is com.example.freeavbrowser.security.UrlSecurityValidator.ValidationResult.Valid -> {
+                    val updatedUrl = domainConfig.updateUrlIfNeeded(result.url)
+                    webView.post {
+                        webView.loadUrl(updatedUrl)
+                    }
+                }
+                is com.example.freeavbrowser.security.UrlSecurityValidator.ValidationResult.Invalid -> {
+                    Toast.makeText(this, "不支持的链接: ${result.reason}", Toast.LENGTH_SHORT).show()
+                }
+                else -> {}
             }
         }
     }
@@ -234,6 +240,17 @@ class MainActivity : AppCompatActivity() {
         settings.domStorageEnabled = true
         settings.userAgentString = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
 
+        // Security configurations
+        settings.allowFileAccess = false
+        settings.allowContentAccess = false
+        settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+        settings.setSavePassword(false)
+
+        // Disable WebView debugging in release builds
+        if (!BuildConfig.DEBUG) {
+            android.webkit.WebView.setWebContentsDebuggingEnabled(false)
+        }
+
         // Add JS interface globally
         webView.addJavascriptInterface(object {
             @android.webkit.JavascriptInterface
@@ -246,6 +263,12 @@ class MainActivity : AppCompatActivity() {
             
             @android.webkit.JavascriptInterface
             fun navigateToUrl(url: String) {
+                // Validate URL to prevent javascript: injection
+                if (!com.example.freeavbrowser.security.UrlSecurityValidator.validateJavaScriptUrl(url)) {
+                    android.util.Log.w("MainActivity", "JS interface blocked invalid URL: $url")
+                    return
+                }
+
                 runOnUiThread {
                     Toast.makeText(this@MainActivity, "正在连接...", Toast.LENGTH_SHORT).show()
                     progressBar.visibility = View.VISIBLE
