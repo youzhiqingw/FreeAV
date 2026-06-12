@@ -17,7 +17,7 @@ import java.net.URL
  *   val localUrl = proxy.buildProxyUrl(realVideoUrl, referer, cookies)
  *   // 將 localUrl 傳給外部播放器
  */
-class VideoProxyServer(private val context: Context) : NanoHTTPD(0) { // port=0 讓系統自動選空閒 port
+class VideoProxyServer(private val context: Context) : NanoHTTPD("127.0.0.1", 0) {
 
     companion object {
         private const val CONNECT_TIMEOUT = 15000
@@ -26,18 +26,20 @@ class VideoProxyServer(private val context: Context) : NanoHTTPD(0) { // port=0 
     }
 
     private val rateLimiter = HostRateLimiter(minIntervalMs = 200L)
+    private val proxyToken = java.util.UUID.randomUUID().toString()
+    private val videoCdnCache = mutableSetOf<String>()
 
-    /**
-     * 產生給外部播放器用的本地 URL
-     * @param realUrl  真實的 CDN 影片網址
-     * @param referer  需要帶的 Referer（例如 https://avjoy.me/）
-     * @param cookies  從 WebView 讀到的 Cookie 字串（可空）
-     */
     fun buildProxyUrl(realUrl: String, referer: String, cookies: String?): String {
+        // Extract and cache CDN domain
+        val cdnHost = android.net.Uri.parse(realUrl).host
+        if (cdnHost != null) {
+            videoCdnCache.add(cdnHost)
+        }
+
         val encodedUrl = java.net.URLEncoder.encode(realUrl, "UTF-8")
         val encodedReferer = java.net.URLEncoder.encode(referer, "UTF-8")
         val encodedCookies = java.net.URLEncoder.encode(cookies ?: "", "UTF-8")
-        return "http://127.0.0.1:$listeningPort/proxy?url=$encodedUrl&referer=$encodedReferer&cookies=$encodedCookies"
+        return "http://127.0.0.1:$listeningPort/proxy?url=$encodedUrl&referer=$encodedReferer&cookies=$encodedCookies&token=$proxyToken"
     }
 
     override fun serve(session: IHTTPSession): Response {
@@ -46,16 +48,40 @@ class VideoProxyServer(private val context: Context) : NanoHTTPD(0) { // port=0 
                 return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
             }
 
+            // 1. Token validation
+            val token = session.parameters["token"]?.firstOrNull()
+            if (token != proxyToken) {
+                return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Invalid token")
+            }
+
             val params = session.parameters
             val realUrl = params["url"]?.firstOrNull()
                 ?.let { java.net.URLDecoder.decode(it, "UTF-8") }
                 ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "Missing url")
+
+            // 2. Get current page host
             val referer = params["referer"]?.firstOrNull()
                 ?.let { java.net.URLDecoder.decode(it, "UTF-8") } ?: ""
+            val currentPageHost = if (referer.isNotEmpty()) {
+                android.net.Uri.parse(referer).host
+            } else null
+
+            // 3. SSRF protection (3-tier)
+            when (val result = com.example.freeavbrowser.security.UrlSecurityValidator.validateProxyTarget(realUrl, currentPageHost, videoCdnCache)) {
+                is com.example.freeavbrowser.security.UrlSecurityValidator.ValidationResult.Valid -> {
+                    // Pass validation
+                }
+                is com.example.freeavbrowser.security.UrlSecurityValidator.ValidationResult.Invalid -> {
+                    return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, result.reason)
+                }
+                is com.example.freeavbrowser.security.UrlSecurityValidator.ValidationResult.RequireWhitelist -> {
+                    android.util.Log.w("VideoProxyServer", "Blocked host not in whitelist: ${result.host}")
+                    return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Host not allowed")
+                }
+            }
+
             val cookies = params["cookies"]?.firstOrNull()
                 ?.let { java.net.URLDecoder.decode(it, "UTF-8") } ?: ""
-
-            // 取得外部播放器送來的 Range header（支援 seek）
             val rangeHeader = session.headers["range"]
 
             proxyRequest(realUrl, referer, cookies, rangeHeader)

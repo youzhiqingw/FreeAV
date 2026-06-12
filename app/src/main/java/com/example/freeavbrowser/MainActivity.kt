@@ -247,9 +247,7 @@ class MainActivity : AppCompatActivity() {
         settings.setSavePassword(false)
 
         // Disable WebView debugging in release builds
-        if (!BuildConfig.DEBUG) {
-            android.webkit.WebView.setWebContentsDebuggingEnabled(false)
-        }
+        android.webkit.WebView.setWebContentsDebuggingEnabled(false)
 
         // Add JS interface globally
         webView.addJavascriptInterface(object {
