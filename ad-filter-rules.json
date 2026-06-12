@@ -1,6 +1,6 @@
 {
-    "version": "2.3.3",
-    "lastUpdate": "2026-03-31T21:30:00Z",
+    "version": "2.3.4",
+    "lastUpdate": "2026-06-10T00:00:00Z",
     "domains": {
         "missav": "missav.ai",
         "jable": "jable.tv",
@@ -50,6 +50,7 @@
             "content-sync.xyz",
             "nightdestruct.com",
             "tapioni.com",
+            "googletagmanager.com",
             "sandwichconscientiousroadside.com",
             "doppiocdn.com",
             "xlirdr.com",

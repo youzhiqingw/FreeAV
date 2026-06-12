@@ -8,6 +8,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.concurrent.Executors
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 
 class AdFilterRules(private val context: Context) {
@@ -23,10 +27,9 @@ class AdFilterRules(private val context: Context) {
         private const val KEY_CLOUD_URLS = "cloud_urls" // 多个云端 URL（逗号分隔）
         private const val KEY_LOCAL_RULES = "local_rules" // 本地规则文件列表（JSON 数组）
         private const val KEY_ELEMENT_HIDE_RULES = "element_hide_rules" // 元素隐藏规则
+        private const val KEY_EASYLIST_CACHE = "easylist_rules_cache" // EasyList 规则缓存
+        private const val KEY_EASYLIST_CACHE_TIME = "easylist_cache_time" // 缓存时间戳
 
-        // Cloud update URL - can be configured in Settings
-        const val DEFAULT_CLOUD_URL = "https://raw.githubusercontent.com/fekilooo/javbrowser/refs/heads/main/ad-filter-rules.json"
-        
         // EasyList规则源
         private val EASYLIST_SOURCES = listOf(
             "https://easylist.to/easylist/easylist.txt",
@@ -40,8 +43,8 @@ class AdFilterRules(private val context: Context) {
         // 注意：此規則應與 ad-filter-rules.json 保持同步
         private val DEFAULT_RULES = """
         {
-          "version": "2.3.3",
-          "lastUpdate": "2026-03-31T21:30:00Z",
+          "version": "2.3.4",
+          "lastUpdate": "2026-06-10T00:00:00Z",
           "domains": {
             "missav": "missav.ai",
             "jable": "jable.tv",
@@ -91,12 +94,26 @@ class AdFilterRules(private val context: Context) {
               "content-sync.xyz",
               "nightdestruct.com",
               "tapioni.com",
+              "googletagmanager.com",
               "sandwichconscientiousroadside.com",
+              "adtng.com",
               "doppiocdn.com",
               "xlirdr.com",
               "javhdporn.live",
               "growcdnssedge.com",
-              "skinnycrawlinglax.com"
+              "skinnycrawlinglax.com",
+              "havenclick.com",
+              "ads-twitter.com",
+              "wpadmngr.com",
+              "ra13.xyz",
+              "98d4403b02.com",
+              "cloudflareinsights.com",
+              "bluetrafficstream.com",
+              "creativemyavlive.com",
+              "xlviirdr.com",
+              "quizzicalrun.com",
+              "onesignal.com",
+              "amung.us"
             ],
             "networkBlock": [
               "sunnycloudstone.com"
@@ -115,16 +132,143 @@ class AdFilterRules(private val context: Context) {
     private val blockRules = HashSet<String>()       // 域名精确匹配
     private val blockPatterns = ArrayList<String>()  // URL模式匹配
     private val whiteList = HashSet<String>()        // 白名单
-    private val elementHideRules = ArrayList<String>() // 元素隐藏规则
+    private val elementHideRules = LinkedHashSet<String>() // 通用元素隐藏规则（去重）
+    private val domainElementHideRules = HashMap<String, MutableSet<String>>() // 域名特定元素隐藏 { domain -> selectors }
+    private val urlPathRules = ArrayList<String>()   // URL 路径规则（包含字符串即拦截）
+    private val trackerDomains = HashSet<String>()   // 跟踪器域名
+    private val redirectDomains = HashSet<String>()  // $redirect=noopjs 域名
+    private val generichideDomains = HashSet<String>() // $generichide 域名
+    private var parsedScriptletRules = listOf<AdblockRuleParser.ParsedRule>()
+
+    // JS 过滤器支持
+    data class JsFilter(
+        val domain: String,
+        val type: String,    // "set-constant", "trusted-set-cookie"
+        val target: String,  // "ABLK", "in_d4"
+        val value: String    // "false", "1"
+    )
+
+    private val jsFilters = ArrayList<JsFilter>()
     
     init {
-        // 如果是首次使用，載入預設規則
-        if (!prefs.contains(KEY_RULES_JSON)) {
-            updateRulesFromJson(DEFAULT_RULES)
+        try {
+            // 如果是首次使用，載入預設規則
+            if (!prefs.contains(KEY_RULES_JSON)) {
+                updateRulesFromJson(DEFAULT_RULES)
+            }
+
+            // 初始化规则
+            initializeRules()
+
+            // 加载 JS 过滤器
+            loadJsFilters()
+
+            // 加载 URL 路径规则
+            loadUrlPathRules()
+
+            // 加载跟踪器域名
+            loadTrackerDomains()
+
+            // 加载 redirect 规则（$redirect=noopjs）
+            loadRedirectRules()
+
+            // 加载 generichide 白名单
+            loadGenerichideRules()
+        } catch (e: Exception) {
+            Log.e(TAG, "AdFilterRules 初始化失败: ${e.message}", e)
+            // 使用空规则继续，避免崩溃
         }
-        
-        // 初始化规则
-        initializeRules()
+    }
+
+    private fun loadUrlPathRules() {
+        // 脚本管理器拦截
+        urlPathRules.add("/wp-content/plugins/script-manager/assets/js/script-manager.js")
+        // 广告下发路径模式
+        urlPathRules.add("/z/")           // /z/*/code.js, /z/*/json 等
+        urlPathRules.add("smartpop")      // 智能弹窗
+        urlPathRules.add("clickadu")      // Clickadu 弹窗 SDK
+        urlPathRules.add("adManager")     // 广告调度器
+        urlPathRules.add("popunder")      // Pop-under
+        urlPathRules.add("tabunder")      // Tab-under
+        // 精准广告页面路径（低误杀）
+        urlPathRules.add("ads_pages.php")
+        urlPathRules.add("ads_pages2.php")
+        urlPathRules.add("/popup/")
+        urlPathRules.add("/pop/")
+        urlPathRules.add("adserver")
+        urlPathRules.add("adservice")
+        urlPathRules.add("adsystem")
+    }
+
+    private fun loadTrackerDomains() {
+        trackerDomains.addAll(listOf(
+            "googletagmanager.com",
+            "google-analytics.com",
+            "googlesyndication.com",
+            "doubleclick.net",
+            "googleadservices.com",
+            "cloudflareinsights.com"
+        ))
+    }
+
+    // 获取跟踪器域名列表
+    fun getTrackerDomains(): Set<String> = trackerDomains
+
+    private fun loadRedirectRules() {
+        // $redirect=noopjs 域名
+        redirectDomains.add("googletagmanager.com")
+    }
+
+    private fun loadGenerichideRules() {
+        // @@||domain^$generichide 白名单
+        generichideDomains.add("hanime.tv")
+        CosmeticFilter.addGenerichideDomains(generichideDomains)
+    }
+
+    // 检测域名是否为 redirect 规则
+    fun isRedirectRule(host: String): Boolean {
+        return isDomainInSet(host.lowercase(), redirectDomains)
+    }
+
+    // 获取 generichide 域名列表
+    fun getGenerichideDomains(): Set<String> = generichideDomains
+
+    // 获取解析后的 scriptlet 规则
+    fun getScriptletRules(): List<AdblockRuleParser.ParsedRule> = parsedScriptletRules
+
+    // 加载批量 uBO 规则（用于 EasyList 等外部规则源）
+    fun loadExternalRules(rules: List<String>) {
+        val parsed = AdblockRuleParser.parseAll(rules)
+        for (rule in parsed) {
+            when (rule.type) {
+                AdblockRuleParser.RuleType.BLOCK -> {
+                    rule.domain?.let { blockRules.add(it) }
+                    if (rule.isRedirect) {
+                        rule.domain?.let { redirectDomains.add(it) }
+                    }
+                }
+                AdblockRuleParser.RuleType.GENERICHIDE -> {
+                    rule.domain?.let { generichideDomains.add(it) }
+                }
+                AdblockRuleParser.RuleType.ELEMENT_HIDE -> {
+                    rule.selector?.let { selector ->
+                        if (rule.domain.isNullOrBlank()) {
+                            elementHideRules.add(selector)
+                        } else {
+                            domainElementHideRules.getOrPut(rule.domain.lowercase()) { mutableSetOf() }.add(selector)
+                        }
+                    }
+                }
+                AdblockRuleParser.RuleType.SCRIPTLET -> {
+                    // 累积到 scriptlet 规则列表
+                    parsedScriptletRules = parsedScriptletRules + rule
+                }
+                AdblockRuleParser.RuleType.WHITELIST -> {
+                    rule.domain?.let { whiteList.add(it) }
+                }
+            }
+        }
+        saveElementHideRules()
     }
     
     private fun initializeRules() {
@@ -146,6 +290,45 @@ class AdFilterRules(private val context: Context) {
         } catch (e: Exception) {
             Log.e(TAG, "Failed to load element hide rules", e)
         }
+    }
+
+    private fun loadJsFilters() {
+        // Hanime: 反广告检测
+        jsFilters.add(JsFilter(
+            domain = "hanime.tv",
+            type = "set-constant",
+            target = "ABLK",
+            value = "false"
+        ))
+
+        // Hanime: Cookie 欺骗
+        jsFilters.add(JsFilter(
+            domain = "hanime.tv",
+            type = "trusted-set-cookie",
+            target = "in_d4",
+            value = "1"
+        ))
+
+        // HentaiHaven: 禁用广告拦截检测
+        jsFilters.add(JsFilter(
+            domain = "hentaihaven.xxx",
+            type = "set-constant",
+            target = "PlayerLogic.prototype.detectADB",
+            value = "noopFunc"
+        ))
+
+        // HentaiHaven: 常量欺骗（让网站认为广告已展示）
+        jsFilters.add(JsFilter(
+            domain = "hentaihaven.xxx",
+            type = "set-constant",
+            target = "clickPopUpcf",
+            value = "1"
+        ))
+    }
+
+    // 获取指定域名的 JS 过滤器
+    fun getJsFilters(domain: String): List<JsFilter> {
+        return jsFilters.filter { it.domain == domain || domain.endsWith(".${it.domain}") }
     }
 
     // 獲取網路層攔截列表
@@ -170,7 +353,34 @@ class AdFilterRules(private val context: Context) {
 
     // 获取元素隐藏规则
     fun getElementHideRules(): List<String> {
-        return elementHideRules
+        return elementHideRules.toList()
+    }
+
+    // 生成 Element Hiding CSS 注入脚本（供 WebView evaluateJavascript 使用）
+    // 合并通用规则 + 当前域名特定规则
+    fun getElementHideCssScript(domain: String): String {
+        val allSelectors = LinkedHashSet<String>()
+
+        // 1. 通用规则（所有站点生效）
+        allSelectors.addAll(elementHideRules)
+
+        // 2. 域名特定规则（精确匹配 + 父域名匹配）
+        val lowerDomain = domain.lowercase()
+        domainElementHideRules[lowerDomain]?.let { allSelectors.addAll(it) }
+        // 检查子域名：如 sub.ads.example.com 命中 ads.example.com 的规则
+        var dotIndex = lowerDomain.indexOf('.')
+        while (dotIndex != -1 && dotIndex < lowerDomain.length - 1) {
+            val parent = lowerDomain.substring(dotIndex + 1)
+            domainElementHideRules[parent]?.let { allSelectors.addAll(it) }
+            dotIndex = lowerDomain.indexOf('.', dotIndex + 1)
+        }
+
+        if (allSelectors.isEmpty()) return ""
+
+        val selectorStr = allSelectors.joinToString(",") { it.replace("'", "\\'") }
+        return "(function(){var s=document.createElement('style');" +
+               "s.textContent='$selectorStr{display:none!important}';" +
+               "(document.head||document.documentElement).appendChild(s);})();"
     }
 
     // 獲取通用遮蔽列表（相容舊介面）
@@ -186,21 +396,52 @@ class AdFilterRules(private val context: Context) {
             val uri = Uri.parse(url)
             val host = uri.host?.lowercase() ?: return false
 
-            // 1. 检查白名单
-            if (whiteList.contains(host)) return false
+            // 1. 检查白名单（精确 + 父域名）
+            if (isDomainInSet(host, whiteList)) return false
 
-            // 2. 检查域名精确匹配
-            if (blockRules.contains(host)) return true
+            // 2. 检查域名匹配（精确 + 子域名，O(levels) 复杂度）
+            if (isDomainInSet(host, blockRules)) return true
 
-            // 3. 检查URL模式匹配
+            // 3. 检查跟踪器域名
+            if (isDomainInSet(host, trackerDomains)) return true
+
+            // 4. 检查 redirect 域名（$redirect=noopjs）
+            if (isDomainInSet(host, redirectDomains)) return true
+
+            // 5. 通用广告脚本检测（AdScriptDetector 行为模式识别）
+            if (AdScriptDetector.isAdScript(url)) return true
+            if (AdScriptDetector.isAdPlatform(host)) return true
+
+            // 6. 检查 URL 路径规则
+            val path = uri.path?.lowercase() ?: ""
+            val lowerUrl = url.lowercase()
+            for (pathRule in urlPathRules) {
+                if (path.contains(pathRule) || lowerUrl.contains(pathRule)) return true
+            }
+
+            // 7. 检查URL模式匹配
             for (pattern in blockPatterns) {
-                if (url.contains(pattern)) return true
+                if (lowerUrl.contains(pattern)) return true
             }
 
             return false
         } catch (e: Exception) {
             return false
         }
+    }
+
+    // 将域名分解为各级父域名，检查是否命中集合
+    // 例如 sub.ads.example.com → [sub.ads.example.com, ads.example.com, example.com]
+    // 复杂度 O(levels) 而非 O(n)
+    private fun isDomainInSet(host: String, domainSet: Set<String>): Boolean {
+        if (domainSet.contains(host)) return true
+        var dotIndex = host.indexOf('.')
+        while (dotIndex != -1 && dotIndex < host.length - 1) {
+            val parent = host.substring(dotIndex + 1)
+            if (domainSet.contains(parent)) return true
+            dotIndex = host.indexOf('.', dotIndex + 1)
+        }
+        return false
     }
     
     // 解析JSON规则
@@ -232,6 +473,13 @@ class AdFilterRules(private val context: Context) {
                                     elementHideRules.add(rule.pattern)
                                 }
                             }
+                            RuleType.REDIRECT_BLOCK -> {
+                                if (rule.domain != null) {
+                                    redirectDomains.add(rule.domain)
+                                } else if (rule.pattern != null) {
+                                    blockPatterns.add(rule.pattern)
+                                }
+                            }
                             else -> {}
                         }
                         Unit
@@ -243,123 +491,155 @@ class AdFilterRules(private val context: Context) {
         }
     }
 
-    // 解析单条规则
+    // 解析单条规则（支持更多 Adblock Plus 格式）
     private fun parseRule(rule: String): AdRule? {
         try {
-            // 跳过注释和无效规则
             if (rule.isBlank() || rule.startsWith("!") || rule.startsWith("[")) {
                 return null
             }
-            
-            // 解析 ||domain.com^
-            if (rule.startsWith("||") && rule.endsWith("^")) {
-                val domain = rule.substring(2, rule.length - 1).lowercase()
-                return AdRule(RuleType.BLOCK, domain, null)
+
+            // 分离规则体和选项（$后面的参数），排除 ## 和 #@# 规则
+            val dollarIndex = rule.indexOf('$')
+            val ruleBody: String
+            val options: String
+            if (dollarIndex > 0 && !rule.startsWith("##") && !rule.startsWith("#@#")) {
+                ruleBody = rule.substring(0, dollarIndex)
+                options = rule.substring(dollarIndex + 1)
+            } else {
+                ruleBody = rule
+                options = ""
             }
-            
-            // 解析 @@||domain.com^
-            if (rule.startsWith("@@||") && rule.endsWith("^")) {
-                val domain = rule.substring(4, rule.length - 1).lowercase()
-                return AdRule(RuleType.WHITELIST, domain, null)
+
+            // 解析 redirect 规则: *$redirect=noopjs
+            if (options.contains("redirect=")) {
+                return AdRule(RuleType.REDIRECT_BLOCK, null, ruleBody)
             }
-            
-            // 解析 ##.ad-class
-            if (rule.startsWith("##")) {
-                val selector = rule.substring(2)
+
+            // 解析 @@ 白名单规则
+            if (ruleBody.startsWith("@@")) {
+                val inner = ruleBody.substring(2)
+                return parseNetworkRule(inner, RuleType.WHITELIST)
+            }
+
+            // 解析 #@# 元素隐藏例外
+            if (ruleBody.startsWith("#@#")) {
+                val selector = ruleBody.substring(3)
                 return AdRule(RuleType.ELEMENT_HIDE, null, selector)
             }
-            
-            // 解析简单域名
-            if (rule.matches(Regex("^[a-zA-Z0-9.-]+$"))) {
-                return AdRule(RuleType.BLOCK, rule.lowercase(), null)
+
+            // 解析 ## 元素隐藏
+            if (ruleBody.startsWith("##")) {
+                val selector = ruleBody.substring(2)
+                return AdRule(RuleType.ELEMENT_HIDE, null, selector)
             }
-            
-            // 解析包含通配符的URL
-            if (rule.contains("*") || rule.contains("^")) {
-                val pattern = rule.replace("*", ".*").replace("^", ".*")
+
+            // 解析 /regex/ 规则
+            if (ruleBody.startsWith("/") && ruleBody.endsWith("/") && ruleBody.length > 2) {
+                val pattern = ruleBody.substring(1, ruleBody.length - 1)
                 return AdRule(RuleType.BLOCK, null, pattern)
             }
-            
-             return null
-         } catch (e: Exception) {
-             Log.e(TAG, "Failed to parse rule", e)
-             return null
-         }
-     }
 
-     // 从外部规则源更新规则
+            // 解析网络拦截规则
+            return parseNetworkRule(ruleBody, RuleType.BLOCK)
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to parse rule: $rule", e)
+            return null
+        }
+    }
+
+    // 解析网络规则（域名/URL模式）
+    private fun parseNetworkRule(ruleBody: String, type: RuleType): AdRule? {
+        // ||domain.com^ → 域名拦截
+        if (ruleBody.startsWith("||") && ruleBody.endsWith("^")) {
+            val domain = ruleBody.substring(2, ruleBody.length - 1).lowercase()
+            return AdRule(type, domain, null)
+        }
+
+        // ||domain.com/path^ → URL 模式拦截
+        if (ruleBody.startsWith("||")) {
+            val pattern = ruleBody.substring(2).lowercase()
+                .replace("*", ".*")
+                .replace("^", ".*")
+            return AdRule(type, null, pattern)
+        }
+
+        // 简单域名
+        if (ruleBody.matches(Regex("^[a-zA-Z0-9.-]+$"))) {
+            return AdRule(type, ruleBody.lowercase(), null)
+        }
+
+        // 包含通配符的URL模式
+        if (ruleBody.contains("*") || ruleBody.contains("^")) {
+            val pattern = ruleBody.replace("*", ".*").replace("^", ".*")
+            return AdRule(type, null, pattern)
+        }
+
+        // 其他 URL 模式
+        if (ruleBody.isNotBlank()) {
+            return AdRule(type, null, ruleBody.lowercase())
+        }
+
+        return null
+    }
+
+     // 从外部规则源更新规则（并行下载 + 缓存）
     fun updateRulesFromExternalSources(callback: (success: Boolean, message: String) -> Unit) {
         thread {
             try {
-                val allRules = mutableListOf<String>()
-                var successCount = 0
-                var failCount = 0
-                
-                EASYLIST_SOURCES.forEach { url ->
-                    try {
-                        val connection = URL(url).openConnection() as HttpURLConnection
-                        connection.connectTimeout = 10000
-                        connection.readTimeout = 10000
-                        
-                        if (connection.responseCode == 200) {
-                            val content = connection.inputStream.bufferedReader().readText()
-                            val rules = content.lines()
-                                .filter { it.isNotBlank() && !it.startsWith("!") && !it.startsWith("[") }
-                            allRules.addAll(rules)
-                            successCount++
-                        } else {
-                            failCount++
+                // 检查缓存是否有效
+                if (isEasyListCacheValid()) {
+                    val cachedRules = loadEasyListCache()
+                    if (cachedRules != null && cachedRules.isNotEmpty()) {
+                        processAndApplyRules(cachedRules)
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            callback(true, "从缓存加载 ${cachedRules.size} 条规则")
                         }
-                    } catch (e: Exception) {
-                        failCount++
+                        return@thread
                     }
                 }
-                
-                // 处理规则
-                if (allRules.isNotEmpty()) {
-                    val newBlockRules = HashSet<String>()
-                    val newBlockPatterns = ArrayList<String>()
-                    val newWhiteList = HashSet<String>()
-                    val newElementHideRules = ArrayList<String>()
 
-                    allRules.forEach { rule ->
-                        parseRule(rule)?.let { adRule ->
-                            when (adRule.type) {
-                                RuleType.BLOCK -> {
-                                    if (adRule.domain != null) {
-                                        newBlockRules.add(adRule.domain)
-                                    } else if (adRule.pattern != null) {
-                                        newBlockPatterns.add(adRule.pattern)
-                                    }
+                // 并行下载所有规则源
+                val allRules = java.util.Collections.synchronizedList(mutableListOf<String>())
+                val successCount = AtomicInteger(0)
+                val failCount = AtomicInteger(0)
+                val executor = Executors.newFixedThreadPool(EASYLIST_SOURCES.size)
+                val latch = CountDownLatch(EASYLIST_SOURCES.size)
+
+                EASYLIST_SOURCES.forEach { url ->
+                    executor.execute {
+                        try {
+                            val connection = URL(url).openConnection() as HttpURLConnection
+                            connection.connectTimeout = 10000
+                            connection.readTimeout = 10000
+                            try {
+                                if (connection.responseCode == 200) {
+                                    val content = connection.inputStream.bufferedReader().readText()
+                                    val rules = content.lines()
+                                        .filter { it.isNotBlank() && !it.startsWith("!") && !it.startsWith("[") }
+                                    allRules.addAll(rules)
+                                    successCount.incrementAndGet()
+                                } else {
+                                    failCount.incrementAndGet()
                                 }
-                                RuleType.WHITELIST -> {
-                                    if (adRule.domain != null) {
-                                        newWhiteList.add(adRule.domain)
-                                    }
-                                }
-                                RuleType.ELEMENT_HIDE -> {
-                                    if (adRule.pattern != null) {
-                                        newElementHideRules.add(adRule.pattern)
-                                    }
-                                }
-                                else -> {}
+                            } finally {
+                                connection.disconnect()
                             }
-                            Unit
+                        } catch (e: Exception) {
+                            failCount.incrementAndGet()
+                        } finally {
+                            latch.countDown()
                         }
                     }
+                }
 
-                    // 仅在有有效规则时才替换，避免清空后失败
-                    if (newBlockRules.isNotEmpty() || newBlockPatterns.isNotEmpty()) {
-                        blockRules.clear()
-                        blockPatterns.clear()
-                        whiteList.clear()
-                        elementHideRules.clear()
-                        blockRules.addAll(newBlockRules)
-                        blockPatterns.addAll(newBlockPatterns)
-                        whiteList.addAll(newWhiteList)
-                        elementHideRules.addAll(newElementHideRules)
-                        saveElementHideRules()
-                    }
+                latch.await(30, TimeUnit.SECONDS)
+                executor.shutdown()
+
+                // 处理规则
+                if (allRules.isNotEmpty()) {
+                    processAndApplyRules(allRules)
+                    saveEasyListCache(allRules)
 
                     android.os.Handler(android.os.Looper.getMainLooper()).post {
                         callback(true, "成功加载 $successCount 个规则源，失败 $failCount 个")
@@ -376,6 +656,66 @@ class AdFilterRules(private val context: Context) {
             }
         }
     }
+
+    // 解析并应用规则（使用 AdblockRuleParser 完整解析 EasyList 语法）
+    private fun processAndApplyRules(rules: List<String>) {
+        val parsed = AdblockRuleParser.parseAll(rules)
+
+        val newBlockRules = HashSet<String>()
+        val newBlockPatterns = ArrayList<String>()
+        val newWhiteList = HashSet<String>()
+        val newGenericHideRules = LinkedHashSet<String>()
+        val newDomainHideRules = HashMap<String, MutableSet<String>>()
+        val newScriptletRules = mutableListOf<AdblockRuleParser.ParsedRule>()
+
+        for (rule in parsed) {
+            when (rule.type) {
+                AdblockRuleParser.RuleType.BLOCK -> {
+                    rule.domain?.let { newBlockRules.add(it) }
+                    if (rule.isRedirect) {
+                        rule.domain?.let { redirectDomains.add(it) }
+                    }
+                }
+                AdblockRuleParser.RuleType.WHITELIST -> {
+                    rule.domain?.let { newWhiteList.add(it) }
+                }
+                AdblockRuleParser.RuleType.ELEMENT_HIDE -> {
+                    rule.selector?.let { selector ->
+                        if (rule.domain.isNullOrBlank()) {
+                            // 通用规则（##selector）→ 所有站点生效
+                            newGenericHideRules.add(selector)
+                        } else {
+                            // 域名特定规则（domain##selector）→ 仅目标站点生效
+                            newDomainHideRules.getOrPut(rule.domain.lowercase()) { mutableSetOf() }.add(selector)
+                        }
+                    }
+                }
+                AdblockRuleParser.RuleType.SCRIPTLET -> {
+                    newScriptletRules.add(rule)
+                }
+                AdblockRuleParser.RuleType.GENERICHIDE -> {
+                    rule.domain?.let {
+                        generichideDomains.add(it)
+                        CosmeticFilter.addGenerichideDomain(it)
+                    }
+                }
+            }
+        }
+
+        // 保留 DEFAULT_RULES，追加 EasyList 规则（LinkedHashSet 自动去重）
+        if (newBlockRules.isNotEmpty() || newBlockPatterns.isNotEmpty() ||
+            newGenericHideRules.isNotEmpty() || newDomainHideRules.isNotEmpty()) {
+            blockRules.addAll(newBlockRules)
+            blockPatterns.addAll(newBlockPatterns)
+            whiteList.addAll(newWhiteList)
+            elementHideRules.addAll(newGenericHideRules)
+            for ((domain, selectors) in newDomainHideRules) {
+                domainElementHideRules.getOrPut(domain) { mutableSetOf() }.addAll(selectors)
+            }
+            parsedScriptletRules = parsedScriptletRules + newScriptletRules
+            saveElementHideRules()
+        }
+    }
     
     // 保存元素隐藏规则
     private fun saveElementHideRules() {
@@ -388,7 +728,31 @@ class AdFilterRules(private val context: Context) {
          } catch (e: Exception) {
              Log.e(TAG, "Failed to save element hide rules", e)
          }
-     }
+      }
+    
+    // 保存 EasyList 规则缓存
+    private fun saveEasyListCache(rules: List<String>) {
+        try {
+            prefs.edit()
+                .putString(KEY_EASYLIST_CACHE, rules.joinToString("\n"))
+                .putLong(KEY_EASYLIST_CACHE_TIME, System.currentTimeMillis())
+                .apply()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save EasyList cache", e)
+        }
+    }
+
+    // 加载 EasyList 规则缓存
+    private fun loadEasyListCache(): List<String>? {
+        val cached = prefs.getString(KEY_EASYLIST_CACHE, null) ?: return null
+        return cached.lines().filter { it.isNotBlank() }
+    }
+
+    // 检查缓存是否有效（24小时内）
+    private fun isEasyListCacheValid(): Boolean {
+        val cacheTime = prefs.getLong(KEY_EASYLIST_CACHE_TIME, 0L)
+        return (System.currentTimeMillis() - cacheTime) < 24 * 60 * 60 * 1000L
+    }
     
     // 添加默认元素隐藏规则
     fun addDefaultElementHideRules() {
@@ -611,26 +975,6 @@ class AdFilterRules(private val context: Context) {
         }
     }
     
-    /**
-     * 讀取 domains 設定區塊（用於動態網域替換）
-     * 回傳格式：Map<"missav" -> "missav.ws", ...>
-     */
-    fun getDomains(): Map<String, String> {
-        return try {
-            val json = prefs.getString(KEY_RULES_JSON, DEFAULT_RULES) ?: DEFAULT_RULES
-            val jsonObject = JSONObject(json)
-            if (!jsonObject.has("domains")) return emptyMap()
-            val domainsObject = jsonObject.getJSONObject("domains")
-            val map = mutableMapOf<String, String>()
-            domainsObject.keys().forEach { key ->
-                map[key] = domainsObject.getString(key)
-            }
-            map
-        } catch (e: Exception) {
-            emptyMap()
-        }
-    }
-
     // 導出規則為 JSON
     fun exportToJson(): String {
         return prefs.getString(KEY_RULES_JSON, DEFAULT_RULES) ?: DEFAULT_RULES
@@ -695,7 +1039,7 @@ class AdFilterRules(private val context: Context) {
     
     // 雲端 URL 管理
     var cloudUrl: String
-        get() = prefs.getString(KEY_CLOUD_URL, DEFAULT_CLOUD_URL) ?: DEFAULT_CLOUD_URL
+        get() = prefs.getString(KEY_CLOUD_URL, "") ?: ""
         set(value) = prefs.edit().putString(KEY_CLOUD_URL, value).apply()
 
     // ========== 多规则文件支持 ==========
@@ -704,7 +1048,7 @@ class AdFilterRules(private val context: Context) {
      * 获取所有云端规则 URL 列表
      */
     fun getCloudUrls(): List<String> {
-        val urlsString = prefs.getString(KEY_CLOUD_URLS, DEFAULT_CLOUD_URL) ?: DEFAULT_CLOUD_URL
+        val urlsString = prefs.getString(KEY_CLOUD_URLS, "") ?: ""
         return urlsString.split(",").map { it.trim() }.filter { it.isNotEmpty() }
     }
 

@@ -22,9 +22,9 @@
     <!-- Settings Activity -->
     <string name="privacy_settings">隐私设置</string>
     <string name="app_lock">应用锁</string>
-    <string name="enable_biometric">启用生物识别锁</string>
+    <string name="enable_biometric">指纹识别</string>
     <string name="set_pin">设置 PIN 码（备用）</string>
-    <string name="lock_notice">应用关闭后或超过 1 小时需重新验证</string>
+    <string name="lock_notice">应用关闭后或超过 2 小时需重新验证</string>
     <string name="app_icon">应用图标</string>
     <string name="icon_default">浏览器</string>
     <string name="icon_calculator">计算器</string>
@@ -43,7 +43,7 @@
     <!-- Lock Screen -->
     <string name="app_locked">应用已锁定</string>
     <string name="enter_pin">请输入 PIN 码</string>
-    <string name="use_biometric">使用生物识别</string>
+    <string name="use_biometric">指纹识别</string>
     <string name="incorrect_pin">PIN 码错误</string>
     <string name="unlock">解锁</string>
     <string name="delete">删除</string>
@@ -64,11 +64,10 @@
     <!-- New Settings Strings -->
     <string name="privacy_security">隐私安全</string>
     <string name="app_lock_subtitle">启动时需要验证身份</string>
-    <string name="screenshot_block">防截屏</string>
-    <string name="flag_secure_status">FLAG_SECURE 未启用</string>
-    <string name="biometric_subtitle">快速解锁</string>
+    <string name="screenshot_block">防截屏保护</string>
+    <string name="screenshot_block_subtitle">阻止截屏和最近任务预览</string>
     <string name="privacy_mode">隐私模式</string>
-    <string name="privacy_mode_subtitle">自动清除浏览记录和缓存</string>
+    <string name="privacy_mode_subtitle">离开页面时自动清除浏览记录</string>
     <string name="icon_description">更换桌面图标和应用名称，隐藏应用真实用途</string>
     <string name="display">显示</string>
     <string name="dark_mode">深色模式</string>
@@ -78,18 +77,13 @@
     <string name="network_settings">网络设置</string>
     <string name="proxy_mode">代理模式</string>
     <string name="proxy_none">无</string>
-    <string name="domain_mapping">域名映射</string>
-    <string name="domain_mapping_subtitle">自动处理域名变更</string>
-    <string name="update_mapping">修改域名后缀</string>
-    <string name="update_mapping_subtitle">自定义 missav 域名后缀</string>
-    <string name="version_info">v1.1.5 (Build 17)</string>
+    <string name="version_info"></string>
     <string name="expand">展开</string>
     <string name="collapse">收起</string>
     <string name="ad_blocking">广告拦截</string>
-    <string name="blocked_count">已拦截 15,247 个广告</string>
     <string name="update_rules">更新规则</string>
     <string name="update_rules_subtitle">从云端获取最新过滤规则</string>
     <string name="add_rule">添加规则</string>
-    <string name="rules_list_placeholder">规则列表区域（未实现）</string>
+    <string name="rules_list_placeholder">添加自定义过滤规则 URL</string>
     <string name="manage">管理</string>
 </resources>

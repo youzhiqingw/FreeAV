@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 
@@ -165,7 +166,7 @@ class FavoritesActivity : AppCompatActivity() {
             getString(R.string.export_favorites)
         )
 
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.manage))
             .setItems(options) { _, which ->
                 when (which) {
@@ -177,7 +178,7 @@ class FavoritesActivity : AppCompatActivity() {
     }
 
     private fun showDeleteConfirmDialog(item: FavoriteItem) {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("删除收藏")
             .setMessage("确定要删除「${item.title}」吗？")
             .setPositiveButton("删除") { _, _ ->

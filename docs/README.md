@@ -11,18 +11,10 @@ Architecture and technology stack documentation
 ### [🎨 Design](design/)
 UI/UX design and refactoring documentation
 - [adfilter-enhancement-log.md](design/adfilter-enhancement-log.md) - AdFilterRules enhancement log
-- [adblock-engine-upgrade-proposal.md](design/adblock-engine-upgrade-proposal.md) - Ad block engine upgrade proposal
 
 ### [💻 Implementation](implementation/)
 Technical implementation details
 - [IMPLEMENTATION_GUIDE.md](implementation/IMPLEMENTATION_GUIDE.md) - Implementation guide
-- [JAVBROWSER_IMPLEMENTATION_PLAN.md](implementation/JAVBROWSER_IMPLEMENTATION_PLAN.md) - Implementation plan (historical reference)
-- [FEATURE_IMPLEMENTATION_SPECS.md](implementation/FEATURE_IMPLEMENTATION_SPECS.md) - Feature implementation specs
-- [HENTAI_SITES_TECH_DOC.md](implementation/HENTAI_SITES_TECH_DOC.md) - Hentai sites technical documentation
-
-### [🔒 Security](security/)
-Security and privacy documentation
-- [SECURITY_AUDIT.md](security/SECURITY_AUDIT.md) - Security audit report
 
 ### [🚀 Release Notes](release-notes/)
 Version release information
@@ -43,11 +35,8 @@ Archived and historical documents
 - [FEATURES.md](FEATURES.md) - Complete feature list
 - [DESIGN_SYSTEM_MD3.md](DESIGN_SYSTEM_MD3.md) - Material Design 3 design system spec
 - [MD3_REFACTOR_SUMMARY.md](MD3_REFACTOR_SUMMARY.md) - MD3 refactoring completion report
-- [FRONTEND_CODE_REVIEW.md](FRONTEND_CODE_REVIEW.md) - Frontend code review report
 - [AD_BLOCKING_ARCHITECTURE.md](AD_BLOCKING_ARCHITECTURE.md) - Ad blocking system architecture
 - [PRIVACY_AND_ADBLOCK.md](PRIVACY_AND_ADBLOCK.md) - Privacy and ad blocking overview
-- [POST_BUILD_CHECKLIST.md](POST_BUILD_CHECKLIST.md) - Post-build verification checklist
-- [BUILD_SUCCESS_REPORT.md](BUILD_SUCCESS_REPORT.md) - Build success report
 - [SUMMARY.md](SUMMARY.md) - Documentation organization log
 
 ## 📖 Getting Started

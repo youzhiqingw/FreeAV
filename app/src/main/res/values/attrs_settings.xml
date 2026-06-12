@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared attributes (declared once, referenced in multiple styleables) -->
+    <attr name="settingsIcon" format="reference" />
+    <attr name="settingsTitle" format="string" />
+    <attr name="settingsSubtitle" format="string" />
+
+    <!-- SettingsSwitchRow -->
+    <declare-styleable name="SettingsSwitchRow">
+        <attr name="settingsIcon" />
+        <attr name="settingsTitle" />
+        <attr name="settingsSubtitle" />
+        <attr name="settingsChecked" format="boolean" />
+    </declare-styleable>
+
+    <!-- SettingsNavRow -->
+    <declare-styleable name="SettingsNavRow">
+        <attr name="settingsIcon" />
+        <attr name="settingsTitle" />
+        <attr name="settingsSubtitle" />
+    </declare-styleable>
+
+    <!-- SettingsGroupTitle -->
+    <declare-styleable name="SettingsGroupTitle">
+        <attr name="groupTitle" format="string" />
+    </declare-styleable>
+</resources>

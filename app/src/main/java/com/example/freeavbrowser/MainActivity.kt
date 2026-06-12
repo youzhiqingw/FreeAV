@@ -14,6 +14,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.io.ByteArrayInputStream
@@ -31,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     private var currentVideoUrl: String? = null
     private var currentVideoReferer: String? = null
     private var videoProxyServer: VideoProxyServer? = null
-    private var cachedBlockList: Set<String> = emptySet()
     private var isUnlocked = false
     private var isFreshStart = true
     private var backPressedTime: Long = 0
@@ -74,15 +74,17 @@ class MainActivity : AppCompatActivity() {
         androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(darkMode)
 
         super.onCreate(savedInstanceState)
-        // Prevent screenshots and hide content in recent apps
-        window.setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE, android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        // 根据设置条件控制防截屏（FLAG_SECURE）
+        if (prefs.getBoolean("screenshot_block_enabled", true)) {
+            window.setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE, android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
         setContentView(R.layout.activity_main)
 
         favoritesManager = FavoritesManager(this)
 
         // Start local proxy for CDN-protected video (e.g. avjoy.me)
         try {
-            videoProxyServer = VideoProxyServer()
+            videoProxyServer = VideoProxyServer(this)
             videoProxyServer?.start()
         } catch (e: Exception) {
             android.util.Log.e("VideoProxy", "Failed to start proxy: ${e.message}")
@@ -90,20 +92,7 @@ class MainActivity : AppCompatActivity() {
 
         adFilterRules = AdFilterRules(this)
         privacySettings = PrivacySettings(this)
-        domainConfig = DomainConfig(adFilterRules, privacySettings)
-
-        // 載入初始封鎖清單（從 SharedPreferences 快取）
-        cachedBlockList = adFilterRules.getCommonBlockList().toSet()
-
-        adFilterRules.updateRulesFromCloud(AdFilterRules.DEFAULT_CLOUD_URL) { success, msg ->
-            if (success) {
-                // 雲端規則更新成功，刷新快取
-                cachedBlockList = adFilterRules.getCommonBlockList().toSet()
-                android.util.Log.d("AdBlock", "Rules updated: $msg, total: ${cachedBlockList.size}")
-            } else {
-                android.util.Log.e("AdBlock", "Rules update failed: $msg")
-            }
-        }
+        domainConfig = DomainConfig()
 
         // biometricHelper = BiometricHelper(this) // Moved to LockActivity
         
@@ -218,6 +207,21 @@ class MainActivity : AppCompatActivity() {
         if (privacySettings.isLockEnabled) {
             isUnlocked = false
         }
+
+        // 隐私模式：离开应用时清除浏览记录
+        if (privacySettings.isPrivacyModeEnabled) {
+            try {
+                webView.clearHistory()
+                webView.clearCache(true)
+                // 清除所有 Cookie（广告 Cookie 欺骗规则会在下次页面加载时重新注入）
+                android.webkit.CookieManager.getInstance().removeAllCookies(null)
+                android.webkit.CookieManager.getInstance().flush()
+                // 清除表单数据
+                webView.clearFormData()
+            } catch (e: Exception) {
+                // 忽略清理失败
+            }
+        }
     }
 
     // ... (rest of the file)
@@ -300,37 +304,117 @@ class MainActivity : AppCompatActivity() {
 
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
                 val url = request?.url.toString()
-                val lowerUrl = url.lowercase()
-                
-                /* AD BLOCKING DISABLED
-                if (isAd(lowerUrl)) {
-                    // Block ad
-                    return WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream("".toByteArray()))
-                }
-                */
 
-                // Block ads dynamically from JSON rules (commonBlock)
-                if (cachedBlockList.any { lowerUrl.contains(it) }) {
-                    return WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream("".toByteArray()))
+                // 检查是否应该拦截
+                if (!adFilterRules.shouldBlock(url)) {
+                    // 放行：继续视频嗅探
+                    if (url.contains(".m3u8") && !url.contains("minisite")) {
+                        view?.post {
+                            if (currentVideoUrl != url) {
+                                currentVideoUrl = url
+                                btnPlay.visibility = View.VISIBLE
+                            }
+                        }
+                    }
+                    return super.shouldInterceptRequest(view, request)
                 }
-                
-                // Video Sniffing: Check if request is for an m3u8 playlist
-                if (url.contains(".m3u8") && !url.contains("minisite")) {
-                    // Found a video URL!
-                    // Run on UI thread to update UI
-                    view?.post {
-                         if (currentVideoUrl != url) {
-                             currentVideoUrl = url
-                             btnPlay.visibility = View.VISIBLE
-                             // if (!videoFoundToastShown) {
-                             //     Toast.makeText(this@MainActivity, R.string.video_found, Toast.LENGTH_SHORT).show()
-                             //     videoFoundToastShown = true
-                             // }
-                         }
+
+                // 拦截：根据资源类型返回不同响应
+                val resourceType = inferResourceType(url)
+
+                // $redirect=noopjs → 返回空脚本而非空响应
+                val host = android.net.Uri.parse(url).host?.lowercase() ?: ""
+                if (adFilterRules.isRedirectRule(host)) {
+                    return WebResourceResponse(
+                        "application/javascript", "utf-8",
+                        java.io.ByteArrayInputStream("/* noop */".toByteArray())
+                    )
+                }
+
+                // 第三方 iframe 广告 → 返回空 HTML（阻止 iframe 加载广告页）
+                if (isThirdPartyIframeAd(url)) {
+                    return WebResourceResponse(
+                        "text/html", "utf-8",
+                        java.io.ByteArrayInputStream("<html><body></body></html>".toByteArray())
+                    )
+                }
+
+                return when (resourceType) {
+                    "script" -> WebResourceResponse(
+                        "application/javascript", "utf-8",
+                        java.io.ByteArrayInputStream("/* blocked */".toByteArray())
+                    )
+                    "stylesheet" -> WebResourceResponse(
+                        "text/css", "utf-8",
+                        java.io.ByteArrayInputStream("/* blocked */".toByteArray())
+                    )
+                    else -> WebResourceResponse(
+                        "text/plain", "utf-8",
+                        java.io.ByteArrayInputStream("".toByteArray())
+                    )
+                }
+            }
+
+            /**
+             * 检测是否为第三方 iframe 广告请求。
+             * 特征：域名匹配已知广告 iframe 源（smartpop, bluetraffic 等）。
+             */
+            private fun isThirdPartyIframeAd(url: String): Boolean {
+                val host = android.net.Uri.parse(url).host?.lowercase() ?: return false
+                val iframeAdDomains = listOf(
+                    "bluetrafficstream.com", "smartpop", "mnaspm.com",
+                    "havenclick.com", "wpadmngr.com", "clickadu",
+                    "popunder", "tabunder", "popup"
+                )
+                return iframeAdDomains.any { host.contains(it) || host.endsWith(".$it") }
+            }
+
+            /**
+             * 推断资源类型 — 类似 uBO 的 $script/$image/$media 过滤器。
+             */
+            private fun inferResourceType(url: String): String {
+                val lowerUrl = url.lowercase()
+                val path = android.net.Uri.parse(url).path?.lowercase() ?: ""
+
+                // 根据扩展名推断
+                if (path.endsWith(".js") || lowerUrl.contains(".js?") ||
+                    lowerUrl.contains("/js/") || lowerUrl.contains("javascript"))
+                    return "script"
+                if (path.endsWith(".css") || lowerUrl.contains(".css?") || lowerUrl.contains("/css/"))
+                    return "stylesheet"
+                if (path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg") ||
+                    path.endsWith(".gif") || path.endsWith(".webp") || path.endsWith(".svg") ||
+                    path.endsWith(".ico"))
+                    return "image"
+                if (path.endsWith(".mp4") || path.endsWith(".webm") || path.endsWith(".m3u8") ||
+                    path.endsWith(".mp3") || path.endsWith(".ogg"))
+                    return "media"
+                if (path.endsWith(".woff") || path.endsWith(".woff2") || path.endsWith(".ttf"))
+                    return "font"
+
+                // 默认根据 URL 特征推断
+                if (lowerUrl.contains("/ad") || lowerUrl.contains("admanager") ||
+                    lowerUrl.contains("clickadu") || lowerUrl.contains("smartpop"))
+                    return "script"
+
+                return "other"
+            }
+
+            override fun onReceivedHttpError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                errorResponse: WebResourceResponse?
+            ) {
+                super.onReceivedHttpError(view, request, errorResponse)
+
+                if (!privacySettings.isCloudflareBypassEnabled) return
+
+                if (errorResponse?.statusCode == 403) {
+                    val cfHeader = errorResponse.responseHeaders?.get("cf-mitigated")
+                    if (cfHeader == "challenge") {
+                        android.util.Log.d("CloudflareBypass", "Challenge detected: ${request?.url}")
                     }
                 }
-                
-                return super.shouldInterceptRequest(view, request)
             }
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
@@ -338,6 +422,10 @@ class MainActivity : AppCompatActivity() {
                 btnPlay.visibility = View.GONE
                 currentVideoUrl = null
                 currentVideoReferer = null
+
+                // 注入全局脚本（弹窗拦截、fetch拦截、反调试、隐私沙箱禁用）
+                view?.evaluateJavascript("javascript:" + ScriptletEngine.getPageStartScript()
+                    .replace("\n", "\\n").replace("'", "\\'"), null)
 
                 // Show progress bar and start timeout
                 if (!isOnLandingPage()) {
@@ -355,10 +443,68 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                
+
                 // Hide progress bar and cancel timeout
                 progressBar.visibility = View.GONE
                 cancelLoadTimeout()
+
+                // 注入 JS 过滤器（反广告检测 + Cookie 欺骗）
+                url?.let { currentUrl ->
+                    val domain = Uri.parse(currentUrl).host ?: ""
+
+                    // 1. 通用反广告检测绕过（所有站点生效）
+                    view?.evaluateJavascript(ScriptletEngine.getAntiAdblockScript(), null)
+
+                    // 2. 域名特定覆盖（最小化，仅已知站点）
+                    val domainScript = ScriptletEngine.getDomainScriptlets(domain)
+                    if (domainScript.isNotBlank()) {
+                        view?.evaluateJavascript(domainScript, null)
+                    }
+
+                    // 3. 注入解析后的 scriptlet 规则（来自 uBO 规则解析）
+                    val parsedScriptlets = ScriptletEngine.generateScriptlets(
+                        adFilterRules.getScriptletRules(), domain
+                    )
+                    if (parsedScriptlets.isNotBlank()) {
+                        view?.evaluateJavascript(parsedScriptlets, null)
+                    }
+
+                    // 4. 注入 AdFilterRules 中注册的 JS 过滤器
+                    val jsFilters = adFilterRules.getJsFilters(domain)
+                    jsFilters.forEach { filter ->
+                        val jsCode = when (filter.type) {
+                            "set-constant" -> {
+                                if (filter.value == "noopFunc") {
+                                    "(${filter.target}=function(){});"
+                                } else {
+                                    "Object.defineProperty(window,'${filter.target}',{value:${filter.value},writable:false,configurable:false});"
+                                }
+                            }
+                            "trusted-set-cookie" ->
+                                "document.cookie='${filter.target}=${filter.value};path=/;max-age=31536000';"
+                            else -> null
+                        }
+                        jsCode?.let { view?.evaluateJavascript(it, null) }
+                    }
+
+                    // 4. 注入 Cosmetic Filter CSS
+                    val cosmeticScript = CosmeticFilter.getCssInjectionScript(domain)
+                    if (cosmeticScript.isNotBlank()) {
+                        view?.evaluateJavascript(cosmeticScript, null)
+                    }
+
+                    // 4.5 注入 EasyList Element Hiding CSS（通用规则 + 域名特定规则）
+                    val elementHideCss = adFilterRules.getElementHideCssScript(domain)
+                    if (elementHideCss.isNotBlank()) {
+                        view?.evaluateJavascript(elementHideCss, null)
+                    }
+
+                    // 5. CSS 广告元素隐藏（display:none，不用 remove）
+                    view?.evaluateJavascript(ScriptletEngine.getAdElementHider(), null)
+
+                    // 6. fetch/XHR 广告响应过滤
+                    view?.evaluateJavascript(ScriptletEngine.getFetchXhrFilter(), null)
+                }
 
                 // 利用網頁自身的 sessionStorage，以「自己的 URL」作為 key 恢復滾動位置
                 // shouldOverrideUrlLoading 離開時已儲存；onBackPressed 返回時同樣儲存
@@ -386,8 +532,8 @@ class MainActivity : AppCompatActivity() {
                 // Do NOT reset btnPlay or currentVideoUrl here, as video might have been found during load
                 
                 // Inject JS to remove specific ad elements
-                @Suppress("unused")
-                                val removeAdsJs = """
+                @Suppress("UNUSED_VARIABLE")
+                val removeAdsJs = """
                     (function() {
                         function removeAds() {
                             // Remove iframes with ID starting with 'container-'
@@ -752,10 +898,32 @@ class MainActivity : AppCompatActivity() {
                     """.trimIndent()
                     view?.evaluateJavascript(missavAdBlockJs, null)
                 }
-                
+
+                // Cloudflare Cookie 提取（仅当功能开启）
+                if (privacySettings.isCloudflareBypassEnabled) {
+                    url?.let {
+                        val cookies = android.webkit.CookieManager.getInstance().getCookie(it) ?: ""
+                        if (cookies.contains("cf_clearance")) {
+                            val host = android.net.Uri.parse(it).host ?: return@let
+                            val cfValue = extractCfClearance(cookies)
+                            if (cfValue.isNotEmpty()) {
+                                privacySettings.saveCloudflareCookie(host, cfValue)
+                                android.util.Log.d("CloudflareBypass", "Cookie saved for $host")
+                            }
+                        }
+                    }
+                }
+
                 checkForVideo()
             }
         }
+    }
+
+    private fun extractCfClearance(cookies: String): String {
+        return cookies.split(";")
+            .map { it.trim() }
+            .find { it.startsWith("cf_clearance=") }
+            ?.substringAfter("=") ?: ""
     }
 
     private fun isAd(url: String): Boolean {
@@ -961,7 +1129,7 @@ class MainActivity : AppCompatActivity() {
     
     
     private fun showExitConfirmationDialog() {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("退出应用")
             .setMessage("确定要退出吗？")
             .setPositiveButton("确定") { _, _ ->
@@ -1190,6 +1358,9 @@ class MainActivity : AppCompatActivity() {
                         <div class="section-title">JAV 视频站点</div>
                         <div class="site-grid grid-2">
                             <a class="site-btn" href="javascript:Android.navigateToUrl('${domainConfig.getMissAvBaseUrl()}')"><span class="dot"></span>MissAV</a>
+                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://7mmtv.sx/')"><span class="dot"></span>7mmtv</a>
+                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://hohoj.tv/')"><span class="dot"></span>HoHoJ.tv</a>
+                            <a class="site-btn" href="javascript:Android.navigateToUrl('https://javtsunami.com/')"><span class="dot"></span>JAVTsunami</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://${domainConfig.getJableDomain()}/')"><span class="dot"></span>Jable</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://${domainConfig.getRouVideoDomain()}/home')"><span class="dot"></span>Rou.Video</a>
                             <a class="site-btn" href="javascript:Android.navigateToUrl('https://supjav.com/')"><span class="dot"></span>SupJAV</a>
@@ -1304,7 +1475,7 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 progressBar.visibility = View.GONE
                 
-                androidx.appcompat.app.AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder(this)
                     .setTitle("连接超时")
                     .setMessage("页面加载时间过长。\n\n建议：\n• 检查网络连接\n• 切换 WiFi / 移动数据\n• 点击重试")
                     .setPositiveButton("重试") { _, _ ->
@@ -1488,7 +1659,7 @@ class MainActivity : AppCompatActivity() {
             Lj Downloader 的无广告修改版可在线获取。
         """.trimIndent()
         
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("❓ 帮助")
             .setMessage(message)
             .setPositiveButton("关闭", null)

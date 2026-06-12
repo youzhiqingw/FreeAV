@@ -1,5 +1,6 @@
 package com.example.freeavbrowser
 
+import android.content.Context
 import fi.iki.elonen.NanoHTTPD
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -11,18 +12,20 @@ import java.net.URL
  *       讓外部播放器（MX Player / VLC）不需要自行帶 headers 就能正常播放。
  *
  * 使用方式：
- *   val proxy = VideoProxyServer()
+ *   val proxy = VideoProxyServer(context)
  *   proxy.start()
  *   val localUrl = proxy.buildProxyUrl(realVideoUrl, referer, cookies)
  *   // 將 localUrl 傳給外部播放器
  */
-class VideoProxyServer : NanoHTTPD(0) { // port=0 讓系統自動選空閒 port
+class VideoProxyServer(private val context: Context) : NanoHTTPD(0) { // port=0 讓系統自動選空閒 port
 
     companion object {
         private const val CONNECT_TIMEOUT = 15000
         private const val READ_TIMEOUT = 30000
         private val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
+
+    private val rateLimiter = HostRateLimiter(minIntervalMs = 200L)
 
     /**
      * 產生給外部播放器用的本地 URL
@@ -67,6 +70,10 @@ class VideoProxyServer : NanoHTTPD(0) { // port=0 讓系統自動選空閒 port
         cookies: String,
         rangeHeader: String?
     ): Response {
+        // 速率限制：按 host 强制最小间隔
+        val host = URL(realUrl).host
+        rateLimiter.acquire(host)
+
         val connection = URL(realUrl).openConnection() as HttpURLConnection
         try {
             connection.connectTimeout = CONNECT_TIMEOUT
@@ -78,9 +85,22 @@ class VideoProxyServer : NanoHTTPD(0) { // port=0 讓系統自動選空閒 port
             if (referer.isNotEmpty()) {
                 connection.setRequestProperty("Referer", referer)
             }
-            if (cookies.isNotEmpty()) {
-                connection.setRequestProperty("Cookie", cookies)
+
+            // 设置 Cookie（优先使用传入的 cookies，然后补充 cf_clearance）
+            var finalCookies = cookies
+            val privacySettings = PrivacySettings(context)
+            if (privacySettings.isCloudflareBypassEnabled) {
+                val host = URL(realUrl).host
+                val cfCookie = privacySettings.getCloudflareCookie(host)
+                if (cfCookie != null && !finalCookies.contains("cf_clearance")) {
+                    finalCookies = if (finalCookies.isEmpty()) "cf_clearance=$cfCookie"
+                                   else "$finalCookies; cf_clearance=$cfCookie"
+                }
             }
+            if (finalCookies.isNotEmpty()) {
+                connection.setRequestProperty("Cookie", finalCookies)
+            }
+
             connection.setRequestProperty("Accept", "*/*")
             connection.setRequestProperty("Accept-Encoding", "identity;q=1, *;q=0")
             connection.setRequestProperty("Sec-Fetch-Dest", "video")

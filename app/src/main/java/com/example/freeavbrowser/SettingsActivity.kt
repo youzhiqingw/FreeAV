@@ -1,33 +1,41 @@
 package com.example.freeavbrowser
 
+import android.animation.Animator
+import android.animation.Animator.AnimatorListener
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.doOnPreDraw
+import androidx.core.widget.NestedScrollView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var toolbar: MaterialToolbar
-    private lateinit var switchAdBlocking: SwitchMaterial
-    private lateinit var switchLock: SwitchMaterial
-    private lateinit var switchScreenshotBlock: SwitchMaterial
-    private lateinit var switchBiometric: SwitchMaterial
-    private lateinit var switchPrivacyMode: SwitchMaterial
-    private lateinit var switchDomainMapping: SwitchMaterial
+    private lateinit var switchAdBlocking: SettingsSwitchRow
+    private lateinit var switchLock: SettingsSwitchRow
+    private lateinit var switchScreenshotBlock: SettingsSwitchRow
+    private lateinit var switchBiometric: SettingsSwitchRow
+    private lateinit var switchPrivacyMode: SettingsSwitchRow
+    private lateinit var switchEasyList: SettingsSwitchRow
+    private lateinit var switchCloudflareBypass: SettingsSwitchRow
 
-    private lateinit var itemAdRules: LinearLayout
-    private lateinit var itemUpdateRules: LinearLayout
-    private lateinit var itemProxyMode: LinearLayout
-    private lateinit var itemUpdateMapping: LinearLayout
+    private lateinit var itemAdRules: SettingsNavRow
+    private lateinit var itemUpdateRules: SettingsNavRow
+    private lateinit var itemProxyMode: SettingsNavRow
 
     private lateinit var panelAdRules: LinearLayout
     private lateinit var iconArrowRules: ImageView
@@ -46,43 +54,74 @@ class SettingsActivity : AppCompatActivity() {
 
     private lateinit var etRuleUrl: TextInputEditText
     private lateinit var btnAddRule: MaterialButton
+    private lateinit var btnDownloadEasyList: MaterialButton
 
     private lateinit var privacySettings: PrivacySettings
     private lateinit var appIconManager: AppIconManager
     private lateinit var biometricHelper: BiometricHelper
-    private lateinit var adFilterRules: AdFilterRules
+    private var adFilterRules: AdFilterRules? = null
 
     private var selectedIconId: String = PrivacySettings.ICON_DEFAULT
     private var isAdRulesPanelExpanded = false
+    private var isSettingPin = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Prevent screenshots and hide content in recent apps
-        window.setFlags(
-            android.view.WindowManager.LayoutParams.FLAG_SECURE,
-            android.view.WindowManager.LayoutParams.FLAG_SECURE
-        )
         setContentView(R.layout.activity_settings)
 
         privacySettings = PrivacySettings(this)
         appIconManager = AppIconManager(this)
-        adFilterRules = AdFilterRules(this)
         biometricHelper = BiometricHelper(this, privacySettings)
+        adFilterRules = try {
+            AdFilterRules(this)
+        } catch (e: Exception) {
+            android.util.Log.e("SettingsActivity", "AdFilterRules 初始化失败: ${e.message}", e)
+            null
+        }
+
+        // 根据设置条件控制防截屏（FLAG_SECURE）
+        applyScreenshotBlock(privacySettings.isScreenshotBlockEnabled)
 
         initViews()
-        loadSettings()
-        setupListeners()
-        updateRulesStatus()
+        try { loadSettings() } catch (_: Exception) { }
+        try { setupListeners() } catch (_: Exception) { }
+        try { updateRulesStatus() } catch (_: Exception) { }
+
+        // Set dynamic version info
+        try {
+            val tvVersion = findViewById<android.widget.TextView>(R.id.tv_version)
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            tvVersion.text = "v${packageInfo.versionName} (Build ${packageInfo.longVersionCode})"
+        } catch (_: Exception) { }
 
         // Enter transition animation
         @Suppress("DEPRECATION")
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
+        // Staggered card entrance animations
+        animateCardsEntrance()
     }
 
     @Suppress("DEPRECATION")
     override fun finish() {
         super.finish()
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
+
+    override fun onDestroy() {
+        panelAnimator?.cancel()
+        panelAnimator = null
+        super.onDestroy()
+    }
+
+    // 条件控制 FLAG_SECURE：启用时阻止截屏和最近任务预览
+    private fun applyScreenshotBlock(enabled: Boolean) {
+        val flag = android.view.WindowManager.LayoutParams.FLAG_SECURE
+        if (enabled) {
+            window.setFlags(flag, flag)
+        } else {
+            window.clearFlags(flag)
+        }
     }
 
     private fun initViews() {
@@ -96,17 +135,16 @@ class SettingsActivity : AppCompatActivity() {
         switchScreenshotBlock = findViewById(R.id.switch_screenshot_block)
         switchBiometric = findViewById(R.id.switch_biometric)
         switchPrivacyMode = findViewById(R.id.switch_privacy_mode)
-        switchDomainMapping = findViewById(R.id.switch_domain_mapping)
+        switchEasyList = findViewById(R.id.switch_easylist)
+        switchCloudflareBypass = findViewById(R.id.switch_cloudflare_bypass)
 
         // Expandable items
         itemAdRules = findViewById(R.id.item_ad_rules)
         itemUpdateRules = findViewById(R.id.item_update_rules)
         itemProxyMode = findViewById(R.id.item_proxy_mode)
-        itemUpdateMapping = findViewById(R.id.item_update_mapping)
 
         // Panels
         panelAdRules = findViewById(R.id.panel_ad_rules)
-        iconArrowRules = findViewById(R.id.icon_arrow_rules)
 
         // Icon options
         iconDefault = findViewById(R.id.icon_default)
@@ -118,22 +156,31 @@ class SettingsActivity : AppCompatActivity() {
         toggleDarkMode = findViewById(R.id.toggle_dark_mode)
         tvDarkModeLabel = findViewById(R.id.tv_dark_mode_label)
 
-        // TextViews
-        tvBlockedCount = findViewById(R.id.tv_blocked_count)
-        tvRulesStatus = findViewById(R.id.tv_rules_status)
-        tvUpdateRulesSubtitle = findViewById(R.id.tv_update_rules_subtitle)
-        tvProxyModeLabel = findViewById(R.id.tv_proxy_mode_label)
+        // TextViews (now inside custom components) — safe fallbacks
+        val fallbackTv = TextView(this)
+        val fallbackIv = ImageView(this)
+        tvBlockedCount = try { switchAdBlocking.getSubtitleView() } catch (_: Exception) { fallbackTv }
+        tvRulesStatus = try { itemAdRules.getSubtitleView() } catch (_: Exception) { fallbackTv }
+        tvUpdateRulesSubtitle = try { itemUpdateRules.getSubtitleView() } catch (_: Exception) { fallbackTv }
+        tvProxyModeLabel = try { itemProxyMode.getSubtitleView() } catch (_: Exception) { fallbackTv }
+        iconArrowRules = try { itemAdRules.getArrowView() } catch (_: Exception) { fallbackIv }
 
         // Rule management
         etRuleUrl = findViewById(R.id.et_rule_url)
         btnAddRule = findViewById(R.id.btn_add_rule)
+        btnDownloadEasyList = findViewById(R.id.btn_download_easylist)
     }
 
     private fun loadSettings() {
         // Load switches state
         switchAdBlocking.isChecked = privacySettings.isAdBlockingEnabled
         switchLock.isChecked = privacySettings.isLockEnabled
-        switchBiometric.isChecked = privacySettings.isLockEnabled
+        switchEasyList.isChecked = privacySettings.isEasyListEnabled
+        btnDownloadEasyList.isEnabled = privacySettings.isEasyListEnabled
+        switchBiometric.isChecked = privacySettings.isBiometricEnabled
+        switchCloudflareBypass.isChecked = privacySettings.isCloudflareBypassEnabled
+        switchScreenshotBlock.isChecked = privacySettings.isScreenshotBlockEnabled
+        switchPrivacyMode.isChecked = privacySettings.isPrivacyModeEnabled
 
         // Load selected icon
         selectedIconId = privacySettings.selectedIcon
@@ -149,9 +196,6 @@ class SettingsActivity : AppCompatActivity() {
         toggleDarkMode.check(checkedId)
         tvDarkModeLabel.text = label
 
-        // Load domain mapping
-        switchDomainMapping.isChecked = privacySettings.isDomainMappingEnabled
-
         // Load proxy mode
         tvProxyModeLabel.text = when (privacySettings.proxyMode) {
             "system" -> "系统代理"
@@ -164,59 +208,104 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         // Ad blocking switch
-        switchAdBlocking.setOnCheckedChangeListener { _, isChecked ->
+        switchAdBlocking.setOnCheckedChangeListener { isChecked ->
             privacySettings.isAdBlockingEnabled = isChecked
             Toast.makeText(this, if (isChecked) "广告拦截已启用" else "广告拦截已停用", Toast.LENGTH_SHORT).show()
         }
 
         // Lock switch
-        switchLock.setOnCheckedChangeListener { _, isChecked ->
+        switchLock.setOnCheckedChangeListener { isChecked ->
+            if (isSettingPin) return@setOnCheckedChangeListener
+
             if (isChecked) {
-                if (biometricHelper.canAuthenticate()) {
-                    biometricHelper.authenticate(
-                        onSuccess = {
-                            privacySettings.isLockEnabled = true
-                            privacySettings.updateUnlockTime()
-                            switchBiometric.isChecked = true
-                            Toast.makeText(this, "应用锁已启用", Toast.LENGTH_SHORT).show()
-                        },
-                        onError = { error ->
-                            switchLock.isChecked = false
-                            Toast.makeText(this, "验证失败：$error", Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                } else {
+                // 先检查是否已设置 PIN
+                if (!privacySettings.isPinSet()) {
                     switchLock.isChecked = false
-                    Toast.makeText(this, "此设备不支持生物识别", Toast.LENGTH_LONG).show()
+                    showSetPinDialog()
+                    return@setOnCheckedChangeListener
                 }
+
+                privacySettings.isLockEnabled = true
+                Toast.makeText(this, "应用锁已启用", Toast.LENGTH_SHORT).show()
             } else {
+                // 关闭锁定
                 privacySettings.isLockEnabled = false
+                privacySettings.isBiometricEnabled = false
                 switchBiometric.isChecked = false
-                Toast.makeText(this, "应用锁已停用", Toast.LENGTH_SHORT).show()
+                // 询问是否修改 PIN
+                showChangePinOption()
             }
         }
 
         // Screenshot block switch
-        switchScreenshotBlock.setOnCheckedChangeListener { _, isChecked ->
+        switchScreenshotBlock.setOnCheckedChangeListener { isChecked ->
+            privacySettings.isScreenshotBlockEnabled = isChecked
+            applyScreenshotBlock(isChecked)
             Toast.makeText(this, if (isChecked) "防截屏已启用" else "防截屏已停用", Toast.LENGTH_SHORT).show()
         }
 
         // Biometric switch
-        switchBiometric.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked != privacySettings.isLockEnabled) {
-                switchLock.isChecked = isChecked
+        switchBiometric.setOnCheckedChangeListener { isChecked ->
+            if (isChecked && !privacySettings.isLockEnabled) {
+                switchBiometric.isChecked = false
+                Toast.makeText(this, "请先开启应用锁", Toast.LENGTH_SHORT).show()
+                return@setOnCheckedChangeListener
             }
+            privacySettings.isBiometricEnabled = isChecked
         }
 
         // Privacy mode switch
-        switchPrivacyMode.setOnCheckedChangeListener { _, isChecked ->
-            Toast.makeText(this, if (isChecked) "隐私模式已启用" else "隐私模式已停用", Toast.LENGTH_SHORT).show()
+        switchPrivacyMode.setOnCheckedChangeListener { isChecked ->
+            privacySettings.isPrivacyModeEnabled = isChecked
+            Toast.makeText(this, if (isChecked) "隐私模式已启用，离开页面时将自动清除浏览记录" else "隐私模式已停用", Toast.LENGTH_SHORT).show()
         }
 
-        // Domain mapping switch
-        switchDomainMapping.setOnCheckedChangeListener { _, isChecked ->
-            privacySettings.isDomainMappingEnabled = isChecked
-            Toast.makeText(this, if (isChecked) "自定义域名已启用" else "已恢复默认域名", Toast.LENGTH_SHORT).show()
+        // EasyList switch
+        switchEasyList.setOnCheckedChangeListener { isChecked ->
+            privacySettings.isEasyListEnabled = isChecked
+            btnDownloadEasyList.isEnabled = isChecked
+
+            if (!isChecked) {
+                Toast.makeText(this, "EasyList 规则已关闭", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Cloudflare Bypass switch
+        switchCloudflareBypass.setOnCheckedChangeListener { isChecked ->
+            privacySettings.isCloudflareBypassEnabled = isChecked
+            Toast.makeText(
+                this,
+                if (isChecked) "Cloudflare 绕过已启用" else "Cloudflare 绕过已停用",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        // Download EasyList button
+        btnDownloadEasyList.setOnClickListener {
+            if (!privacySettings.isEasyListEnabled) {
+                Toast.makeText(this, "请先启用 EasyList 规则", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (adFilterRules == null) {
+                Toast.makeText(this, "规则引擎未初始化，请重启应用", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val progressDialog = MaterialAlertDialogBuilder(this)
+                .setTitle("下载中...")
+                .setMessage("正在从 5 个源下载规则，请稍候")
+                .setCancelable(false)
+                .create()
+            progressDialog.show()
+
+            adFilterRules?.updateRulesFromExternalSources { success, message ->
+                progressDialog.dismiss()
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                if (success) {
+                    updateRulesStatus()
+                }
+            }
         }
 
         // Expandable items
@@ -229,7 +318,7 @@ class SettingsActivity : AppCompatActivity() {
             val options = arrayOf("从不更新", "每48小时")
             val checkedItem = if (currentInterval == PrivacySettings.UPDATE_48H) 1 else 0
 
-            androidx.appcompat.app.AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("云端规则更新")
                 .setSingleChoiceItems(options, checkedItem) { dialog, which ->
                     val interval = if (which == 1) PrivacySettings.UPDATE_48H else PrivacySettings.UPDATE_NEVER
@@ -247,7 +336,7 @@ class SettingsActivity : AppCompatActivity() {
             val current = privacySettings.proxyMode
             val checkedItem = values.indexOf(current).coerceAtLeast(0)
 
-            androidx.appcompat.app.AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("代理模式")
                 .setSingleChoiceItems(options, checkedItem) { dialog, which ->
                     privacySettings.proxyMode = values[which]
@@ -258,30 +347,6 @@ class SettingsActivity : AppCompatActivity() {
                 .show()
         }
 
-
-        itemUpdateMapping.setOnClickListener {
-            val suffix = privacySettings.missavSuffix
-            val input = android.widget.EditText(this)
-            input.setText(suffix)
-            input.setSingleLine()
-            input.hint = "如: ai, ws, cc, com, top"
-
-            androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("修改 MISSAV 域名后缀")
-                .setMessage("前缀固定为 missav.\n请输入后缀（不含点）：")
-                .setView(input)
-                .setPositiveButton("确定") { _, _ ->
-                    val newSuffix = input.text.toString().trim().lowercase()
-                    if (newSuffix.isNotEmpty() && newSuffix.matches(Regex("^[a-z0-9.-]+$"))) {
-                        privacySettings.missavSuffix = newSuffix
-                        Toast.makeText(this, "域名已更新为 missav.$newSuffix", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "无效的后缀格式", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                .setNegativeButton("取消", null)
-                .show()
-        }
 
         // Icon selection
         iconDefault.setOnClickListener { selectIcon(PrivacySettings.ICON_DEFAULT) }
@@ -320,16 +385,93 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    private var panelAnimator: ValueAnimator? = null
+
     private fun toggleAdRulesPanel() {
+        // Cancel any in-progress animation to handle rapid toggling
+        panelAnimator?.cancel()
+
         isAdRulesPanelExpanded = !isAdRulesPanelExpanded
 
         if (isAdRulesPanelExpanded) {
-            panelAdRules.visibility = View.VISIBLE
-            iconArrowRules.rotation = 90f
+            // Determine starting height: 0 if panel was hidden, current height if mid-animation
+            val currentHeight = if (panelAdRules.visibility == View.GONE) {
+                panelAdRules.visibility = View.VISIBLE
+                0
+            } else {
+                panelAdRules.height.coerceAtLeast(0)
+            }
+            panelAdRules.layoutParams.height = currentHeight
+            panelAdRules.requestLayout()
+
+            // Measure the full target height using parent width
+            val parentWidth = (panelAdRules.parent as? View)?.width ?: 0
+            val widthSpec = View.MeasureSpec.makeMeasureSpec(parentWidth, View.MeasureSpec.EXACTLY)
+            val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            panelAdRules.measure(widthSpec, heightSpec)
+            val fullHeight = panelAdRules.measuredHeight
+
+            // Animate height from current to target
+            ValueAnimator.ofInt(currentHeight, fullHeight).apply {
+                duration = 300
+                interpolator = DecelerateInterpolator()
+                var cancelled = false
+                addUpdateListener { animator ->
+                    panelAdRules.layoutParams.height = animator.animatedValue as Int
+                    panelAdRules.requestLayout()
+                }
+                addListener(object : AnimatorListener {
+                    override fun onAnimationStart(animation: Animator) {}
+                    override fun onAnimationCancel(animation: Animator) { cancelled = true }
+                    override fun onAnimationRepeat(animation: Animator) {}
+                    override fun onAnimationEnd(animation: Animator) {
+                        if (!cancelled) {
+                            // Reset to wrap_content for flexible layout on content change
+                            panelAdRules.layoutParams.height =
+                                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                            panelAdRules.requestLayout()
+                        }
+                        panelAnimator = null
+                    }
+                })
+                start()
+            }.also { panelAnimator = it }
         } else {
-            panelAdRules.visibility = View.GONE
-            iconArrowRules.rotation = 0f
+            // Animate height from current to 0, then hide
+            val startHeight = panelAdRules.height
+            if (startHeight <= 0) {
+                panelAdRules.visibility = View.GONE
+                return
+            }
+
+            ValueAnimator.ofInt(startHeight, 0).apply {
+                duration = 250
+                interpolator = DecelerateInterpolator()
+                var cancelled = false
+                addUpdateListener { animator ->
+                    panelAdRules.layoutParams.height = animator.animatedValue as Int
+                    panelAdRules.requestLayout()
+                }
+                addListener(object : AnimatorListener {
+                    override fun onAnimationStart(animation: Animator) {}
+                    override fun onAnimationCancel(animation: Animator) { cancelled = true }
+                    override fun onAnimationRepeat(animation: Animator) {}
+                    override fun onAnimationEnd(animation: Animator) {
+                        if (!cancelled) {
+                            panelAdRules.visibility = View.GONE
+                        }
+                        panelAnimator = null
+                    }
+                })
+                start()
+            }.also { panelAnimator = it }
         }
+
+        // Smooth arrow rotation animation (duration synced with expand)
+        iconArrowRules.animate()
+            .rotation(if (isAdRulesPanelExpanded) 90f else 0f)
+            .setDuration(300)
+            .start()
     }
 
     private fun selectIcon(iconId: String) {
@@ -343,7 +485,12 @@ class SettingsActivity : AppCompatActivity() {
             else -> "JAV 浏览器"
         }
 
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        // Cancel any in-progress scale animations on icon options
+        listOf(iconDefault, iconCalculator, iconNotes, iconFile).forEach { icon ->
+            icon.animate().cancel()
+        }
+
+        MaterialAlertDialogBuilder(this)
             .setTitle("更换应用图标")
             .setMessage("确定要将图标更换为「$iconName」吗？\n\n旧图标将从桌面消失，新图标会出现。")
             .setPositiveButton("确定") { _, _ ->
@@ -351,10 +498,78 @@ class SettingsActivity : AppCompatActivity() {
                 privacySettings.selectedIcon = iconId
                 selectedIconId = iconId
                 updateIconSelection()
+
+                // Bounce animation on newly selected icon
+                val selectedIcon = when (iconId) {
+                    PrivacySettings.ICON_DEFAULT -> iconDefault
+                    PrivacySettings.ICON_CALCULATOR -> iconCalculator
+                    PrivacySettings.ICON_NOTES -> iconNotes
+                    PrivacySettings.ICON_FILE -> iconFile
+                    else -> null
+                }
+                selectedIcon?.let { animateIconBounce(it) }
+
                 Toast.makeText(this, "图标已更换，请在桌面寻找新图标", Toast.LENGTH_LONG).show()
             }
-            .setNegativeButton("取消", null)
+            .setNegativeButton("取消") { _, _ ->
+                // Subtle scale pulse on all icons to signal cancellation
+                listOf(iconDefault, iconCalculator, iconNotes, iconFile).forEach { icon ->
+                    icon.animate()
+                        .scaleX(0.92f).scaleY(0.92f)
+                        .setDuration(80)
+                        .withEndAction {
+                            icon.animate()
+                                .scaleX(1f).scaleY(1f)
+                                .setDuration(120)
+                                .setInterpolator(OvershootInterpolator(1.5f))
+                                .start()
+                        }
+                        .start()
+                }
+            }
             .show()
+    }
+
+    private fun animateIconBounce(view: View) {
+        view.animate().cancel()
+        view.animate()
+            .scaleX(1.18f).scaleY(1.18f)
+            .setDuration(120)
+            .withEndAction {
+                view.animate()
+                    .scaleX(1f).scaleY(1f)
+                    .setDuration(200)
+                    .setInterpolator(OvershootInterpolator(2f))
+                    .start()
+            }
+            .start()
+    }
+
+    private fun animateCardsEntrance() {
+        val cards = listOfNotNull(
+            findViewById<MaterialCardView?>(R.id.card_ad_filtering),
+            findViewById<MaterialCardView?>(R.id.card_privacy),
+            findViewById<MaterialCardView?>(R.id.card_app_icon),
+            findViewById<MaterialCardView?>(R.id.card_display),
+            findViewById<MaterialCardView?>(R.id.card_network)
+        )
+
+        if (cards.isEmpty()) return
+
+        val rootLayout = findViewById<NestedScrollView>(R.id.nested_scroll_view)
+        rootLayout?.doOnPreDraw {
+            cards.forEachIndexed { index, card ->
+                card.alpha = 0f
+                card.translationY = 48f
+                card.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setStartDelay((index * 70).toLong())
+                    .setDuration(400)
+                    .setInterpolator(DecelerateInterpolator(1.2f))
+                    .start()
+            }
+        }
     }
 
     private fun updateIconSelection() {
@@ -374,14 +589,27 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun updateRulesStatus() {
+        if (adFilterRules == null) {
+            tvBlockedCount.text = "规则加载失败"
+            tvRulesStatus.text = "请重启应用"
+            tvUpdateRulesSubtitle.text = "更新失败"
+            return
+        }
         // Show real rule stats
-        val stats = adFilterRules.getRulesStats()
-        tvBlockedCount.text = "JSON 规则 ${stats["total"]} 条 · 内置规则 v${adFilterRules.getVersion()}"
+        val rules = adFilterRules
+        if (rules == null) {
+            tvBlockedCount.text = "规则加载失败"
+            tvRulesStatus.text = "请重启应用"
+            tvUpdateRulesSubtitle.text = ""
+            return
+        }
+        val stats = rules.getRulesStats()
+        tvBlockedCount.text = "JSON 规则 ${stats["total"]} 条 · 内置规则 v${rules.getVersion()}"
 
         // Update rules stats with last update time
-        val lastUpdate = if (adFilterRules.getLastUpdateTime() > 0) {
+        val lastUpdate = if (rules.getLastUpdateTime() > 0) {
             java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
-                .format(java.util.Date(adFilterRules.getLastUpdateTime()))
+                .format(java.util.Date(rules.getLastUpdateTime()))
         } else {
             "从未更新"
         }
@@ -392,13 +620,160 @@ class SettingsActivity : AppCompatActivity() {
         tvUpdateRulesSubtitle.text = updateLabel
     }
 
-    private fun refreshDomainDisplay() {
-        val domain = "missav." + privacySettings.missavSuffix
-        if (privacySettings.isDomainMappingEnabled) {
-            tvProxyModeLabel.text = "自定义域名: $domain"
-        } else {
-            tvProxyModeLabel.text = "默认域名: $domain"
+    private fun showSetPinDialog() {
+        val input = com.google.android.material.textfield.TextInputEditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            filters = arrayOf(android.text.InputFilter.LengthFilter(6))
+            hint = "4-6 位数字"
         }
+
+        val textInputLayout = com.google.android.material.textfield.TextInputLayout(this).apply {
+            layoutParams = android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            boxBackgroundMode = com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE
+            hint = "PIN 码"
+            addView(input)
+        }
+
+        val container = android.widget.FrameLayout(this)
+        val params = android.widget.FrameLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        val density = resources.displayMetrics.density
+        params.leftMargin = (20 * density).toInt()
+        params.rightMargin = (20 * density).toInt()
+        textInputLayout.layoutParams = params
+        container.addView(textInputLayout)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("设置 PIN 码")
+            .setMessage("设置备份 PIN 码（4-6 位数字），用于在无法使用指纹时解锁")
+            .setView(container)
+            .setPositiveButton("保存") { _, _ ->
+                val pin = input.text.toString()
+                if (pin.length in 4..6) {
+                    privacySettings.pinCode = pin
+                    Toast.makeText(this, "PIN 码已保存", Toast.LENGTH_SHORT).show()
+                    // 保存 PIN 后自动开启锁定（避免递归触发监听器）
+                    isSettingPin = true
+                    switchLock.isChecked = true
+                    isSettingPin = false
+                } else {
+                    Toast.makeText(this, "PIN 码必须是 4-6 位数字", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("取消") { _, _ ->
+                switchLock.isChecked = false
+            }
+            .show()
+    }
+
+    private fun showChangePinOption() {
+        if (!privacySettings.isPinSet()) return
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("应用锁已停用")
+            .setMessage("是否修改 PIN 码？")
+            .setPositiveButton("修改 PIN") { _, _ ->
+                showChangePinDialog()
+            }
+            .setNegativeButton("保留") { _, _ ->
+                // 不做修改
+            }
+            .show()
+    }
+
+    private fun showChangePinDialog() {
+        // 先验证旧 PIN
+        val oldInput = com.google.android.material.textfield.TextInputEditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            filters = arrayOf(android.text.InputFilter.LengthFilter(6))
+            hint = "4-6 位数字"
+        }
+
+        val oldTextInputLayout = com.google.android.material.textfield.TextInputLayout(this).apply {
+            layoutParams = android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            boxBackgroundMode = com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE
+            hint = "当前 PIN 码"
+            addView(oldInput)
+        }
+
+        val container = android.widget.FrameLayout(this)
+        val params = android.widget.FrameLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        val density = resources.displayMetrics.density
+        params.leftMargin = (20 * density).toInt()
+        params.rightMargin = (20 * density).toInt()
+        oldTextInputLayout.layoutParams = params
+        container.addView(oldTextInputLayout)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("修改 PIN 码")
+            .setMessage("请输入当前 PIN 码以验证身份")
+            .setView(container)
+            .setPositiveButton("验证") { _, _ ->
+                val oldPin = oldInput.text.toString()
+                if (privacySettings.validatePin(oldPin)) {
+                    // 旧 PIN 正确，输入新 PIN
+                    showNewPinDialog()
+                } else {
+                    Toast.makeText(this, "PIN 码错误", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("取消", null)
+            .show()
+    }
+
+    private fun showNewPinDialog() {
+        val newInput = com.google.android.material.textfield.TextInputEditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            filters = arrayOf(android.text.InputFilter.LengthFilter(6))
+            hint = "4-6 位数字"
+        }
+
+        val newTextInputLayout = com.google.android.material.textfield.TextInputLayout(this).apply {
+            layoutParams = android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            boxBackgroundMode = com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE
+            hint = "新 PIN 码"
+            addView(newInput)
+        }
+
+        val container = android.widget.FrameLayout(this)
+        val params = android.widget.FrameLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        val density = resources.displayMetrics.density
+        params.leftMargin = (20 * density).toInt()
+        params.rightMargin = (20 * density).toInt()
+        newTextInputLayout.layoutParams = params
+        container.addView(newTextInputLayout)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("设置新 PIN 码")
+            .setView(container)
+            .setPositiveButton("保存") { _, _ ->
+                val newPin = newInput.text.toString()
+                if (newPin.length in 4..6) {
+                    privacySettings.pinCode = newPin
+                    Toast.makeText(this, "PIN 码已更新", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "PIN 码必须是 4-6 位数字", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("取消", null)
+            .show()
     }
 }
 

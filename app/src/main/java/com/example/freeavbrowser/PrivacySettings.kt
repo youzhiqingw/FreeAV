@@ -8,14 +8,18 @@ class PrivacySettings(private val context: Context) {
     
     companion object {
         private const val KEY_LOCK_ENABLED = "lock_enabled"
+        private const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
         private const val KEY_SELECTED_ICON = "selected_icon"
         private const val KEY_LAST_UNLOCK_TIME = "last_unlock_time"
         private const val KEY_DARK_MODE = "dark_mode"
         private const val KEY_AD_BLOCKING_ENABLED = "ad_blocking_enabled"
         private const val KEY_UPDATE_INTERVAL = "update_interval"
-        private const val KEY_DOMAIN_MAPPING_ENABLED = "domain_mapping_enabled"
-        private const val KEY_MISSAV_SUFFIX = "missav_suffix"
         private const val KEY_PROXY_MODE = "proxy_mode"
+        private const val KEY_EASYLIST_ENABLED = "easylist_enabled"
+        private const val KEY_CLOUDFLARE_BYPASS = "cloudflare_bypass_enabled"
+        private const val KEY_CF_COOKIES = "cloudflare_cookies_json"
+        private const val KEY_SCREENSHOT_BLOCK = "screenshot_block_enabled"
+        private const val KEY_PRIVACY_MODE = "privacy_mode_enabled"
 
         const val ICON_DEFAULT = "default"
         const val ICON_CALCULATOR = "calculator"
@@ -29,6 +33,10 @@ class PrivacySettings(private val context: Context) {
         get() = prefs.getBoolean(KEY_LOCK_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_LOCK_ENABLED, value).apply()
     
+    var isBiometricEnabled: Boolean
+        get() = prefs.getBoolean(KEY_BIOMETRIC_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_BIOMETRIC_ENABLED, value).apply()
+    
     var selectedIcon: String
         get() = prefs.getString(KEY_SELECTED_ICON, ICON_DEFAULT) ?: ICON_DEFAULT
         set(value) = prefs.edit().putString(KEY_SELECTED_ICON, value).apply()
@@ -41,9 +49,9 @@ class PrivacySettings(private val context: Context) {
         if (!isLockEnabled) return false
         
         val currentTime = System.currentTimeMillis()
-        val oneHourMillis = 60 * 60 * 1000L // 1 hour in milliseconds
+        val twoHoursMillis = 2 * 60 * 60 * 1000L // 2 hours in milliseconds
         
-        return (currentTime - lastUnlockTime) > oneHourMillis
+        return (currentTime - lastUnlockTime) > twoHoursMillis
     }
     
     fun updateUnlockTime() {
@@ -68,17 +76,13 @@ class PrivacySettings(private val context: Context) {
         return System.currentTimeMillis() - lastUpdateTime > intervalMs
     }
 
-    var isDomainMappingEnabled: Boolean
-        get() = prefs.getBoolean(KEY_DOMAIN_MAPPING_ENABLED, false)
-        set(value) = prefs.edit().putBoolean(KEY_DOMAIN_MAPPING_ENABLED, value).apply()
-
-    var missavSuffix: String
-        get() = prefs.getString(KEY_MISSAV_SUFFIX, "ws") ?: "ws"
-        set(value) = prefs.edit().putString(KEY_MISSAV_SUFFIX, value).apply()
-
     var proxyMode: String
         get() = prefs.getString(KEY_PROXY_MODE, "none") ?: "none"
         set(value) = prefs.edit().putString(KEY_PROXY_MODE, value).apply()
+
+    var isEasyListEnabled: Boolean
+        get() = prefs.getBoolean(KEY_EASYLIST_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_EASYLIST_ENABLED, value).apply()
 
     // PIN Code Support
     var pinCode: String?
@@ -110,4 +114,35 @@ class PrivacySettings(private val context: Context) {
             ICON_FILE -> "File Manager"
             else -> "JAV Browser"  // Default
         }
+
+    var isCloudflareBypassEnabled: Boolean
+        get() = prefs.getBoolean(KEY_CLOUDFLARE_BYPASS, false)
+        set(value) = prefs.edit().putBoolean(KEY_CLOUDFLARE_BYPASS, value).apply()
+
+    fun saveCloudflareCookie(host: String, value: String) {
+        val map = getCloudflareCookiesMap().toMutableMap()
+        map[host] = value
+        prefs.edit().putString(KEY_CF_COOKIES, org.json.JSONObject(map as Map<*, *>).toString()).apply()
+    }
+
+    fun getCloudflareCookie(host: String): String? {
+        return getCloudflareCookiesMap()[host]
+    }
+
+    private fun getCloudflareCookiesMap(): Map<String, String> {
+        val json = prefs.getString(KEY_CF_COOKIES, "{}") ?: "{}"
+        return try {
+            org.json.JSONObject(json).let { obj ->
+                obj.keys().asSequence().associateWith { obj.getString(it) }
+            }
+        } catch (e: Exception) { emptyMap() }
+    }
+
+    var isScreenshotBlockEnabled: Boolean
+        get() = prefs.getBoolean(KEY_SCREENSHOT_BLOCK, true)
+        set(value) = prefs.edit().putBoolean(KEY_SCREENSHOT_BLOCK, value).apply()
+
+    var isPrivacyModeEnabled: Boolean
+        get() = prefs.getBoolean(KEY_PRIVACY_MODE, false)
+        set(value) = prefs.edit().putBoolean(KEY_PRIVACY_MODE, value).apply()
 }

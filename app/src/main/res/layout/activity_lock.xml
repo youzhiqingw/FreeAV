@@ -8,7 +8,7 @@
     <!-- Content Container -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
         android:padding="@dimen/spacing_xl"
@@ -16,23 +16,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- App Icon with Background -->
-        <FrameLayout
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginBottom="@dimen/spacing_lg"
-            android:background="@drawable/bg_lock_icon">
-
-            <ImageView
-                android:id="@+id/iv_lock_icon"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_lock"
-                android:contentDescription="@string/app_locked"
-                app:tint="?attr/colorOnPrimaryContainer" />
-        </FrameLayout>
 
         <!-- Title -->
         <TextView
@@ -69,162 +52,153 @@
         <!-- PIN Keypad -->
         <GridLayout
             android:id="@+id/grid_pin"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/spacing_lg"
             android:columnCount="3"
             android:rowCount="4"
+            android:useDefaultMargins="false"
             android:alignmentMode="alignBounds"
             android:columnOrderPreserved="false"
-            android:useDefaultMargins="true">
+            android:padding="@dimen/spacing_xs">
 
             <!-- Row 1: 1, 2, 3 -->
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="1"
                 android:tag="1"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="1" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="2"
                 android:tag="2"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="2" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="3"
                 android:tag="3"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="3" />
 
             <!-- Row 2: 4, 5, 6 -->
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="4"
                 android:tag="4"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="4" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="5"
                 android:tag="5"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="5" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="6"
                 android:tag="6"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="6" />
 
             <!-- Row 3: 7, 8, 9 -->
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="7"
                 android:tag="7"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="7" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="8"
                 android:tag="8"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="8" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="9"
                 android:tag="9"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="9" />
 
             <!-- Row 4: Delete, 0, Enter -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_delete"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
-                android:contentDescription="@string/delete"
-                app:icon="@drawable/ic_backspace"
-                app:iconSize="32dp"
-                app:cornerRadius="40dp"
-                app:iconTint="?attr/colorOnSecondaryContainer" />
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
+                android:text="⌫"
+                android:textSize="20sp"
+                android:contentDescription="@string/delete" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
                 android:text="0"
                 android:tag="0"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="40dp"
                 android:contentDescription="0" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_enter"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="8dp"
-                android:contentDescription="@string/unlock"
-                app:icon="@drawable/ic_check"
-                app:iconSize="32dp"
-                app:cornerRadius="40dp"
-                app:iconTint="?attr/colorOnSecondaryContainer" />
+                style="@style/PinButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="@dimen/pin_grid_spacing"
+                android:text="✓"
+                android:textSize="20sp"
+                android:contentDescription="@string/unlock" />
         </GridLayout>
 
         <!-- Biometric Button -->

@@ -11,10 +11,8 @@
 /local.properties
 *.md
 !README.md
-!docs/**
-!diagram/**
-!DOCS_INDEX.md
 .vscode/
 /freeav/
 /.claude/
+/scripts/
 /.playwright-mcp/

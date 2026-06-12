@@ -12,15 +12,11 @@
 
 ## 🌟 概述
 
-**JAV Browser** 是一款专注于隐私保护的 Android 浏览器，支持 [MISSAV](https://missav.ws)、[JABLE.TV](https://jable.tv)、[ROU.VIDEO](https://rou.video)、[AVJOY](https://avjoy.me) 等 JAV 站点及 15+ Hentai 动画站点。
-
-主要特性包括广告拦截、视频检测与外部播放器调用、可视化书签管理、生物识别锁和图标伪装等隐私功能。
+一款专注于隐私保护的 Android 浏览器，主要特性包括广告拦截、视频检测与外部播放器调用、可视化书签管理、指纹锁和图标伪装等隐私功能。
 
 ---
 
 ## ✨ 核心功能
-
-### 🛡️ 双引擎广告拦截系统
 
 **JSON 规则引擎**（~100 条规则）
 
@@ -59,14 +55,14 @@
 | 广告过滤     | ✅ 引擎拦截              | ❌ 需要插件   |
 | 视频检测     | ✅ 自动检测 + 外部播放器 | ❌ 不支持     |
 | 视频书签     | ✅ 缩略图 + 搜索         | ❌ 仅基础书签 |
-| 应用锁       | ✅ 生物识别              | ❌ 不可用     |
+| 应用锁       | ✅ 指纹              | ❌ 不可用     |
 | 图标伪装     | ✅ 4 种可选图标          | ❌ 不可能     |
 | 最近应用隐私 | ✅ 空白界面              | ❌ 显示内容   |
 | 截图拦截     | ✅ FLAG_SECURE           | ❌ 无此功能   |
 
-**生物识别锁**
+**指纹锁**
 
-- 支持指纹/面部识别（BiometricPrompt API）
+- 支持指纹/识别（BiometricPrompt API）
 - 冷启动时强制身份验证
 
 **图标伪装**
@@ -102,7 +98,7 @@
 - **WebView** - 页面渲染，JavaScript 注入，请求拦截
 - **NanoHTTPD** - 本地 HTTP 代理服务器（动态端口分配）
 - **SharedPreferences** - 书签、设置、规则存储
-- **BiometricPrompt** - 生物识别认证（androidx.biometric:1.1.0）
+- **BiometricPrompt** - 指纹认证（androidx.biometric:1.1.0）
 - **Glide 4.16.0** - 异步图片加载
 - **Material Components 1.12.0** - Material Design 3 UI
 
@@ -131,7 +127,7 @@
 
 - Android 7.0+（API 24）
 - 2GB+ RAM（推荐）
-- 生物识别硬件（可选，用于应用锁）
+- 指纹硬件（可选，用于应用锁）
 
 ### 安装步骤
 
@@ -152,50 +148,6 @@
 | 隐私模式   | 设置 → 启用应用锁 → 切换图标为"计算器"             |
 | 备份书签   | 设置 → 书签管理 → 导出 JSON                        |
 | 更新规则   | 设置 → 更新规则 → 选择云端/Adblock Plus/全部源     |
-
----
-
-## 🌐 支持的站点
-
-### JAV 视频站点
-
-以下站点中，**MissAV、Jable、Rou.Video、AvJoy** 已实现视频提取功能：
-
-| 站点                | 链接                        | 说明                                |
-| ------------------- | --------------------------- | ----------------------------------- |
-| **MissAV**    | https://missav.ws/          | 大型 JAV 视频库（已支持视频提取）   |
-| **Jable**     | https://jable.tv/           | 优质 JAV 流媒体（已支持视频提取）   |
-| **Rou.Video** | https://rouva3.xyz/home     | JAV 资源平台（已支持视频提取）      |
-| **AvJoy**     | https://avjoy.me/           | 日系 AV 观看站点（已支持视频提取）  |
-| SupJAV              | https://supjav.com/         | 大型免费 JAV 流媒体，更新迅速       |
-| JavGuru             | https://jav.guru/           | 高质量 JAV 免费观看站，支持番号搜索 |
-| JavGG               | https://javgg.net/          | 免费 JAV 流媒体，库量大，界面简洁   |
-| Njav                | https://njav.tv/            | 免费日本 AV 资源站，更新快          |
-| WatchJAVOnline      | https://watchjavonline.com/ | 免费 JAV 流媒体，无需注册           |
-
-### Hentai 动画站点
-
-以下所有站点均已实现视频提取功能：
-
-| 站点           | 链接                       | 说明                                       |
-| -------------- | -------------------------- | ------------------------------------------ |
-| HentaiHaven    | https://hentaihaven.xxx    | 经典 Hentai 流媒体，高清无码，支持英文字幕 |
-| Hanime         | https://hanime.tv          | 顶级 Hentai 流媒体，资源全，支持多语言字幕 |
-| WatchHentai    | https://watchhentai.net    | Hentai 视频免费观看站，支持字幕在线播放    |
-| Oppai          | https://oppai.stream       | 专注高清 Hentai，无码版本多                |
-| MuchoHentai    | https://muchohentai.com    | Hentai 全集免费流媒体，支持字幕/配音       |
-| HentaiMama     | https://hentaimama.io      | 中英字幕 Hentai 站，内容更新活跃           |
-| HentaiFreak    | https://hentaifreak.org    | HD/无码日本动画 Hentai，片源丰富           |
-| Xanimeporn     | https://xanimeporn.com     | 免费动漫 Hentai 视频资源站                 |
-| KissHentai     | https://kisshentai.net     | Hentai 动画在线观看站，支持字幕            |
-| HentaiCity     | https://hentaicity.com     | 免费高清日本 Hentai 视频                   |
-| HentaiUniverse | https://hentaiuniverse.net | HD 日本 Hentai 动画，免费浏览观看          |
-| AnimeIDHentai  | https://animeidhentai.com  | 动漫风格 Hentai 免费流媒体                 |
-| Ohentai        | https://ohentai.org        | 免费 Hentai 动画站，经典与新作并存         |
-| HentaiDude     | https://hentaidude.com     | 分类丰富的 Hentai 动画，移动端友好         |
-| Rule34Video    | https://rule34video.com    | Rule34/Hentai 视频站，社区驱动内容         |
-
----
 
 ## 🔐 隐私承诺
 

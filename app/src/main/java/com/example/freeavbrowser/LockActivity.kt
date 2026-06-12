@@ -29,11 +29,11 @@ class LockActivity : AppCompatActivity() {
         
         // Set activity title and task description based on privacy mode
         title = privacySettings.currentAppLabel
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             setTaskDescription(
-                android.app.ActivityManager.TaskDescription(
-                    privacySettings.currentAppLabel
-                )
+                android.app.ActivityManager.TaskDescription.Builder()
+                    .setLabel(privacySettings.currentAppLabel)
+                    .build()
             )
         } else {
             @Suppress("DEPRECATION")
@@ -51,10 +51,6 @@ class LockActivity : AppCompatActivity() {
         biometricHelper = BiometricHelper(this, privacySettings)
         tvPinDisplay = findViewById(R.id.tv_pin_display)
 
-        // Set icon based on privacy mode
-        val iconView = findViewById<android.widget.ImageView>(R.id.iv_lock_icon)
-        iconView.setImageResource(privacySettings.currentIconResourceId)
-
         setupPinPad()
         setupBiometricButton()
 
@@ -65,8 +61,8 @@ class LockActivity : AppCompatActivity() {
             }
         })
 
-        // Auto-start biometric if available
-        if (biometricHelper.canAuthenticate()) {
+        // Auto-start biometric only if user enabled it and device supports it
+        if (privacySettings.isBiometricEnabled && biometricHelper.canAuthenticate()) {
             startBiometricAuth()
         }
 
@@ -153,9 +149,14 @@ class LockActivity : AppCompatActivity() {
 
     private fun setupBiometricButton() {
         val btnBiometric = findViewById<Button>(R.id.btn_use_biometric)
-        btnBiometric.setScaleAnimation()
-        btnBiometric.setOnClickListener {
-            startBiometricAuth()
+        if (privacySettings.isBiometricEnabled && biometricHelper.canAuthenticate()) {
+            btnBiometric.visibility = View.VISIBLE
+            btnBiometric.setScaleAnimation()
+            btnBiometric.setOnClickListener {
+                startBiometricAuth()
+            }
+        } else {
+            btnBiometric.visibility = View.GONE
         }
     }
 

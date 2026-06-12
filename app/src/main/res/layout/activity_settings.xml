@@ -28,6 +28,7 @@
 
     <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
@@ -40,8 +41,9 @@
             android:padding="@dimen/spacing_md"
             android:paddingBottom="100dp">
 
-            <!-- Ad Blocking Section -->
+            <!-- ==================== Ad Blocking Section ==================== -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_ad_filtering"
                 style="@style/Widget.Material3.CardView.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -54,78 +56,21 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Section Header -->
-                    <TextView
+                    <com.example.freeavbrowser.SettingsGroupTitle
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="20dp"
-                        android:paddingTop="20dp"
-                        android:paddingEnd="20dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/ad_filter_rules"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                        android:textColor="?attr/colorPrimary"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
+                        app:groupTitle="@string/ad_filter_rules" />
 
-                    <!-- Ad Blocking Toggle -->
-                    <LinearLayout
+                    <!-- Ad Blocking Switch -->
+                    <com.example.freeavbrowser.SettingsSwitchRow
+                        android:id="@+id/switch_ad_blocking"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground">
+                        app:settingsIcon="@drawable/ic_block"
+                        app:settingsTitle="@string/ad_blocking"
+                        app:settingsSubtitle="拦截网页广告"
+                        app:settingsChecked="true" />
 
-                        <!-- Leading Icon -->
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_block"
-                                android:contentDescription="@string/ad_filter_rules"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/ad_blocking"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:id="@+id/tv_blocked_count"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/blocked_count"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switch_ad_blocking"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true" />
-                    </LinearLayout>
-
-                    <!-- Divider -->
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -134,68 +79,14 @@
                         android:background="?attr/colorOutlineVariant"
                         android:alpha="0.5" />
 
-                    <!-- Ad Rules Item (Expandable) -->
-                    <LinearLayout
+                    <!-- Ad Rules (Expandable) -->
+                    <com.example.freeavbrowser.SettingsNavRow
                         android:id="@+id/item_ad_rules"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <!-- Leading Icon -->
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_list"
-                                android:contentDescription="@string/ad_filter_rules"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/ad_filter_rules"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:id="@+id/tv_rules_status"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/rules_loading"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <ImageView
-                            android:id="@+id/icon_arrow_rules"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_arrow_right"
-                            android:contentDescription="@string/expand"
-                            app:tint="?attr/colorOnSurfaceVariant"
-                            android:alpha="0.7" />
-                    </LinearLayout>
+                        app:settingsIcon="@drawable/ic_list"
+                        app:settingsTitle="@string/ad_filter_rules"
+                        app:settingsSubtitle="@string/rules_loading" />
 
                     <!-- Expandable Rules Panel -->
                     <LinearLayout
@@ -209,7 +100,6 @@
                         android:visibility="gone"
                         android:background="?attr/colorSurfaceContainerLow">
 
-                        <!-- Rule URL Input -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -226,7 +116,6 @@
                                 android:maxLines="1" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <!-- Add Rule Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_add_rule"
                             style="@style/Widget.Material3.Button.TonalButton"
@@ -236,7 +125,6 @@
                             android:text="@string/add_rule"
                             app:icon="@drawable/ic_add" />
 
-                        <!-- Rules List (placeholder for RecyclerView) -->
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -251,7 +139,6 @@
                             app:drawableTint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
 
-                    <!-- Divider -->
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -260,72 +147,49 @@
                         android:background="?attr/colorOutlineVariant"
                         android:alpha="0.5" />
 
-                    <!-- Update Rules Item -->
-                    <LinearLayout
+                    <!-- Update Rules -->
+                    <com.example.freeavbrowser.SettingsNavRow
                         android:id="@+id/item_update_rules"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
+                        app:settingsIcon="@drawable/ic_download"
+                        app:settingsTitle="@string/update_rules"
+                        app:settingsSubtitle="@string/update_rules_subtitle" />
 
-                        <!-- Leading Icon -->
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:alpha="0.5" />
 
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_download"
-                                android:contentDescription="@string/update_from_cloud"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
+                    <!-- EasyList Toggle -->
+                    <com.example.freeavbrowser.SettingsSwitchRow
+                        android:id="@+id/switch_easylist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:settingsIcon="@drawable/ic_block"
+                        app:settingsTitle="启用 EasyList 规则"
+                        app:settingsSubtitle="从云端下载补充规则（12万+ 规则）" />
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/update_rules"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:id="@+id/tv_update_rules_subtitle"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/update_rules_subtitle"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_arrow_right"
-                            android:contentDescription="@string/expand"
-                            app:tint="?attr/colorOnSurfaceVariant"
-                            android:alpha="0.7" />
-                    </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_download_easylist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="16dp"
+                        android:text="下载 EasyList 规则"
+                        android:enabled="false"
+                        app:icon="@drawable/ic_download"
+                        style="@style/Widget.Material3.Button.TonalButton" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Privacy & Security Section -->
+            <!-- ==================== Privacy & Security Section ==================== -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_privacy"
                 style="@style/Widget.Material3.CardView.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -338,76 +202,20 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Section Header -->
-                    <TextView
+                    <com.example.freeavbrowser.SettingsGroupTitle
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="20dp"
-                        android:paddingTop="20dp"
-                        android:paddingEnd="20dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/privacy_security"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                        android:textColor="?attr/colorPrimary"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
+                        app:groupTitle="@string/privacy_security" />
 
-                    <!-- App Lock Item -->
-                    <LinearLayout
+                    <com.example.freeavbrowser.SettingsSwitchRow
+                        android:id="@+id/switch_lock"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground">
+                        app:settingsIcon="@drawable/ic_lock"
+                        app:settingsTitle="@string/app_lock"
+                        app:settingsSubtitle="@string/app_lock_subtitle"
+                        app:settingsChecked="true" />
 
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_lock"
-                                android:contentDescription="@string/app_lock"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/app_lock"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/app_lock_subtitle"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switch_lock"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true" />
-                    </LinearLayout>
-
-                    <!-- Divider -->
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -416,61 +224,14 @@
                         android:background="?attr/colorOutlineVariant"
                         android:alpha="0.5" />
 
-                    <!-- Screenshot Block Item -->
-                    <LinearLayout
+                    <com.example.freeavbrowser.SettingsSwitchRow
+                        android:id="@+id/switch_screenshot_block"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground">
+                        app:settingsIcon="@drawable/ic_shield"
+                        app:settingsTitle="@string/screenshot_block"
+                        app:settingsSubtitle="启用后禁止截屏和录屏" />
 
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_shield"
-                                android:contentDescription="@string/screenshot_block"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/screenshot_block"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/flag_secure_status"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switch_screenshot_block"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <!-- Divider -->
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -479,62 +240,15 @@
                         android:background="?attr/colorOutlineVariant"
                         android:alpha="0.5" />
 
-                    <!-- Biometric Item -->
-                    <LinearLayout
+                    <com.example.freeavbrowser.SettingsSwitchRow
+                        android:id="@+id/switch_biometric"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground">
+                        app:settingsIcon="@drawable/ic_fingerprint"
+                        app:settingsTitle="@string/enable_biometric"
+                        app:settingsSubtitle="使用指纹识别解锁"
+                        app:settingsChecked="true" />
 
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_fingerprint"
-                                android:contentDescription="@string/enable_biometric"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/enable_biometric"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/biometric_subtitle"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switch_biometric"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true" />
-                    </LinearLayout>
-
-                    <!-- Divider -->
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -543,64 +257,35 @@
                         android:background="?attr/colorOutlineVariant"
                         android:alpha="0.5" />
 
-                    <!-- Privacy Mode Item -->
-                    <LinearLayout
+                    <com.example.freeavbrowser.SettingsSwitchRow
+                        android:id="@+id/switch_cloudflare_bypass"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground">
+                        app:settingsIcon="@drawable/ic_shield"
+                        app:settingsTitle="Cloudflare 绕过"
+                        app:settingsSubtitle="自动提取验证 Cookie" />
 
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="68dp"
+                        android:layout_marginEnd="20dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:alpha="0.5" />
 
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_privacy"
-                                android:contentDescription="@string/privacy_mode"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/privacy_mode"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/privacy_mode_subtitle"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switch_privacy_mode"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
+                    <com.example.freeavbrowser.SettingsSwitchRow
+                        android:id="@+id/switch_privacy_mode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:settingsIcon="@drawable/ic_privacy"
+                        app:settingsTitle="@string/privacy_mode"
+                        app:settingsSubtitle="@string/privacy_mode_subtitle" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- App Disguise Section -->
+            <!-- ==================== App Disguise Section ==================== -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_app_icon"
                 style="@style/Widget.Material3.CardView.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -613,21 +298,11 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Section Header -->
-                    <TextView
+                    <com.example.freeavbrowser.SettingsGroupTitle
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="20dp"
-                        android:paddingTop="20dp"
-                        android:paddingEnd="20dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/app_icon"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                        android:textColor="?attr/colorPrimary"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
+                        app:groupTitle="@string/app_icon" />
 
-                    <!-- Section Description -->
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -639,7 +314,7 @@
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:lineSpacingMultiplier="1.5" />
 
-                    <!-- Icon Selector Grid -->
+                    <!-- Icon Selector Grid (keep as-is) -->
                     <GridLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -652,7 +327,6 @@
                         android:columnOrderPreserved="false"
                         android:useDefaultMargins="true">
 
-                        <!-- Default Icon -->
                         <FrameLayout
                             android:id="@+id/icon_default"
                             android:layout_width="0dp"
@@ -662,32 +336,12 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:padding="12dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:gravity="center">
-
-                                <ImageView
-                                    android:layout_width="28dp"
-                                    android:layout_height="28dp"
-                                    android:src="@drawable/ic_default"
-                                    app:tint="?attr/colorOnSurfaceVariant" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="@string/icon_default"
-                                    android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:textStyle="bold"
-                                    android:letterSpacing="0.05" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center">
+                                <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_default" app:tint="?attr/colorOnSurfaceVariant" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/icon_default" android:textAppearance="@style/TextAppearance.Material3.LabelSmall" android:textColor="?attr/colorOnSurfaceVariant" android:textStyle="bold" android:letterSpacing="0.05" />
                             </LinearLayout>
                         </FrameLayout>
 
-                        <!-- Calculator Icon -->
                         <FrameLayout
                             android:id="@+id/icon_calculator"
                             android:layout_width="0dp"
@@ -697,32 +351,12 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:padding="12dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:gravity="center">
-
-                                <ImageView
-                                    android:layout_width="28dp"
-                                    android:layout_height="28dp"
-                                    android:src="@drawable/ic_calculator"
-                                    app:tint="?attr/colorOnSurfaceVariant" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="@string/icon_calculator"
-                                    android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:textStyle="bold"
-                                    android:letterSpacing="0.05" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center">
+                                <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_calculator" app:tint="?attr/colorOnSurfaceVariant" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/icon_calculator" android:textAppearance="@style/TextAppearance.Material3.LabelSmall" android:textColor="?attr/colorOnSurfaceVariant" android:textStyle="bold" android:letterSpacing="0.05" />
                             </LinearLayout>
                         </FrameLayout>
 
-                        <!-- Notes Icon -->
                         <FrameLayout
                             android:id="@+id/icon_notes"
                             android:layout_width="0dp"
@@ -732,32 +366,12 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:padding="12dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:gravity="center">
-
-                                <ImageView
-                                    android:layout_width="28dp"
-                                    android:layout_height="28dp"
-                                    android:src="@drawable/ic_notes"
-                                    app:tint="?attr/colorOnSurfaceVariant" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="@string/icon_notes"
-                                    android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:textStyle="bold"
-                                    android:letterSpacing="0.05" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center">
+                                <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_notes" app:tint="?attr/colorOnSurfaceVariant" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/icon_notes" android:textAppearance="@style/TextAppearance.Material3.LabelSmall" android:textColor="?attr/colorOnSurfaceVariant" android:textStyle="bold" android:letterSpacing="0.05" />
                             </LinearLayout>
                         </FrameLayout>
 
-                        <!-- File Icon -->
                         <FrameLayout
                             android:id="@+id/icon_file"
                             android:layout_width="0dp"
@@ -767,36 +381,18 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:padding="12dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:gravity="center">
-
-                                <ImageView
-                                    android:layout_width="28dp"
-                                    android:layout_height="28dp"
-                                    android:src="@drawable/ic_file"
-                                    app:tint="?attr/colorOnSurfaceVariant" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="@string/icon_file"
-                                    android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:textStyle="bold"
-                                    android:letterSpacing="0.05" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center">
+                                <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_file" app:tint="?attr/colorOnSurfaceVariant" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/icon_file" android:textAppearance="@style/TextAppearance.Material3.LabelSmall" android:textColor="?attr/colorOnSurfaceVariant" android:textStyle="bold" android:letterSpacing="0.05" />
                             </LinearLayout>
                         </FrameLayout>
                     </GridLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Display Section -->
+            <!-- ==================== Display Section ==================== -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_display"
                 style="@style/Widget.Material3.CardView.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -809,21 +405,12 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Section Header -->
-                    <TextView
+                    <com.example.freeavbrowser.SettingsGroupTitle
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="20dp"
-                        android:paddingTop="20dp"
-                        android:paddingEnd="20dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/display"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                        android:textColor="?attr/colorPrimary"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
+                        app:groupTitle="@string/display" />
 
-                    <!-- Dark Mode Item -->
+                    <!-- Dark Mode (special: toggle group, keep as-is) -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -832,7 +419,6 @@
                         android:paddingEnd="20dp"
                         android:paddingBottom="14dp">
 
-                        <!-- Title Row -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -844,13 +430,11 @@
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:background="@drawable/bg_icon_circle">
-
                                 <ImageView
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_dark_mode"
-                                    android:contentDescription="@string/dark_mode"
                                     app:tint="?attr/colorOnSurfaceVariant" />
                             </FrameLayout>
 
@@ -879,7 +463,6 @@
                             </LinearLayout>
                         </LinearLayout>
 
-                        <!-- Segmented Button Group -->
                         <com.google.android.material.button.MaterialButtonToggleGroup
                             android:id="@+id/toggle_dark_mode"
                             android:layout_width="match_parent"
@@ -920,8 +503,9 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Network Settings Section -->
+            <!-- ==================== Network Section ==================== -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_network"
                 style="@style/Widget.Material3.CardView.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -934,238 +518,22 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Section Header -->
-                    <TextView
+                    <com.example.freeavbrowser.SettingsGroupTitle
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="20dp"
-                        android:paddingTop="20dp"
-                        android:paddingEnd="20dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/network_settings"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                        android:textColor="?attr/colorPrimary"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
+                        app:groupTitle="@string/network_settings" />
 
-                    <!-- Proxy Mode Item -->
-                    <LinearLayout
+                    <com.example.freeavbrowser.SettingsNavRow
                         android:id="@+id/item_proxy_mode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_network"
-                                android:contentDescription="@string/proxy_mode"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/proxy_mode"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:id="@+id/tv_proxy_mode_label"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/proxy_none"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <ImageView
-                            android:id="@+id/icon_arrow_proxy"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_arrow_right"
-                            android:contentDescription="@string/expand"
-                            app:tint="?attr/colorOnSurfaceVariant"
-                            android:alpha="0.7" />
-                    </LinearLayout>
+                        app:settingsIcon="@drawable/ic_network"
+                        app:settingsTitle="@string/proxy_mode"
+                        app:settingsSubtitle="@string/proxy_none" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Domain Mapping Section -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.Material3.CardView.Elevated"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_sm"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="@dimen/elevation_sm">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- Section Header -->
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="20dp"
-                        android:paddingTop="20dp"
-                        android:paddingEnd="20dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/domain_mapping"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                        android:textColor="?attr/colorPrimary"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
-
-                    <!-- Domain Mapping Toggle -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground">
-
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_domain"
-                                android:contentDescription="@string/domain_mapping"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/domain_mapping"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/domain_mapping_subtitle"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switch_domain_mapping"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <!-- Divider -->
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginStart="68dp"
-                        android:layout_marginEnd="20dp"
-                        android:background="?attr/colorOutlineVariant"
-                        android:alpha="0.5" />
-
-                    <!-- Update Mapping Item -->
-                    <LinearLayout
-                        android:id="@+id/item_update_mapping"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:minHeight="64dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_circle">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_cloud_download"
-                                android:contentDescription="@string/update_mapping"
-                                app:tint="?attr/colorOnSurfaceVariant" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/update_mapping"
-                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/update_mapping_subtitle"
-                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_arrow_right"
-                            android:contentDescription="@string/expand"
-                            app:tint="?attr/colorOnSurfaceVariant"
-                            android:alpha="0.7" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Version Info -->
+            <!-- ==================== Version Info ==================== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -1174,13 +542,11 @@
                 android:paddingTop="24dp"
                 android:paddingBottom="32dp">
 
-                <!-- App Icon -->
                 <FrameLayout
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginBottom="12dp"
                     android:background="@drawable/bg_version_icon">
-
                     <ImageView
                         android:layout_width="28dp"
                         android:layout_height="28dp"
@@ -1189,7 +555,6 @@
                         app:tint="?attr/colorOnPrimaryContainer" />
                 </FrameLayout>
 
-                <!-- App Name -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -1199,8 +564,8 @@
                     android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold" />
 
-                <!-- Version Text -->
                 <TextView
+                    android:id="@+id/tv_version"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/version_info"
